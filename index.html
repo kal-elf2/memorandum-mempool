@@ -126,37 +126,52 @@ body {
 }
 
 /* ============================================================
-   DEVICE FRAME (shared shell)
+   DEVICE FRAME — uses the real device.png as background.
+   The PNG is overlaid on top; #screen-area sits inside the
+   transparent screen cutout of the image.
+
+   TUNING: adjust --screen-top/left/width/height to align
+   content with the transparent area of the device PNG.
+   The PNG dimensions are ~420×580px (portrait).
+   Screen cutout starts roughly 3% from sides, 9% from top,
+   6% from bottom. Tweak these % values to pixel-perfect fit.
    ============================================================ */
 #device-frame {
   width: 100%;
   max-width: var(--card-max-width);
-  background: var(--device-outer);
-  border: 4px solid var(--device-frame);
-  border-radius: 22px;
-  padding: 10px 10px 16px;
-  box-shadow:
-    0 0 0 2px #400808,
-    0 0 0 5px #0A0A14,
-    0 12px 50px rgba(0,0,0,.85);
+  position: relative;
+  /* No background/border — the PNG supplies the chrome */
+  filter: drop-shadow(0 12px 40px rgba(0,0,0,.8));
 }
-#device-frame::before {
-  content: '';
+
+/* The actual device image — sits on top of everything via z-index,
+   pointer-events: none so clicks pass through to the screen */
+#device-frame > #device-img {
   display: block;
-  width: 44px; height: 7px;
-  background: #3A1010;
-  border-radius: 4px;
-  margin: 0 auto 10px;
-  box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
+  width: 100%;
+  height: auto;
+  position: relative;
+  z-index: 10;
+  pointer-events: none;
+  /* prevents image dragging */
+  user-select: none;
+  -webkit-user-drag: none;
 }
-#device-frame::after {
-  content: '● ●';
-  display: block;
-  text-align: center;
-  font-size: 0.45rem;
-  color: #4A1010;
-  margin-top: 8px;
-  letter-spacing: 6px;
+
+/* Screen area — absolutely positioned in the transparent cutout.
+   Percentages measured from the device PNG.
+   ADJUST THESE if content doesn't align with the screen hole:  */
+#screen-area {
+  position: absolute;
+  top:    9%;    /* ← nudge up/down  */
+  left:   3.5%;  /* ← nudge left     */
+  width:  93%;   /* ← wider/narrower */
+  bottom: 6%;    /* ← nudge bottom   */
+  z-index: 5;
+  overflow: hidden;
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ============================================================
@@ -169,10 +184,10 @@ body {
    ══ SCREEN A: GRID ══
    ============================================================ */
 #screen-grid {
-  border-radius: 14px;
+  border-radius: 4px;
   overflow: hidden;
-  border: 3px solid #3A3A50;
   background: var(--grid-bg);
+  flex: 1;
 }
 
 /* ── Grid Header ──────────────────────────────────────────── */
@@ -450,10 +465,10 @@ body {
    ══ SCREEN B: DETAIL ══
    ============================================================ */
 #screen-detail {
-  border-radius: 14px;
+  border-radius: 4px;
   overflow: hidden;
-  border: 3px solid #3A3A50;
   background: var(--card-bg);
+  flex: 1;
 }
 
 /* ── Detail Header ───────────────────────────────────────── */
@@ -715,7 +730,13 @@ body {
 </head>
 <body>
 
-<div id="device-frame" style="position:relative">
+<div id="device-frame">
+
+  <!-- Real device PNG — overlaid over the screen content -->
+  <img id="device-img" src="assets/ui/device.png" alt="Device frame">
+
+  <!-- Screen area — sits inside the transparent cutout of the device PNG -->
+  <div id="screen-area">
 
   <!-- Loading overlay — hidden after data loads -->
   <div id="loading-overlay">
@@ -840,6 +861,7 @@ body {
 
   </div><!-- /#screen-detail -->
 
+  </div><!-- /#screen-area -->
 </div><!-- /#device-frame -->
 
 <script>
@@ -852,10 +874,21 @@ body {
    Value = path relative to index.html, e.g. "001 - Normal.png"
    Unlisted IDs show a type-colored placeholder automatically.
    ============================================================ */
+/* IMAGE_MAP
+   Normal sprites: "assets/memories/001.png"
+   Shiny  sprites: "assets/memories/001s.png"
+   Add entries here as art files land in assets/memories/.
+   The code auto-tries IMAGE_MAP[id] then falls back to a
+   type-coloured placeholder — no crash on missing files.    */
 const IMAGE_MAP = {
-  "001": "001 - Normal.png",
-  "002": "002 - Normal.png",
-  "003": "003 - Normal.png"
+  "001": "assets/memories/001.png",
+  "002": "assets/memories/002.png",
+  "003": "assets/memories/003.png"
+};
+
+/* SHINY_MAP — same pattern, populated as shiny art arrives */
+const SHINY_MAP = {
+  // "001": "assets/memories/001s.png",
 };
 
 /* ============================================================
