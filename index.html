@@ -1,0 +1,1556 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Memorandum — Mempool</title>
+
+<!--
+  ╔══════════════════════════════════════════════════════════════╗
+  ║  MEMORANDUM — MEMPOOL PROTOTYPE  (single-file HTML)         ║
+  ╠══════════════════════════════════════════════════════════════╣
+  ║                                                              ║
+  ║  TWO SCREENS:                                               ║
+  ║    Screen 1 (Grid) — shows all 144 Memories in a 4-col grid ║
+  ║    Screen 2 (Detail) — full detail card for one Memory      ║
+  ║                                                              ║
+  ║  IMAGE PATHS ─────────────────────────────────────────────  ║
+  ║    Find IMAGE_MAP in <script>. Add entries like:            ║
+  ║      "001": "001 - Normal.png"                              ║
+  ║    Used in both the grid thumbnail and detail hero image.   ║
+  ║                                                              ║
+  ║  ADD FULL DETAIL DATA ────────────────────────────────────  ║
+  ║    Find MEMORIES in <script>. Currently has 001-003.        ║
+  ║    Add more entries for the full detail view on those IDs.  ║
+  ║                                                              ║
+  ║  CATALOG (all 144) ───────────────────────────────────────  ║
+  ║    Find CATALOG in <script>. Compact: name/rarity/type.     ║
+  ║    Edit or extend here to rename or fix any entry.          ║
+  ║                                                              ║
+  ║  TYPE / RARITY COLORS ────────────────────────────────────  ║
+  ║    Find :root in <style>. Edit --type-* and --rarity-*.     ║
+  ║                                                              ║
+  ║  PLAYER NAME ─────────────────────────────────────────────  ║
+  ║    Find state.playerName in <script>.                       ║
+  ║                                                              ║
+  ║  LAYOUT REORDER (detail screen) ──────────────────────────  ║
+  ║    In <div id="screen-detail">, reorder .info-panel divs.   ║
+  ║    Card max width: --card-max-width in :root.               ║
+  ╚══════════════════════════════════════════════════════════════╝
+-->
+
+<style>
+/* ============================================================
+   ROOT VARIABLES
+   ============================================================ */
+:root {
+  --card-max-width: 400px;
+
+  /* TYPE COLORS */
+  --type-EARTH-bg:    #C49A38; --type-EARTH-fg:    #2A1800;
+  --type-MIND-bg:     #8A4FCC; --type-MIND-fg:     #FFFFFF;
+  --type-FIRE-bg:     #E05020; --type-FIRE-fg:     #FFFFFF;
+  --type-WATER-bg:    #2E8FD8; --type-WATER-fg:    #FFFFFF;
+  --type-WIND-bg:     #38BBBB; --type-WIND-fg:     #FFFFFF;
+  --type-ELECTRIC-bg: #E8C020; --type-ELECTRIC-fg: #2A1800;
+  --type-SOUL-bg:     #D060B0; --type-SOUL-fg:     #FFFFFF;
+  --type-AETHER-bg:   #50B8E8; --type-AETHER-fg:   #FFFFFF;
+  --type-VOID-bg:     #3A1060; --type-VOID-fg:     #D8A0FF;
+  --type-ASTRAL-bg:   #2A1080; --type-ASTRAL-fg:   #FFD060;
+
+  /* RARITY */
+  --rarity-common-bg:    #A0A0A8; --rarity-common-fg:    #FFF;
+  --rarity-uncommon-bg:  #38A838; --rarity-uncommon-fg:  #FFF;
+  --rarity-rare-bg:      #2860D8; --rarity-rare-fg:      #FFF;
+  --rarity-epic-bg:      #8030C8; --rarity-epic-fg:      #FFF;
+  --rarity-legendary-bg: #C88010; --rarity-legendary-fg: #FFF;
+
+  /* DEVICE */
+  --device-outer:  #1A0808;
+  --device-frame:  #8A1818;
+
+  /* GRID SCREEN */
+  --grid-bg:        #C8DCF0;
+  --grid-header-bg: #A8C4E0;
+  --grid-cell-bg:   #FFFFFF;
+  --grid-cell-seen: #D8E4F0;
+  --grid-cell-unk:  #303848;
+  --grid-tab-active:#1458A8;
+  --grid-pill-bg:   rgba(255,255,255,.6);
+
+  /* DETAIL SCREEN */
+  --card-bg:       #FFFFFF;
+  --header-bg:     #181828;
+  --header-text:   #FFFFFF;
+  --panel-divider: #D8D8E8;
+  --panel-bg:      #F4F4FA;
+  --chip-bg:       #EAEAF6;
+  --chip-border:   #C8C8E0;
+  --chip-label:    #7070A0;
+  --chip-value:    #1A1A30;
+  --lower-bg:      #1458A8;
+  --lower-dark:    #0C3E7A;
+  --bar-track:     #C8D8EC;
+  --bar-fill:      #2878CC;
+  --bar-ready:     #28A850;
+  --btn-levelup:   #1870B8;
+  --btn-evolve:    #7030A8;
+  --btn-mint:      #B87808;
+  --btn-sanctuary: #404858;
+  --btn-disabled:  #303848;
+  --evo-card:      #0D3A80;
+  --evo-border:    #2860C0;
+  --evo-selected:  #F0C030;
+  --evo-locked:    #2A2A38;
+  --debug-bg:      #080810;
+  --debug-text:    #30E830;
+  --debug-border:  #184818;
+}
+
+/* ============================================================
+   RESET & BASE
+   ============================================================ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: #101820;
+  background-image:
+    repeating-linear-gradient(0deg,  transparent, transparent 31px, rgba(255,255,255,.03) 32px),
+    repeating-linear-gradient(90deg, transparent, transparent 31px, rgba(255,255,255,.03) 32px);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding: 20px 10px 40px;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+/* ============================================================
+   DEVICE FRAME (shared shell)
+   ============================================================ */
+#device-frame {
+  width: 100%;
+  max-width: var(--card-max-width);
+  background: var(--device-outer);
+  border: 4px solid var(--device-frame);
+  border-radius: 22px;
+  padding: 10px 10px 16px;
+  box-shadow:
+    0 0 0 2px #400808,
+    0 0 0 5px #0A0A14,
+    0 12px 50px rgba(0,0,0,.85);
+}
+#device-frame::before {
+  content: '';
+  display: block;
+  width: 44px; height: 7px;
+  background: #3A1010;
+  border-radius: 4px;
+  margin: 0 auto 10px;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
+}
+#device-frame::after {
+  content: '● ●';
+  display: block;
+  text-align: center;
+  font-size: 0.45rem;
+  color: #4A1010;
+  margin-top: 8px;
+  letter-spacing: 6px;
+}
+
+/* ============================================================
+   SCREEN SWITCHING
+   ============================================================ */
+.screen { display: none; }
+.screen.active { display: flex; flex-direction: column; }
+
+/* ============================================================
+   ══ SCREEN A: GRID ══
+   ============================================================ */
+#screen-grid {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 3px solid #3A3A50;
+  background: var(--grid-bg);
+}
+
+/* ── Grid Header ──────────────────────────────────────────── */
+#grid-header {
+  background: var(--grid-header-bg);
+  border-bottom: 2px solid rgba(0,0,0,.15);
+  padding: 10px 10px 0;
+  flex-shrink: 0;
+}
+
+#gh-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+#gh-logo {
+  width: 38px; height: 38px;
+  background: #1458A8;
+  border-radius: 10px;
+  border: 2px solid rgba(255,255,255,.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  flex-shrink: 0;
+}
+
+#gh-text {
+  flex: 1;
+  min-width: 0;
+}
+#gh-game-title {
+  font-size: 0.55rem;
+  font-weight: 800;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.7);
+  text-transform: uppercase;
+}
+#gh-player-name {
+  font-size: 1rem;
+  font-weight: 900;
+  color: #1A1A30;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 0 rgba(255,255,255,.5);
+}
+#gh-subtitle {
+  font-size: 0.58rem;
+  color: #3A5A7A;
+  font-weight: 600;
+}
+
+#gh-avatar {
+  width: 56px; height: 56px;
+  background: linear-gradient(135deg, #6080C0, #8090E0);
+  border-radius: 12px;
+  border: 2px solid rgba(255,255,255,.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.8rem;
+  flex-shrink: 0;
+  overflow: hidden;
+  box-shadow: 0 2px 6px rgba(0,0,0,.2);
+}
+
+/* Stats pills */
+#gh-stats {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.gh-pill {
+  background: var(--grid-pill-bg);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.5);
+  border-radius: 20px;
+  padding: 3px 10px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  color: #1A3A6A;
+  white-space: nowrap;
+}
+.gh-pill.owned { background: rgba(20,88,168,.15); color: #0A3060; }
+
+/* Filter tabs */
+#gh-tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: none;
+}
+.tab-btn {
+  flex: 1;
+  padding: 6px 4px 5px;
+  border: none;
+  background: rgba(0,0,0,.1);
+  color: rgba(0,0,0,.5);
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  border-radius: 6px 6px 0 0;
+  text-transform: uppercase;
+  transition: all 0.12s;
+}
+.tab-btn:hover:not(.active) { background: rgba(255,255,255,.2); color: #1A3060; }
+.tab-btn.active {
+  background: var(--grid-bg);
+  color: var(--grid-tab-active);
+  border-bottom: 2px solid var(--grid-bg);
+}
+
+/* ── Grid Scroll Area ────────────────────────────────────── */
+#grid-scroll {
+  overflow-y: auto;
+  flex: 1;
+  padding: 8px;
+  max-height: 480px;
+}
+#grid-scroll::-webkit-scrollbar { width: 4px; }
+#grid-scroll::-webkit-scrollbar-track { background: transparent; }
+#grid-scroll::-webkit-scrollbar-thumb { background: #A8BCD8; border-radius: 2px; }
+
+#mem-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+
+/* ── Memory Cell ─────────────────────────────────────────── */
+.mem-cell {
+  aspect-ratio: 4/5;
+  border-radius: 8px;
+  border: 2px solid transparent;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 4px 3px 4px;
+  cursor: pointer;
+  transition: transform 0.12s, box-shadow 0.12s;
+  position: relative;
+  overflow: hidden;
+  background: var(--grid-cell-bg);
+  min-height: 0;
+}
+.mem-cell:hover:not(.unknown) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0,0,0,.2);
+}
+
+/* owned cell */
+.mem-cell.owned {
+  background: #FFFFFF;
+  box-shadow: 0 1px 4px rgba(0,0,0,.12);
+}
+
+/* seen (discovered but not owned) */
+.mem-cell.seen {
+  background: var(--grid-cell-seen);
+  opacity: 0.85;
+}
+
+/* unknown — undiscovered */
+.mem-cell.unknown {
+  background: var(--grid-cell-unk);
+  cursor: default;
+  opacity: 0.7;
+}
+
+/* rarity border stripe — left edge */
+.mem-cell::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  width: 3px;
+  border-radius: 8px 0 0 8px;
+}
+.mem-cell.rarity-common::before    { background: #A0A0A8; }
+.mem-cell.rarity-uncommon::before  { background: #38A838; }
+.mem-cell.rarity-rare::before      { background: #2860D8; }
+.mem-cell.rarity-epic::before      { background: #8030C8; }
+.mem-cell.rarity-legendary::before { background: #C88010; }
+.mem-cell.unknown::before          { background: transparent; }
+
+/* cell dex number */
+.cell-num {
+  font-size: 0.48rem;
+  font-weight: 700;
+  color: #A0A8B8;
+  align-self: flex-start;
+  padding-left: 4px;
+  line-height: 1;
+}
+.mem-cell.unknown .cell-num { color: #505868; }
+
+/* cell image area */
+.cell-img {
+  width: 48px; height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.cell-img img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+.cell-img .cell-placeholder {
+  width: 40px; height: 40px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.55rem;
+  font-weight: 800;
+  color: rgba(255,255,255,.6);
+}
+.mem-cell.seen .cell-img .cell-placeholder { background: rgba(0,0,0,.12); color: #7090B0; }
+.mem-cell.unknown .cell-img .cell-placeholder { background: rgba(255,255,255,.05); color: #404858; }
+
+/* cell name */
+.cell-name {
+  font-size: 0.52rem;
+  font-weight: 700;
+  color: #2A2A3A;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+  padding: 0 2px;
+  line-height: 1.1;
+}
+.mem-cell.seen .cell-name  { color: #6080A0; }
+.mem-cell.unknown .cell-name { color: #404858; }
+
+/* type dot strip at bottom */
+.cell-type-strip {
+  display: flex;
+  gap: 2px;
+  height: 4px;
+  width: 100%;
+  border-radius: 0 0 5px 5px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0; left: 0;
+}
+.cell-type-dot {
+  flex: 1;
+  height: 100%;
+}
+
+/* ── Grid Debug ──────────────────────────────────────────── */
+#grid-debug-bar {
+  background: var(--debug-bg);
+  border-top: 1px solid #101018;
+  padding: 5px 8px;
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+#grid-debug-state {
+  font-size: 0.52rem;
+  color: var(--debug-text);
+  font-family: 'Consolas', monospace;
+  flex: 1;
+}
+
+/* ============================================================
+   ══ SCREEN B: DETAIL ══
+   ============================================================ */
+#screen-detail {
+  border-radius: 14px;
+  overflow: hidden;
+  border: 3px solid #3A3A50;
+  background: var(--card-bg);
+}
+
+/* ── Detail Header ───────────────────────────────────────── */
+#mem-header {
+  background: var(--header-bg);
+  color: var(--header-text);
+  padding: 10px 12px 9px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  border-bottom: 2px solid #000;
+  flex-shrink: 0;
+}
+#header-left { flex: 1; min-width: 0; }
+#mem-name-id {
+  font-size: 1.15rem;
+  font-weight: 900;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+#header-badges { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; }
+.badge {
+  font-size: 0.58rem; font-weight: 800; letter-spacing: 0.9px;
+  padding: 2px 8px 3px; border-radius: 20px; text-transform: uppercase;
+  display: inline-flex; align-items: center; gap: 3px;
+}
+.badge-common    { background: var(--rarity-common-bg);    color: var(--rarity-common-fg); }
+.badge-uncommon  { background: var(--rarity-uncommon-bg);  color: var(--rarity-uncommon-fg); }
+.badge-rare      { background: var(--rarity-rare-bg);      color: var(--rarity-rare-fg); }
+.badge-epic      { background: var(--rarity-epic-bg);      color: var(--rarity-epic-fg); }
+.badge-legendary { background: var(--rarity-legendary-bg); color: var(--rarity-legendary-fg); }
+.badge-mintable     { background: #E8B800; color: #2A1800; }
+.badge-minted       { background: #20A048; color: #FFF; }
+.badge-not-mintable { background: #404050; color: #909098; }
+
+#header-right { display: flex; gap: 5px; align-items: center; flex-shrink: 0; }
+
+#btn-back {
+  background: #283050;
+  border: 2px solid #404868;
+  color: #A0B8D8;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.62rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#btn-back:hover { background: #384068; color: #C8D8F0; }
+
+#close-btn {
+  background: #B01818; border: 2px solid #801010;
+  color: #fff; width: 28px; height: 28px;
+  border-radius: 7px; cursor: pointer;
+  font-size: 0.85rem; font-weight: 900;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+}
+#close-btn:hover { background: #E02020; }
+
+/* ── Hero ────────────────────────────────────────────────── */
+#hero {
+  background: linear-gradient(160deg, #EEF2FF 0%, #E0E8F8 100%);
+  padding: 14px 12px 12px;
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 10px;
+  align-items: start;
+  border-bottom: 2px solid var(--panel-divider);
+  flex-shrink: 0;
+}
+#mem-image-wrap {
+  width: 140px; height: 140px;
+  background: rgba(255,255,255,.7);
+  border-radius: 12px;
+  border: 2px solid #C8D0E8;
+  display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0,0,0,.1);
+}
+#mem-image-wrap img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: pixelated; }
+#mem-image-wrap .img-placeholder {
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  color: #A0A0C0; font-size: 0.6rem; text-align: center; padding: 8px;
+}
+#mem-image-wrap .img-placeholder .icon { font-size: 2rem; }
+
+#hero-info { display: flex; flex-direction: column; gap: 8px; padding-top: 4px; }
+
+#stage-indicator { display: flex; align-items: center; gap: 4px; }
+.stage-pip {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: #D0D8EC; border: 2px solid #B0B8D0;
+}
+.stage-pip.filled  { background: #2878CC; border-color: #1058A0; }
+.stage-pip.current { background: #F0C030; border-color: #C09010; box-shadow: 0 0 0 2px rgba(240,192,48,.3); }
+#stage-label { font-size: 0.6rem; font-weight: 700; color: #7070A0; text-transform: uppercase; letter-spacing: 0.8px; }
+
+#type-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.type-badge {
+  font-size: 0.62rem; font-weight: 800; letter-spacing: 1.2px;
+  padding: 3px 10px 4px; border-radius: 20px; text-transform: uppercase;
+  border: 2px solid rgba(0,0,0,.15);
+}
+
+#hero-quick-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
+.qstat { background: rgba(255,255,255,.7); border: 1px solid #C8D0E8; border-radius: 7px; padding: 3px 7px; }
+.qstat-label { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.8px; color: #8080A8; text-transform: uppercase; display: block; }
+.qstat-value { font-size: 0.75rem; font-weight: 800; color: #1A1A38; display: block; margin-top: 1px; }
+
+/* ── Card Body (scrollable) ─────────────────────────────── */
+#card-body { overflow-y: auto; background: var(--card-bg); }
+#card-body::-webkit-scrollbar { width: 4px; }
+#card-body::-webkit-scrollbar-track { background: #F0F0F8; }
+#card-body::-webkit-scrollbar-thumb { background: #C0C0D8; border-radius: 2px; }
+
+.info-panel { padding: 9px 12px 10px; border-bottom: 2px solid var(--panel-divider); }
+.info-panel:last-child { border-bottom: none; }
+.panel-title { font-size: 0.55rem; font-weight: 800; letter-spacing: 1.4px; color: var(--chip-label); text-transform: uppercase; margin-bottom: 6px; }
+
+#stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; }
+.stat-chip { background: var(--chip-bg); border: 1px solid var(--chip-border); border-radius: 8px; padding: 5px 6px; text-align: center; }
+.stat-chip .s-label { font-size: 0.5rem; font-weight: 700; letter-spacing: 0.7px; color: var(--chip-label); text-transform: uppercase; display: block; }
+.stat-chip .s-value { font-size: 0.78rem; font-weight: 800; color: var(--chip-value); display: block; margin-top: 2px; }
+
+#mem-desc { font-size: 0.78rem; line-height: 1.6; color: #3A3A54; font-style: italic; }
+
+.memcore-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 5px; }
+.memcore-title { font-size: 0.55rem; font-weight: 800; letter-spacing: 1.4px; color: var(--chip-label); text-transform: uppercase; }
+.memcore-numbers { font-size: 0.75rem; font-weight: 800; color: #1858A0; }
+.memcore-bank-row { display: flex; justify-content: flex-end; margin-bottom: 4px; }
+.memcore-bank-label { font-size: 0.6rem; color: #7070A0; }
+.memcore-bank-value { font-size: 0.6rem; font-weight: 800; color: #28A050; margin-left: 4px; }
+.progress-track { background: var(--bar-track); border-radius: 8px; height: 13px; overflow: hidden; border: 1px solid #B0C8E0; }
+.progress-fill { height: 100%; border-radius: 8px; background: var(--bar-fill); transition: width .35s ease, background .3s; position: relative; }
+.progress-fill::after { content: ''; position: absolute; top: 2px; left: 4px; right: 4px; height: 4px; background: rgba(255,255,255,.3); border-radius: 4px; }
+.progress-fill.ready { background: var(--bar-ready); }
+.evo-note { font-size: 0.6rem; font-weight: 700; text-align: right; margin-top: 4px; color: #7070A0; }
+.evo-note.ready { color: #20A040; }
+.evo-note.final { color: #7030A8; }
+
+/* ── Lower Blue Panel ────────────────────────────────────── */
+#lower-panel { background: var(--lower-bg); border-top: 3px solid #0A2A58; flex-shrink: 0; }
+
+#evo-line-panel { padding: 9px 8px 7px; }
+.evo-section-title { font-size: 0.55rem; font-weight: 800; letter-spacing: 1.4px; color: rgba(255,255,255,.55); text-transform: uppercase; text-align: center; margin-bottom: 7px; }
+#evo-line-cards { display: flex; align-items: stretch; justify-content: center; gap: 4px; }
+.evo-arrow { display: flex; align-items: center; color: rgba(255,255,255,.4); font-size: 1.1rem; flex-shrink: 0; padding-bottom: 14px; }
+.evo-card {
+  flex: 1; max-width: 96px;
+  background: var(--evo-card); border: 2px solid var(--evo-border);
+  border-radius: 10px; padding: 6px 4px 5px;
+  cursor: pointer; text-align: center;
+  transition: transform .12s, border-color .12s;
+  position: relative; min-width: 0;
+}
+.evo-card:not(.locked):hover { transform: translateY(-2px); border-color: rgba(255,255,255,.6); }
+.evo-card.selected { border-color: var(--evo-selected); box-shadow: 0 0 0 2px var(--evo-selected); background: #1448A0; }
+.evo-card.locked   { background: var(--evo-locked); border-color: #404050; cursor: default; opacity: .55; }
+.evo-card-img { width: 52px; height: 52px; margin: 0 auto 4px; background: rgba(255,255,255,.07); border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
+.evo-card-img img { max-width: 100%; max-height: 100%; object-fit: contain; image-rendering: pixelated; }
+.evo-card-img .lock-icon { font-size: 1.2rem; }
+.evo-card-name { font-size: .62rem; font-weight: 800; color: #FFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.evo-card.locked .evo-card-name { color: #606070; }
+.evo-card-sub { font-size: .52rem; color: rgba(255,255,255,.45); margin-top: 1px; }
+.evo-card.locked .evo-card-sub { color: #404050; }
+.evo-rarity-dot { display: inline-block; width: 6px; height: 6px; border-radius: 50%; margin-right: 2px; vertical-align: middle; }
+.evo-current-badge { position: absolute; top: -7px; left: 50%; transform: translateX(-50%); background: var(--evo-selected); color: #2A1800; font-size: .45rem; font-weight: 900; letter-spacing: .5px; padding: 1px 6px; border-radius: 4px; white-space: nowrap; }
+
+#action-bar {
+  background: var(--lower-dark);
+  padding: 7px 8px 9px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+  border-top: 2px solid rgba(0,0,0,.3);
+}
+.action-btn {
+  padding: 9px 4px 7px;
+  border: none; border-bottom: 3px solid rgba(0,0,0,.35); border-radius: 9px;
+  font-size: .68rem; font-weight: 800; letter-spacing: .6px; text-transform: uppercase;
+  cursor: pointer; transition: filter .12s, transform .08s;
+  color: #FFF; display: flex; align-items: center; justify-content: center; gap: 5px;
+}
+.action-btn:not(:disabled):active { transform: translateY(2px); border-bottom-width: 1px; }
+.action-btn:not(:disabled):hover  { filter: brightness(1.15); }
+.action-btn:disabled { background: var(--btn-disabled) !important; color: #505862 !important; cursor: not-allowed; border-bottom-color: rgba(0,0,0,.2) !important; }
+.btn-levelup   { background: var(--btn-levelup); }
+.btn-evolve    { background: var(--btn-evolve); }
+.btn-mint      { background: var(--btn-mint); color: #2A1800; }
+.btn-mint:not(:disabled) { color: #2A1800; }
+.btn-sanctuary { background: var(--btn-sanctuary); }
+
+/* ── Shared Debug Bar ────────────────────────────────────── */
+#debug-bar, #grid-debug-bar {
+  background: var(--debug-bg);
+  border-top: 1px solid #101018;
+  padding: 5px 8px;
+  display: flex; align-items: center; gap: 6px; flex-wrap: wrap;
+}
+#debug-state, #grid-debug-state {
+  font-size: .52rem; color: var(--debug-text);
+  font-family: 'Consolas', monospace; flex: 1;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.dbg-btn {
+  background: #0A180A; color: var(--debug-text);
+  border: 1px solid var(--debug-border); border-radius: 4px;
+  padding: 3px 7px; font-size: .58rem;
+  font-family: 'Consolas', monospace; cursor: pointer; white-space: nowrap;
+}
+.dbg-btn:hover { background: #142814; }
+
+/* ============================================================
+   LOADING OVERLAY
+   ============================================================ */
+#loading-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 14px;
+  background: #181828;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  z-index: 100;
+}
+#loading-overlay.hidden { display: none; }
+#loading-spinner {
+  font-size: 2rem;
+  animation: spin 1.2s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+#loading-text {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.5);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+#loading-error {
+  font-size: 0.65rem;
+  color: #E05050;
+  text-align: center;
+  padding: 0 16px;
+  display: none;
+}
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media (min-width: 540px) {
+  #grid-scroll { max-height: 520px; }
+  #card-body   { max-height: 480px; }
+  body { align-items: center; min-height: 100vh; }
+}
+</style>
+</head>
+<body>
+
+<div id="device-frame" style="position:relative">
+
+  <!-- Loading overlay — hidden after data loads -->
+  <div id="loading-overlay">
+    <div id="loading-spinner">◈</div>
+    <div id="loading-text">Loading Mempool…</div>
+    <div id="loading-error"></div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN A — METADEX GRID
+       ══════════════════════════════════════════════════════ -->
+  <div id="screen-grid" class="screen active">
+
+    <div id="grid-header">
+      <div id="gh-top">
+        <div id="gh-logo">📖</div>
+        <div id="gh-text">
+          <div id="gh-game-title">Memorandum</div>
+          <div id="gh-player-name" id="gh-playername">PLAYER</div>
+          <div id="gh-subtitle">Mempool — All Memories</div>
+        </div>
+        <div id="gh-avatar">🧑‍🎮</div>
+      </div>
+
+      <div id="gh-stats">
+        <span class="gh-pill" id="pill-disc">0 Discovered</span>
+        <span class="gh-pill owned" id="pill-owned">0 Owned</span>
+      </div>
+
+      <div id="gh-tabs">
+        <button class="tab-btn active" data-filter="all">All (144)</button>
+        <button class="tab-btn" data-filter="owned">Owned</button>
+        <button class="tab-btn" data-filter="seen">Seen</button>
+      </div>
+    </div>
+
+    <div id="grid-scroll">
+      <div id="mem-grid"><!-- rendered by JS --></div>
+    </div>
+
+    <div id="grid-debug-bar">
+      <span id="grid-debug-state">debug</span>
+      <button class="dbg-btn" id="dbg-see-all">+See All</button>
+      <button class="dbg-btn" id="dbg-own-all">+Own All Art</button>
+      <button class="dbg-btn" id="dbg-grid-reset">Reset</button>
+    </div>
+
+  </div><!-- /#screen-grid -->
+
+
+  <!-- ══════════════════════════════════════════════════════
+       SCREEN B — DETAIL CARD
+       ══════════════════════════════════════════════════════ -->
+  <div id="screen-detail" class="screen">
+
+    <!-- Header -->
+    <div id="mem-header">
+      <div id="header-left">
+        <div id="mem-name-id">Loading…</div>
+        <div id="header-badges"></div>
+      </div>
+      <div id="header-right">
+        <button id="btn-back">← Back</button>
+        <button id="close-btn" title="Close">✕</button>
+      </div>
+    </div>
+
+    <!-- Hero -->
+    <div id="hero">
+      <div id="mem-image-wrap"></div>
+      <div id="hero-info">
+        <div id="stage-indicator"><span id="stage-label"></span></div>
+        <div id="type-badges"></div>
+        <div id="hero-quick-stats"></div>
+      </div>
+    </div>
+
+    <!-- Scrollable body -->
+    <div id="card-body">
+      <div class="info-panel" id="stats-panel">
+        <div class="panel-title">Details</div>
+        <div id="stats-grid"></div>
+      </div>
+      <div class="info-panel" id="desc-panel">
+        <div class="panel-title">Lore</div>
+        <p id="mem-desc"></p>
+      </div>
+      <div class="info-panel" id="progression-panel">
+        <div class="memcore-header">
+          <span class="memcore-title">Memcore Progress</span>
+          <span class="memcore-numbers" id="memcore-numbers">0 / 30</span>
+        </div>
+        <div class="memcore-bank-row">
+          <span class="memcore-bank-label">Available in bank:</span>
+          <span class="memcore-bank-value" id="memcore-bank-display">0</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+        </div>
+        <div class="evo-note" id="evo-note"></div>
+      </div>
+    </div>
+
+    <!-- Lower blue panel -->
+    <div id="lower-panel">
+      <div id="evo-line-panel">
+        <div class="evo-section-title">Evolution Line</div>
+        <div id="evo-line-cards"></div>
+      </div>
+      <div id="action-bar">
+        <button class="action-btn btn-levelup"   id="btn-levelup">▲ Level Up</button>
+        <button class="action-btn btn-evolve"    id="btn-evolve">✦ Evolve</button>
+        <button class="action-btn btn-mint"      id="btn-mint">◆ Mint NFT</button>
+        <button class="action-btn btn-sanctuary" id="btn-sanctuary" disabled>⬦ Sanctuary</button>
+      </div>
+      <div id="debug-bar">
+        <span id="debug-state">…</span>
+        <button class="dbg-btn" id="dbg-add">+10 Memcore</button>
+        <button class="dbg-btn" id="dbg-reset">Reset</button>
+      </div>
+    </div>
+
+  </div><!-- /#screen-detail -->
+
+</div><!-- /#device-frame -->
+
+<script>
+'use strict';
+
+/* ============================================================
+   IMAGE MAP
+   Add an entry for each art file you have.
+   Key   = dex ID string, e.g. "001"
+   Value = path relative to index.html, e.g. "001 - Normal.png"
+   Unlisted IDs show a type-colored placeholder automatically.
+   ============================================================ */
+const IMAGE_MAP = {
+  "001": "001 - Normal.png",
+  "002": "002 - Normal.png",
+  "003": "003 - Normal.png"
+};
+
+/* ============================================================
+   DATA — populated by loadData() from mempool.json at startup.
+   Do not edit these directly; edit mempool.json instead.
+   ============================================================ */
+let CATALOG  = {};   // { id: { n, r, t } }  — used by the grid
+let MEMORIES = {};   // { id: full object }   — used by the detail view
+
+/* ============================================================
+   MAP one raw mempool.json entry → our internal MEMORIES format
+   ============================================================ */
+function mapMemory(id, m) {
+  const evo = m.evolution && m.evolution.length > 0 ? m.evolution[0] : null;
+  return {
+    name:        m.name,
+    source:      m.source,
+    supply:      m.source_supply,
+    type:        m.type,
+    description: m.description,
+    stage:       m.stage,
+    is_solo:     m.is_solo,
+    evolves_to:  evo ? evo.to     : null,
+    spirit_required: evo ? evo.spirit : null,
+    base_memory: m.base_memory,
+    memcore_needed_from_current_stage: m.memcore_needed_from_current_stage,
+    memcore_required_for_next_evo:     m.memcore_required_for_next_evo,
+    max_memcore: m.max_memcore,
+    rarity:      m.rarity,
+    mintable:    m.mintable,
+    max_mints:   m.max_supply_mintable,
+    sanctuary_yield: m.sanctuary_yield,
+    essence:     m.memorandum_essence_points,
+    height:      m.height,
+    weight:      m.weight,
+    image:       IMAGE_MAP[id] || null
+  };
+}
+
+/* ============================================================
+   LOAD DATA from mempool.json
+   ============================================================ */
+async function loadData() {
+  const resp = await fetch('mempool.json');
+  if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+  const raw  = await resp.json();
+  Object.entries(raw).forEach(([id, m]) => {
+    CATALOG[id]  = { n: m.name, r: m.rarity, t: m.type };
+    MEMORIES[id] = mapMemory(id, m);
+  });
+}
+
+/* _placeholder removed — all data now live in mempool.json */
+const _DEAD = {
+  "001":{n:"Pangreed",    r:"common",    t:["EARTH"]},
+  "002":{n:"Kleptolin",   r:"uncommon",  t:["EARTH"]},
+  "003":{n:"Kleptadel",   r:"rare",      t:["EARTH","MIND"]},
+  "004":{n:"Nimphie",     r:"common",    t:["EARTH","WATER"]},
+  "005":{n:"Molph",       r:"uncommon",  t:["EARTH"]},
+  "006":{n:"Archimolt",   r:"rare",      t:["EARTH","WIND"]},
+  "007":{n:"Larvaark",    r:"common",    t:["EARTH"]},
+  "008":{n:"Pupaark",     r:"uncommon",  t:["EARTH"]},
+  "009":{n:"Scarabark",   r:"rare",      t:["EARTH","WIND"]},
+  "010":{n:"Kappybara",   r:"uncommon",  t:["EARTH"]},
+  "011":{n:"Fabbybara",   r:"rare",      t:["EARTH"]},
+  "012":{n:"Camoutee",    r:"common",    t:["EARTH"]},
+  "013":{n:"Trollodyte",  r:"uncommon",  t:["EARTH"]},
+  "014":{n:"Neandroll",   r:"rare",      t:["EARTH"]},
+  "015":{n:"Nortle",      r:"uncommon",  t:["EARTH","AETHER"]},
+  "016":{n:"Kitlem",      r:"common",    t:["EARTH"]},
+  "017":{n:"Leolem",      r:"uncommon",  t:["EARTH"]},
+  "018":{n:"Obelion",     r:"rare",      t:["EARTH"]},
+  "019":{n:"Saolapod",    r:"common",    t:["EARTH"]},
+  "020":{n:"Saolosaur",   r:"uncommon",  t:["EARTH"]},
+  "021":{n:"Gargeko",     r:"uncommon",  t:["EARTH"]},
+  "022":{n:"Jadine",      r:"uncommon",  t:["EARTH"]},
+  "023":{n:"Gekoal",      r:"common",    t:["FIRE"]},
+  "024":{n:"Firog",       r:"uncommon",  t:["FIRE"]},
+  "025":{n:"Ignicroak",   r:"rare",      t:["FIRE","SOUL"]},
+  "026":{n:"Tygrin",      r:"uncommon",  t:["FIRE"]},
+  "027":{n:"Tyrosene",    r:"rare",      t:["FIRE","MIND"]},
+  "028":{n:"Chickarus",   r:"uncommon",  t:["FIRE","WIND"]},
+  "029":{n:"Daedrake",    r:"rare",      t:["FIRE","EARTH"]},
+  "030":{n:"Torchupa",    r:"uncommon",  t:["FIRE"]},
+  "031":{n:"Vulcabra",    r:"rare",      t:["FIRE"]},
+  "032":{n:"Pytares",     r:"rare",      t:["FIRE"]},
+  "033":{n:"Infernix",    r:"rare",      t:["FIRE","WIND"]},
+  "034":{n:"Embryx",      r:"rare",      t:["FIRE","AETHER"]},
+  "035":{n:"Nerindra",    r:"legendary", t:["FIRE","ELECTRIC"]},
+  "036":{n:"Macalm",      r:"common",    t:["WIND"]},
+  "037":{n:"Parrograce",  r:"uncommon",  t:["WIND"]},
+  "038":{n:"Dovine",      r:"rare",      t:["WIND","AETHER"]},
+  "039":{n:"Privatary",   r:"common",    t:["WIND"]},
+  "040":{n:"Marshawk",    r:"uncommon",  t:["WIND"]},
+  "041":{n:"Leuteagle",   r:"rare",      t:["WIND"]},
+  "042":{n:"Crowshank",   r:"uncommon",  t:["WIND"]},
+  "043":{n:"Dodaxe",      r:"rare",      t:["WIND"]},
+  "044":{n:"Skyttle",     r:"rare",      t:["WIND","AETHER"]},
+  "045":{n:"Machtern",    r:"uncommon",  t:["WIND"]},
+  "046":{n:"Machstream",  r:"rare",      t:["WIND"]},
+  "047":{n:"Eaglick",     r:"common",    t:["WIND"]},
+  "048":{n:"Cyndrell",    r:"rare",      t:["WIND","EARTH"]},
+  "049":{n:"Mallstard",   r:"common",    t:["WIND","WATER"]},
+  "050":{n:"Mallgard",    r:"rare",      t:["WIND","WATER"]},
+  "051":{n:"Bastross",    r:"common",    t:["WIND","WATER"]},
+  "052":{n:"Dawnstross",  r:"rare",      t:["WIND","WATER"]},
+  "053":{n:"Gleeraffe",   r:"common",    t:["WATER"]},
+  "054":{n:"Tyraph",      r:"uncommon",  t:["WATER"]},
+  "055":{n:"Vuzoo",       r:"common",    t:["WATER"]},
+  "056":{n:"Tubone",      r:"uncommon",  t:["WATER"]},
+  "057":{n:"Sirene",      r:"rare",      t:["WATER","SOUL"]},
+  "058":{n:"Egwin",       r:"uncommon",  t:["WATER","ELECTRIC"]},
+  "059":{n:"Kinguin",     r:"rare",      t:["WATER","ELECTRIC"]},
+  "060":{n:"Ottar",       r:"uncommon",  t:["WATER"]},
+  "061":{n:"Drottar",     r:"rare",      t:["WATER","VOID"]},
+  "062":{n:"Cutumber",    r:"uncommon",  t:["WATER"]},
+  "063":{n:"Bersekumber", r:"rare",      t:["WATER"]},
+  "064":{n:"Tapuana",     r:"common",    t:["WATER"]},
+  "065":{n:"Grabuana",    r:"uncommon",  t:["WATER"]},
+  "066":{n:"Caffita",     r:"uncommon",  t:["WATER"]},
+  "067":{n:"Cowkutta",    r:"rare",      t:["WATER"]},
+  "068":{n:"Misticle",    r:"uncommon",  t:["WATER"]},
+  "069":{n:"Parafrost",   r:"rare",      t:["WATER","WIND"]},
+  "070":{n:"Aphrogobi",   r:"rare",      t:["WATER"]},
+  "071":{n:"Leviadon",    r:"rare",      t:["WATER","WIND"]},
+  "072":{n:"Hydryx",      r:"rare",      t:["WATER","AETHER"]},
+  "073":{n:"Natindra",    r:"legendary", t:["WATER","EARTH"]},
+  "074":{n:"Bambolt",     r:"uncommon",  t:["ELECTRIC"]},
+  "075":{n:"Sinoshock",   r:"rare",      t:["ELECTRIC"]},
+  "076":{n:"Pollit",      r:"common",    t:["ELECTRIC","MIND"]},
+  "077":{n:"Cerebrawl",   r:"uncommon",  t:["ELECTRIC","MIND"]},
+  "078":{n:"Sparkodile",  r:"uncommon",  t:["ELECTRIC","WATER"]},
+  "079":{n:"Drakken",     r:"rare",      t:["ELECTRIC","WATER"]},
+  "080":{n:"Zapumaphoo",  r:"uncommon",  t:["ELECTRIC"]},
+  "081":{n:"Voltemur",    r:"rare",      t:["ELECTRIC"]},
+  "082":{n:"Recnac",      r:"rare",      t:["ELECTRIC"]},
+  "083":{n:"Voltyx",      r:"rare",      t:["ELECTRIC","AETHER"]},
+  "084":{n:"Doju",        r:"common",    t:["SOUL","MIND"]},
+  "085":{n:"Kensu",       r:"uncommon",  t:["SOUL","MIND"]},
+  "086":{n:"Sensu",       r:"rare",      t:["SOUL","MIND"]},
+  "087":{n:"Hiccori",     r:"common",    t:["SOUL","VOID"]},
+  "088":{n:"Diccori",     r:"uncommon",  t:["SOUL","VOID"]},
+  "089":{n:"Doccori",     r:"rare",      t:["SOUL","VOID"]},
+  "090":{n:"Voltstrom",   r:"rare",      t:["SOUL","ELECTRIC"]},
+  "091":{n:"Sandstrom",   r:"rare",      t:["SOUL","EARTH"]},
+  "092":{n:"Solotl",      r:"uncommon",  t:["SOUL"]},
+  "093":{n:"Megaloth",    r:"rare",      t:["SOUL"]},
+  "094":{n:"Trillobeetle",r:"uncommon",  t:["SOUL","EARTH"]},
+  "095":{n:"Manere",      r:"uncommon",  t:["AETHER","ASTRAL"]},
+  "096":{n:"Portoop",     r:"rare",      t:["AETHER","ASTRAL"]},
+  "097":{n:"Fawness",     r:"uncommon",  t:["AETHER"]},
+  "098":{n:"Meridoe",     r:"rare",      t:["AETHER","SOUL"]},
+  "099":{n:"Orky",        r:"common",    t:["AETHER","EARTH"]},
+  "100":{n:"Orclaw",      r:"uncommon",  t:["AETHER","EARTH"]},
+  "101":{n:"Orcleave",    r:"rare",      t:["AETHER","EARTH"]},
+  "102":{n:"Yider",       r:"rare",      t:["AETHER"]},
+  "103":{n:"Akrojin",     r:"rare",      t:["AETHER","EARTH"]},
+  "104":{n:"Orbyx",       r:"common",    t:["AETHER"]},
+  "105":{n:"Aethorn",     r:"rare",      t:["AETHER","MIND"]},
+  "106":{n:"Coyal",       r:"uncommon",  t:["VOID"]},
+  "107":{n:"Serpres",     r:"rare",      t:["VOID"]},
+  "108":{n:"Voibat",      r:"uncommon",  t:["VOID","WIND"]},
+  "109":{n:"Aeter",       r:"rare",      t:["VOID","WIND"]},
+  "110":{n:"Gordrok",     r:"uncommon",  t:["VOID","EARTH"]},
+  "111":{n:"Manascreech", r:"rare",      t:["VOID","EARTH"]},
+  "112":{n:"Globster",    r:"common",    t:["VOID","WATER"]},
+  "113":{n:"Glurchin",    r:"uncommon",  t:["VOID","WATER"]},
+  "114":{n:"Kirboom",     r:"uncommon",  t:["VOID"]},
+  "115":{n:"Dyzoom",      r:"rare",      t:["VOID"]},
+  "116":{n:"Greaper",     r:"common",    t:["VOID"]},
+  "117":{n:"Grimbyss",    r:"uncommon",  t:["VOID"]},
+  "118":{n:"Toibite",     r:"uncommon",  t:["VOID"]},
+  "119":{n:"Aarthog",     r:"rare",      t:["VOID"]},
+  "120":{n:"Tingtang",    r:"common",    t:["MIND"]},
+  "121":{n:"Walawala",    r:"uncommon",  t:["MIND"]},
+  "122":{n:"Bingbang",    r:"rare",      t:["MIND"]},
+  "123":{n:"Psykelp",     r:"uncommon",  t:["MIND","WATER"]},
+  "124":{n:"Psykoral",    r:"rare",      t:["MIND","WATER"]},
+  "125":{n:"Katrypteon",  r:"uncommon",  t:["MIND"]},
+  "126":{n:"Psykeelion",  r:"rare",      t:["MIND"]},
+  "127":{n:"Wooffalo",    r:"uncommon",  t:["MIND","EARTH"]},
+  "128":{n:"Bisage",      r:"rare",      t:["MIND","EARTH"]},
+  "129":{n:"Screep",      r:"rare",      t:["MIND"]},
+  "130":{n:"Urstar",      r:"common",    t:["ASTRAL","VOID"]},
+  "131":{n:"Burstar",     r:"uncommon",  t:["ASTRAL","VOID"]},
+  "132":{n:"Celestar",    r:"rare",      t:["ASTRAL","VOID"]},
+  "133":{n:"Lupup",       r:"common",    t:["ASTRAL","VOID"]},
+  "134":{n:"Lupak",       r:"uncommon",  t:["ASTRAL","VOID"]},
+  "135":{n:"Fangrir",     r:"rare",      t:["ASTRAL","VOID"]},
+  "136":{n:"Mezbit",      r:"uncommon",  t:["ASTRAL","SOUL"]},
+  "137":{n:"Lunaria",     r:"rare",      t:["ASTRAL","SOUL"]},
+  "138":{n:"Komogon",     r:"uncommon",  t:["ASTRAL","EARTH"]},
+  "139":{n:"Nulindra",    r:"legendary", t:["ASTRAL","VOID"]},
+  "140":{n:"Duskink",     r:"uncommon",  t:["ASTRAL","FIRE"]},
+  "141":{n:"Wagmite",     r:"rare",      t:["ASTRAL","FIRE"]},
+  "142":{n:"Dranova",     r:"legendary", t:["ASTRAL","FIRE"]},
+  "143":{n:"Usiah",       r:"legendary", t:["ASTRAL","SOUL"]},
+  "144":{n:"Akronia",     r:"legendary", t:["AETHER"]}
+};
+
+// MEMORIES and CATALOG are populated by loadData() above.
+// See the let declarations and mapMemory() near the top of this script.
+
+/* ============================================================
+   RARITY COLORS  (for evo cards etc.)
+   ============================================================ */
+const RARITY_COLOR = {
+  common: "#A0A0A8", uncommon: "#38A838", rare: "#2860D8",
+  epic: "#8030C8", legendary: "#C88010"
+};
+
+/* ============================================================
+   STATE
+   ============================================================ */
+let state = {
+  screen:       "grid",       // "grid" | "detail"
+  selectedId:   "001",
+  playerName:   "PLAYER",     // ← change your player name here
+  gridFilter:   "all",        // "all" | "owned" | "seen"
+  seen:         new Set(["001","002","003"]),   // discovered
+  owned:        new Set(["001"]),               // captured/saved
+  bank:         { "001": 0 },
+  progress:     { "001": 0 },
+  minted:       new Set()
+};
+
+function resetState() {
+  state = {
+    screen: "grid", selectedId: "001", playerName: state.playerName,
+    gridFilter: "all",
+    seen: new Set(["001","002","003"]),
+    owned: new Set(["001"]),
+    bank: { "001": 0 }, progress: { "001": 0 },
+    minted: new Set()
+  };
+}
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+function getLine(baseId) {
+  return Object.keys(MEMORIES)
+    .filter(id => MEMORIES[id].base_memory === baseId)
+    .sort((a, b) => MEMORIES[a].stage - MEMORIES[b].stage);
+}
+
+function stageOffset(id) {
+  const mem  = MEMORIES[id];
+  if (!mem) return 0;
+  const line = getLine(mem.base_memory);
+  const idx  = line.indexOf(id);
+  if (idx <= 0) return 0;
+  return MEMORIES[line[idx - 1]].max_memcore;
+}
+
+function ensureBase(baseId) {
+  if (state.bank[baseId]     == null) state.bank[baseId]     = 0;
+  if (state.progress[baseId] == null) state.progress[baseId] = 0;
+}
+
+function typeStyle(typeName) {
+  const cs = getComputedStyle(document.documentElement);
+  return {
+    bg: cs.getPropertyValue(`--type-${typeName}-bg`).trim()  || "#888",
+    fg: cs.getPropertyValue(`--type-${typeName}-fg`).trim()  || "#FFF"
+  };
+}
+
+function makeBadge(text, cls) {
+  const el = document.createElement('span');
+  el.className = `badge ${cls}`;
+  el.textContent = text;
+  return el;
+}
+
+function showImgPlaceholder(wrap, name) {
+  wrap.innerHTML = `<div class="img-placeholder"><span class="icon">🖼</span><span>${name}</span></div>`;
+}
+
+function capitalize(s) { return s ? s.charAt(0).toUpperCase() + s.slice(1) : ''; }
+
+/* ============================================================
+   SCREEN SWITCHER
+   ============================================================ */
+function showScreen(name) {
+  state.screen = name;
+  document.getElementById('screen-grid').classList.toggle('active', name === 'grid');
+  document.getElementById('screen-detail').classList.toggle('active', name === 'detail');
+}
+
+/* ============================================================
+   ══ RENDER GRID ══
+   ============================================================ */
+function renderGrid() {
+  // stats pills
+  const totalSeen  = state.seen.size;
+  const totalOwned = state.owned.size;
+  document.getElementById('pill-disc').textContent  = `${totalSeen} Discovered`;
+  document.getElementById('pill-owned').textContent = `${totalOwned} Owned`;
+  document.getElementById('gh-player-name').textContent = state.playerName;
+
+  // filter tabs
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === state.gridFilter);
+  });
+
+  // build cells
+  const grid = document.getElementById('mem-grid');
+  grid.innerHTML = '';
+
+  const allIds = Object.keys(CATALOG).sort();
+
+  allIds.forEach(id => {
+    const cat     = CATALOG[id];
+    const isOwned = state.owned.has(id);
+    const isSeen  = state.seen.has(id);
+
+    // apply filter
+    if (state.gridFilter === 'owned' && !isOwned) return;
+    if (state.gridFilter === 'seen'  && !isSeen)  return;
+
+    const status   = isOwned ? 'owned' : isSeen ? 'seen' : 'unknown';
+    const imgPath  = IMAGE_MAP[id];
+
+    const cell = document.createElement('div');
+    cell.className = `mem-cell ${status} rarity-${cat.r}`;
+
+    // dex number
+    const numEl = document.createElement('div');
+    numEl.className = 'cell-num';
+    numEl.textContent = `#${id}`;
+    cell.appendChild(numEl);
+
+    // image / placeholder
+    const imgWrap = document.createElement('div');
+    imgWrap.className = 'cell-img';
+    if (isOwned && imgPath) {
+      const img = document.createElement('img');
+      img.src = imgPath;
+      img.alt = cat.n;
+      img.onerror = () => {
+        const ph = document.createElement('div');
+        ph.className = 'cell-placeholder';
+        const { bg } = typeStyle(cat.t[0]);
+        ph.style.background = bg;
+        ph.textContent = cat.t[0].slice(0,2);
+        imgWrap.replaceChildren(ph);
+      };
+      imgWrap.appendChild(img);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'cell-placeholder';
+      if (status === 'seen') {
+        const { bg } = typeStyle(cat.t[0]);
+        ph.style.background = bg + '44';
+        ph.style.color = '#7090B0';
+        ph.textContent = '?';
+      } else if (status === 'owned') {
+        const { bg } = typeStyle(cat.t[0]);
+        ph.style.background = bg;
+        ph.textContent = cat.t[0].slice(0,2);
+      } else {
+        ph.textContent = '?';
+      }
+      imgWrap.appendChild(ph);
+    }
+    cell.appendChild(imgWrap);
+
+    // name
+    const nameEl = document.createElement('div');
+    nameEl.className = 'cell-name';
+    nameEl.textContent = (status === 'unknown') ? '???' : cat.n;
+    cell.appendChild(nameEl);
+
+    // type color strip at bottom
+    const strip = document.createElement('div');
+    strip.className = 'cell-type-strip';
+    if (status !== 'unknown') {
+      cat.t.forEach(t => {
+        const dot = document.createElement('div');
+        dot.className = 'cell-type-dot';
+        dot.style.background = typeStyle(t).bg;
+        strip.appendChild(dot);
+      });
+    }
+    cell.appendChild(strip);
+
+    // click handler
+    if (status !== 'unknown') {
+      cell.addEventListener('click', () => openDetail(id));
+    }
+
+    grid.appendChild(cell);
+  });
+
+  // debug
+  document.getElementById('grid-debug-state').textContent =
+    `seen:${state.seen.size}  owned:${state.owned.size}  filter:${state.gridFilter}`;
+}
+
+/* ============================================================
+   ══ OPEN DETAIL ══
+   ============================================================ */
+function openDetail(id) {
+  state.selectedId = id;
+  showScreen('detail');
+  renderDetail();
+}
+
+/* ============================================================
+   ══ RENDER DETAIL ══
+   ============================================================ */
+function renderDetail() {
+  const id  = state.selectedId;
+  const cat = CATALOG[id];
+  const mem = MEMORIES[id]; // may be undefined if no full data yet
+
+  const isOwned = state.owned.has(id);
+  const isSeen  = state.seen.has(id);
+
+  /* ── Use full MEMORIES data if available, CATALOG otherwise ── */
+  const name        = mem ? mem.name        : cat.n;
+  const rarity      = mem ? mem.rarity      : cat.r;
+  const types       = mem ? mem.type        : cat.t;
+  const description = mem ? mem.description : "Full lore data not yet available for this Memory.";
+  const stage       = mem ? mem.stage       : "—";
+  const height      = mem ? mem.height      : "—";
+  const weight      = mem ? mem.weight      : "—";
+  const essence     = mem ? mem.essence     : "—";
+  const yield_      = mem ? mem.sanctuary_yield : "—";
+  const source      = mem ? mem.source      : "—";
+  const mintable    = mem ? mem.mintable    : false;
+  const maxMints    = mem ? mem.max_mints   : null;
+  const supply      = mem ? mem.supply      : null;
+  const image       = IMAGE_MAP[id] || null;
+
+  /* ── Header ── */
+  document.getElementById('mem-name-id').textContent = `${name} #${id}`;
+  const badgesEl = document.getElementById('header-badges');
+  badgesEl.innerHTML = '';
+  badgesEl.appendChild(makeBadge(rarity, `badge-${rarity}`));
+  if (state.minted.has(id))   badgesEl.appendChild(makeBadge('Minted ✓', 'badge-minted'));
+  else if (mintable)           badgesEl.appendChild(makeBadge('Mintable', 'badge-mintable'));
+  else                         badgesEl.appendChild(makeBadge('Non-Mintable', 'badge-not-mintable'));
+
+  /* ── Hero image ── */
+  const imgWrap = document.getElementById('mem-image-wrap');
+  imgWrap.innerHTML = '';
+  if (image) {
+    const img = document.createElement('img');
+    img.src   = image;
+    img.alt   = name;
+    img.onerror = () => showImgPlaceholder(imgWrap, name);
+    imgWrap.appendChild(img);
+  } else {
+    showImgPlaceholder(imgWrap, name);
+  }
+
+  /* ── Stage pips (only if full data available) ── */
+  const si = document.getElementById('stage-indicator');
+  [...si.children].forEach(c => { if (c.id !== 'stage-label') c.remove(); });
+  if (mem) {
+    const line = getLine(mem.base_memory);
+    line.forEach(lineId => {
+      const pip = document.createElement('div');
+      pip.className = 'stage-pip';
+      if (MEMORIES[lineId] && MEMORIES[lineId].stage < stage) pip.classList.add('filled');
+      if (lineId === id) pip.classList.add('current');
+      si.insertBefore(pip, document.getElementById('stage-label'));
+    });
+    document.getElementById('stage-label').textContent = `Stage ${stage} / ${line.length}`;
+  } else {
+    document.getElementById('stage-label').textContent = `Stage ${stage}`;
+  }
+
+  /* ── Types ── */
+  const typesEl = document.getElementById('type-badges');
+  typesEl.innerHTML = '';
+  types.forEach(t => {
+    const { bg, fg } = typeStyle(t);
+    const span = document.createElement('span');
+    span.className = 'type-badge';
+    span.style.cssText = `background:${bg};color:${fg};border-color:rgba(0,0,0,.2)`;
+    span.textContent = t;
+    typesEl.appendChild(span);
+  });
+
+  /* ── Quick stats ── */
+  document.getElementById('hero-quick-stats').innerHTML = [
+    { label: 'Essence',   value: essence },
+    { label: 'Yield/Day', value: yield_ !== '—' ? `+${yield_}` : '—' },
+    { label: 'Ht',        value: height !== '—' ? `${height} cm` : '—' },
+    { label: 'Wt',        value: weight !== '—' ? `${weight} kg` : '—' }
+  ].map(({ label, value }) => `<div class="qstat"><span class="qstat-label">${label}</span><span class="qstat-value">${value}</span></div>`).join('');
+
+  /* ── Stats chips ── */
+  const chips = [
+    { label: 'Height', value: height !== '—' ? `${height} cm` : '—' },
+    { label: 'Weight', value: weight !== '—' ? `${weight} kg` : '—' },
+    { label: 'Essence', value: essence },
+    { label: 'Yield',   value: yield_ !== '—' ? `+${yield_}/day` : '—' },
+    { label: 'Source',  value: capitalize(source) },
+    { label: 'Stage',   value: stage !== '—' ? `${stage}` : '—' }
+  ];
+  if (mintable && maxMints) chips.push({ label: 'Max Mints', value: maxMints.toLocaleString() });
+  if (supply)               chips.push({ label: 'Supply',    value: supply.toLocaleString() });
+  document.getElementById('stats-grid').innerHTML = chips.map(c =>
+    `<div class="stat-chip"><span class="s-label">${c.label}</span><span class="s-value">${c.value}</span></div>`
+  ).join('');
+
+  /* ── Description ── */
+  document.getElementById('mem-desc').textContent = description;
+
+  /* ── Progression (only if full data + owned) ── */
+  const progPanel = document.getElementById('progression-panel');
+  if (mem && isOwned) {
+    progPanel.style.display = '';
+    ensureBase(mem.base_memory);
+    const prog  = state.progress[mem.base_memory] || 0;
+    const bank  = state.bank[mem.base_memory]     || 0;
+    const off   = stageOffset(id);
+    const stageEarned  = Math.max(0, Math.min(prog - off, mem.memcore_needed_from_current_stage));
+    const stageNeeded  = mem.memcore_needed_from_current_stage;
+    const pct          = stageNeeded > 0 ? (stageEarned / stageNeeded) * 100 : 100;
+    const canEvolve    = !!(mem.evolves_to && prog >= (mem.memcore_required_for_next_evo ?? Infinity));
+
+    document.getElementById('memcore-numbers').textContent = `${stageEarned} / ${stageNeeded}`;
+    document.getElementById('memcore-bank-display').textContent = bank;
+    const fill = document.getElementById('progress-fill');
+    fill.style.width = Math.min(100, pct) + '%';
+    fill.classList.toggle('ready', stageEarned >= stageNeeded);
+
+    const noteEl = document.getElementById('evo-note');
+    if (mem.evolves_to) {
+      const needed = mem.memcore_required_for_next_evo;
+      noteEl.textContent = canEvolve ? '✓ Ready to evolve!' : `${Math.max(0, needed - prog)} more Memcore needed`;
+      noteEl.className   = `evo-note${canEvolve ? ' ready' : ''}`;
+    } else {
+      noteEl.innerHTML  = '★ Final Form';
+      noteEl.className  = 'evo-note final';
+    }
+
+    /* action button states */
+    const stageRemain = stageNeeded - stageEarned;
+    document.getElementById('btn-levelup').disabled  = !(bank > 0 && stageRemain > 0);
+    document.getElementById('btn-evolve').disabled   = !canEvolve;
+    const canMint = mintable && isOwned && !state.minted.has(id);
+    document.getElementById('btn-mint').disabled     = !canMint;
+
+    /* debug */
+    document.getElementById('debug-state').textContent =
+      `bank:${bank}  prog:${prog}  owned:[${[...state.owned].join(',')}]  minted:[${[...state.minted].join(',') || '–'}]`;
+  } else {
+    /* no full data or not owned — disable action buttons */
+    progPanel.style.display = 'none';
+    document.getElementById('btn-levelup').disabled  = true;
+    document.getElementById('btn-evolve').disabled   = true;
+    document.getElementById('btn-mint').disabled     = true;
+    document.getElementById('debug-state').textContent = `id:${id}  owned:${isOwned}  fullData:${!!mem}`;
+  }
+
+  /* ── Evolution line ── */
+  const evoCards = document.getElementById('evo-line-cards');
+  evoCards.innerHTML = '';
+  if (mem) {
+    const line = getLine(mem.base_memory);
+    line.forEach((lineId, i) => {
+      const m         = MEMORIES[lineId];
+      const isSel     = lineId === id;
+      const isOwnedC  = state.owned.has(lineId);
+      if (i > 0) {
+        const arrow = document.createElement('div');
+        arrow.className = 'evo-arrow'; arrow.textContent = '›';
+        evoCards.appendChild(arrow);
+      }
+      const card = document.createElement('div');
+      card.className = `evo-card${isSel ? ' selected' : ''}${!isOwnedC ? ' locked' : ''}`;
+      const imgPath = IMAGE_MAP[lineId];
+      let imgHtml = isOwnedC && imgPath
+        ? `<img src="${imgPath}" alt="${m.name}" onerror="this.parentElement.innerHTML='<span style=\\'color:#666\\'>?</span>'">`
+        : `<span class="lock-icon">${isOwnedC ? '?' : '🔒'}</span>`;
+      const rc = RARITY_COLOR[m.rarity] || '#888';
+      card.innerHTML = `
+        ${isSel ? `<div class="evo-current-badge">NOW</div>` : ''}
+        <div class="evo-card-img">${imgHtml}</div>
+        <div class="evo-card-name">${m.name}</div>
+        <div class="evo-card-sub">#${lineId}</div>
+        <div class="evo-card-sub"><span class="evo-rarity-dot" style="background:${rc}"></span>${m.rarity}</div>`;
+      if (isOwnedC) { card.addEventListener('click', () => openDetail(lineId)); }
+      evoCards.appendChild(card);
+    });
+  } else {
+    evoCards.innerHTML = `<div style="color:rgba(255,255,255,.4);font-size:.65rem;text-align:center;padding:8px">Evolution data coming soon</div>`;
+  }
+}
+
+/* ============================================================
+   EVENT HANDLERS — GRID
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    state.gridFilter = btn.dataset.filter;
+    renderGrid();
+  });
+});
+
+document.getElementById('dbg-see-all').addEventListener('click', () => {
+  Object.keys(CATALOG).forEach(id => state.seen.add(id));
+  renderGrid();
+});
+document.getElementById('dbg-own-all').addEventListener('click', () => {
+  Object.keys(IMAGE_MAP).forEach(id => { state.owned.add(id); state.seen.add(id); });
+  renderGrid();
+});
+document.getElementById('dbg-grid-reset').addEventListener('click', () => {
+  resetState(); renderGrid();
+});
+
+/* ============================================================
+   EVENT HANDLERS — DETAIL
+   ============================================================ */
+document.getElementById('btn-back').addEventListener('click', () => {
+  showScreen('grid'); renderGrid();
+});
+document.getElementById('close-btn').addEventListener('click', () => {
+  showScreen('grid'); renderGrid();
+});
+
+document.getElementById('btn-levelup').addEventListener('click', () => {
+  const mem = MEMORIES[state.selectedId];
+  if (!mem) return;
+  const base = mem.base_memory;
+  const bank = state.bank[base] || 0;
+  const prog = state.progress[base] || 0;
+  const off  = stageOffset(state.selectedId);
+  const stageEarned = Math.max(0, prog - off);
+  const remain      = mem.memcore_needed_from_current_stage - stageEarned;
+  const toSpend     = Math.min(bank, remain);
+  if (toSpend > 0) {
+    state.bank[base]     = bank - toSpend;
+    state.progress[base] = prog + toSpend;
+    renderDetail();
+  }
+});
+
+document.getElementById('btn-evolve').addEventListener('click', () => {
+  const mem = MEMORIES[state.selectedId];
+  if (!mem?.evolves_to) return;
+  const nextId = mem.evolves_to;
+  state.owned.add(nextId);
+  state.seen.add(nextId);
+  state.selectedId = nextId;
+  ensureBase(MEMORIES[nextId]?.base_memory || mem.base_memory);
+  renderDetail();
+});
+
+document.getElementById('btn-mint').addEventListener('click', () => {
+  const mem = MEMORIES[state.selectedId];
+  if (!mem?.mintable || !state.owned.has(state.selectedId)) return;
+  state.minted.add(state.selectedId);
+  renderDetail();
+});
+
+document.getElementById('btn-sanctuary').addEventListener('click', () => {
+  alert('Sanctuary / Release — coming soon.');
+});
+
+document.getElementById('dbg-add').addEventListener('click', () => {
+  const mem = MEMORIES[state.selectedId];
+  if (!mem) return;
+  ensureBase(mem.base_memory);
+  state.bank[mem.base_memory] = (state.bank[mem.base_memory] || 0) + 10;
+  renderDetail();
+});
+document.getElementById('dbg-reset').addEventListener('click', () => {
+  resetState(); showScreen('grid'); renderGrid();
+});
+
+/* ============================================================
+   INIT — fetch data, then start the app
+   ============================================================ */
+(async () => {
+  try {
+    await loadData();
+    document.getElementById('loading-overlay').classList.add('hidden');
+    renderGrid();
+  } catch (err) {
+    const errEl = document.getElementById('loading-error');
+    errEl.style.display = 'block';
+    errEl.textContent   = `Failed to load mempool.json — ${err.message}. Open via a server, not file://.`;
+    document.getElementById('loading-text').textContent = 'Load error';
+    document.getElementById('loading-spinner').textContent = '✕';
+    console.error('Mempool load error:', err);
+  }
+})();
+</script>
+</body>
+</html>
