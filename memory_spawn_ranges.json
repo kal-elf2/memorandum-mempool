@@ -1,0 +1,685 @@
+{
+  "EARTH": {
+    "total_weight": 24050,
+    "count": 12,
+    "ranges": [
+      {
+        "dex_id": "001",
+        "weight": 5500,
+        "chance": "0.2286902287",
+        "range_start": "0.0000000000",
+        "range_end": "0.2286902287"
+      },
+      {
+        "dex_id": "002",
+        "weight": 250,
+        "chance": "0.0103950104",
+        "range_start": "0.2286902287",
+        "range_end": "0.2390852391"
+      },
+      {
+        "dex_id": "004",
+        "weight": 2300,
+        "chance": "0.0956340956",
+        "range_start": "0.2390852391",
+        "range_end": "0.3347193347"
+      },
+      {
+        "dex_id": "007",
+        "weight": 2300,
+        "chance": "0.0956340956",
+        "range_start": "0.3347193347",
+        "range_end": "0.4303534304"
+      },
+      {
+        "dex_id": "010",
+        "weight": 2500,
+        "chance": "0.1039501040",
+        "range_start": "0.4303534304",
+        "range_end": "0.5343035343"
+      },
+      {
+        "dex_id": "012",
+        "weight": 2500,
+        "chance": "0.1039501040",
+        "range_start": "0.5343035343",
+        "range_end": "0.6382536383"
+      },
+      {
+        "dex_id": "013",
+        "weight": 1500,
+        "chance": "0.0623700624",
+        "range_start": "0.6382536383",
+        "range_end": "0.7006237006"
+      },
+      {
+        "dex_id": "015",
+        "weight": 1250,
+        "chance": "0.0519750520",
+        "range_start": "0.7006237006",
+        "range_end": "0.7525987526"
+      },
+      {
+        "dex_id": "016",
+        "weight": 2500,
+        "chance": "0.1039501040",
+        "range_start": "0.7525987526",
+        "range_end": "0.8565488565"
+      },
+      {
+        "dex_id": "019",
+        "weight": 1250,
+        "chance": "0.0519750520",
+        "range_start": "0.8565488565",
+        "range_end": "0.9085239085"
+      },
+      {
+        "dex_id": "021",
+        "weight": 1200,
+        "chance": "0.0498960499",
+        "range_start": "0.9085239085",
+        "range_end": "0.9584199584"
+      },
+      {
+        "dex_id": "022",
+        "weight": 1000,
+        "chance": "0.0415800416",
+        "range_start": "0.9584199584",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "FIRE": {
+    "total_weight": 16350,
+    "count": 8,
+    "ranges": [
+      {
+        "dex_id": "023",
+        "weight": 5500,
+        "chance": "0.3363914373",
+        "range_start": "0.0000000000",
+        "range_end": "0.3363914373"
+      },
+      {
+        "dex_id": "024",
+        "weight": 250,
+        "chance": "0.0152905199",
+        "range_start": "0.3363914373",
+        "range_end": "0.3516819572"
+      },
+      {
+        "dex_id": "026",
+        "weight": 2500,
+        "chance": "0.1529051988",
+        "range_start": "0.3516819572",
+        "range_end": "0.5045871560"
+      },
+      {
+        "dex_id": "028",
+        "weight": 3000,
+        "chance": "0.1834862385",
+        "range_start": "0.5045871560",
+        "range_end": "0.6880733945"
+      },
+      {
+        "dex_id": "030",
+        "weight": 3000,
+        "chance": "0.1834862385",
+        "range_start": "0.6880733945",
+        "range_end": "0.8715596330"
+      },
+      {
+        "dex_id": "031",
+        "weight": 250,
+        "chance": "0.0152905199",
+        "range_start": "0.8715596330",
+        "range_end": "0.8868501529"
+      },
+      {
+        "dex_id": "032",
+        "weight": 1500,
+        "chance": "0.0917431193",
+        "range_start": "0.8868501529",
+        "range_end": "0.9785932722"
+      },
+      {
+        "dex_id": "035",
+        "weight": 350,
+        "chance": "0.0214067278",
+        "range_start": "0.9785932722",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "WIND": {
+    "total_weight": 19475,
+    "count": 11,
+    "ranges": [
+      {
+        "dex_id": "036",
+        "weight": 5500,
+        "chance": "0.2824133504",
+        "range_start": "0.0000000000",
+        "range_end": "0.2824133504"
+      },
+      {
+        "dex_id": "037",
+        "weight": 250,
+        "chance": "0.0128369705",
+        "range_start": "0.2824133504",
+        "range_end": "0.2952503209"
+      },
+      {
+        "dex_id": "039",
+        "weight": 4000,
+        "chance": "0.2053915276",
+        "range_start": "0.2952503209",
+        "range_end": "0.5006418485"
+      },
+      {
+        "dex_id": "040",
+        "weight": 200,
+        "chance": "0.0102695764",
+        "range_start": "0.5006418485",
+        "range_end": "0.5109114249"
+      },
+      {
+        "dex_id": "042",
+        "weight": 1800,
+        "chance": "0.0924261874",
+        "range_start": "0.5109114249",
+        "range_end": "0.6033376123"
+      },
+      {
+        "dex_id": "043",
+        "weight": 75,
+        "chance": "0.0038510911",
+        "range_start": "0.6033376123",
+        "range_end": "0.6071887035"
+      },
+      {
+        "dex_id": "045",
+        "weight": 1900,
+        "chance": "0.0975609756",
+        "range_start": "0.6071887035",
+        "range_end": "0.7047496791"
+      },
+      {
+        "dex_id": "047",
+        "weight": 2750,
+        "chance": "0.1412066752",
+        "range_start": "0.7047496791",
+        "range_end": "0.8459563543"
+      },
+      {
+        "dex_id": "048",
+        "weight": 1000,
+        "chance": "0.0513478819",
+        "range_start": "0.8459563543",
+        "range_end": "0.8973042362"
+      },
+      {
+        "dex_id": "049",
+        "weight": 1000,
+        "chance": "0.0513478819",
+        "range_start": "0.8973042362",
+        "range_end": "0.9486521181"
+      },
+      {
+        "dex_id": "051",
+        "weight": 1000,
+        "chance": "0.0513478819",
+        "range_start": "0.9486521181",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "WATER": {
+    "total_weight": 16425,
+    "count": 10,
+    "ranges": [
+      {
+        "dex_id": "053",
+        "weight": 2200,
+        "chance": "0.1339421613",
+        "range_start": "0.0000000000",
+        "range_end": "0.1339421613"
+      },
+      {
+        "dex_id": "055",
+        "weight": 3500,
+        "chance": "0.2130898021",
+        "range_start": "0.1339421613",
+        "range_end": "0.3470319635"
+      },
+      {
+        "dex_id": "058",
+        "weight": 1900,
+        "chance": "0.1156773212",
+        "range_start": "0.3470319635",
+        "range_end": "0.4627092846"
+      },
+      {
+        "dex_id": "060",
+        "weight": 1500,
+        "chance": "0.0913242009",
+        "range_start": "0.4627092846",
+        "range_end": "0.5540334855"
+      },
+      {
+        "dex_id": "062",
+        "weight": 1800,
+        "chance": "0.1095890411",
+        "range_start": "0.5540334855",
+        "range_end": "0.6636225266"
+      },
+      {
+        "dex_id": "064",
+        "weight": 1800,
+        "chance": "0.1095890411",
+        "range_start": "0.6636225266",
+        "range_end": "0.7732115677"
+      },
+      {
+        "dex_id": "065",
+        "weight": 75,
+        "chance": "0.0045662100",
+        "range_start": "0.7732115677",
+        "range_end": "0.7777777778"
+      },
+      {
+        "dex_id": "066",
+        "weight": 1800,
+        "chance": "0.1095890411",
+        "range_start": "0.7777777778",
+        "range_end": "0.8873668189"
+      },
+      {
+        "dex_id": "068",
+        "weight": 1500,
+        "chance": "0.0913242009",
+        "range_start": "0.8873668189",
+        "range_end": "0.9786910198"
+      },
+      {
+        "dex_id": "073",
+        "weight": 350,
+        "chance": "0.0213089802",
+        "range_start": "0.9786910198",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "ELECTRIC": {
+    "total_weight": 11675,
+    "count": 7,
+    "ranges": [
+      {
+        "dex_id": "074",
+        "weight": 3600,
+        "chance": "0.3083511777",
+        "range_start": "0.0000000000",
+        "range_end": "0.3083511777"
+      },
+      {
+        "dex_id": "075",
+        "weight": 200,
+        "chance": "0.0171306210",
+        "range_start": "0.3083511777",
+        "range_end": "0.3254817987"
+      },
+      {
+        "dex_id": "076",
+        "weight": 2000,
+        "chance": "0.1713062099",
+        "range_start": "0.3254817987",
+        "range_end": "0.4967880086"
+      },
+      {
+        "dex_id": "077",
+        "weight": 200,
+        "chance": "0.0171306210",
+        "range_start": "0.4967880086",
+        "range_end": "0.5139186296"
+      },
+      {
+        "dex_id": "078",
+        "weight": 1500,
+        "chance": "0.1284796574",
+        "range_start": "0.5139186296",
+        "range_end": "0.6423982869"
+      },
+      {
+        "dex_id": "080",
+        "weight": 3600,
+        "chance": "0.3083511777",
+        "range_start": "0.6423982869",
+        "range_end": "0.9507494647"
+      },
+      {
+        "dex_id": "082",
+        "weight": 575,
+        "chance": "0.0492505353",
+        "range_start": "0.9507494647",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "SOUL": {
+    "total_weight": 8650,
+    "count": 7,
+    "ranges": [
+      {
+        "dex_id": "084",
+        "weight": 3250,
+        "chance": "0.3757225434",
+        "range_start": "0.0000000000",
+        "range_end": "0.3757225434"
+      },
+      {
+        "dex_id": "085",
+        "weight": 350,
+        "chance": "0.0404624277",
+        "range_start": "0.3757225434",
+        "range_end": "0.4161849711"
+      },
+      {
+        "dex_id": "087",
+        "weight": 2500,
+        "chance": "0.2890173410",
+        "range_start": "0.4161849711",
+        "range_end": "0.7052023121"
+      },
+      {
+        "dex_id": "088",
+        "weight": 250,
+        "chance": "0.0289017341",
+        "range_start": "0.7052023121",
+        "range_end": "0.7341040462"
+      },
+      {
+        "dex_id": "092",
+        "weight": 1000,
+        "chance": "0.1156069364",
+        "range_start": "0.7341040462",
+        "range_end": "0.8497109827"
+      },
+      {
+        "dex_id": "093",
+        "weight": 500,
+        "chance": "0.0578034682",
+        "range_start": "0.8497109827",
+        "range_end": "0.9075144509"
+      },
+      {
+        "dex_id": "094",
+        "weight": 800,
+        "chance": "0.0924855491",
+        "range_start": "0.9075144509",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "AETHER": {
+    "total_weight": 11675,
+    "count": 8,
+    "ranges": [
+      {
+        "dex_id": "095",
+        "weight": 1200,
+        "chance": "0.1027837259",
+        "range_start": "0.0000000000",
+        "range_end": "0.1027837259"
+      },
+      {
+        "dex_id": "097",
+        "weight": 1500,
+        "chance": "0.1284796574",
+        "range_start": "0.1027837259",
+        "range_end": "0.2312633833"
+      },
+      {
+        "dex_id": "098",
+        "weight": 75,
+        "chance": "0.0064239829",
+        "range_start": "0.2312633833",
+        "range_end": "0.2376873662"
+      },
+      {
+        "dex_id": "099",
+        "weight": 3600,
+        "chance": "0.3083511777",
+        "range_start": "0.2376873662",
+        "range_end": "0.5460385439"
+      },
+      {
+        "dex_id": "100",
+        "weight": 200,
+        "chance": "0.0171306210",
+        "range_start": "0.5460385439",
+        "range_end": "0.5631691649"
+      },
+      {
+        "dex_id": "103",
+        "weight": 1000,
+        "chance": "0.0856531049",
+        "range_start": "0.5631691649",
+        "range_end": "0.6488222698"
+      },
+      {
+        "dex_id": "104",
+        "weight": 3600,
+        "chance": "0.3083511777",
+        "range_start": "0.6488222698",
+        "range_end": "0.9571734475"
+      },
+      {
+        "dex_id": "105",
+        "weight": 500,
+        "chance": "0.0428265525",
+        "range_start": "0.9571734475",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "VOID": {
+    "total_weight": 9800,
+    "count": 9,
+    "ranges": [
+      {
+        "dex_id": "106",
+        "weight": 1800,
+        "chance": "0.1836734694",
+        "range_start": "0.0000000000",
+        "range_end": "0.1836734694"
+      },
+      {
+        "dex_id": "107",
+        "weight": 75,
+        "chance": "0.0076530612",
+        "range_start": "0.1836734694",
+        "range_end": "0.1913265306"
+      },
+      {
+        "dex_id": "108",
+        "weight": 1400,
+        "chance": "0.1428571429",
+        "range_start": "0.1913265306",
+        "range_end": "0.3341836735"
+      },
+      {
+        "dex_id": "109",
+        "weight": 100,
+        "chance": "0.0102040816",
+        "range_start": "0.3341836735",
+        "range_end": "0.3443877551"
+      },
+      {
+        "dex_id": "112",
+        "weight": 1800,
+        "chance": "0.1836734694",
+        "range_start": "0.3443877551",
+        "range_end": "0.5280612245"
+      },
+      {
+        "dex_id": "114",
+        "weight": 1500,
+        "chance": "0.1530612245",
+        "range_start": "0.5280612245",
+        "range_end": "0.6811224490"
+      },
+      {
+        "dex_id": "116",
+        "weight": 1725,
+        "chance": "0.1760204082",
+        "range_start": "0.6811224490",
+        "range_end": "0.8571428571"
+      },
+      {
+        "dex_id": "118",
+        "weight": 1000,
+        "chance": "0.1020408163",
+        "range_start": "0.8571428571",
+        "range_end": "0.9591836735"
+      },
+      {
+        "dex_id": "119",
+        "weight": 400,
+        "chance": "0.0408163265",
+        "range_start": "0.9591836735",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "MIND": {
+    "total_weight": 9400,
+    "count": 8,
+    "ranges": [
+      {
+        "dex_id": "120",
+        "weight": 3000,
+        "chance": "0.3191489362",
+        "range_start": "0.0000000000",
+        "range_end": "0.3191489362"
+      },
+      {
+        "dex_id": "121",
+        "weight": 325,
+        "chance": "0.0345744681",
+        "range_start": "0.3191489362",
+        "range_end": "0.3537234043"
+      },
+      {
+        "dex_id": "122",
+        "weight": 25,
+        "chance": "0.0026595745",
+        "range_start": "0.3537234043",
+        "range_end": "0.3563829787"
+      },
+      {
+        "dex_id": "123",
+        "weight": 1400,
+        "chance": "0.1489361702",
+        "range_start": "0.3563829787",
+        "range_end": "0.5053191489"
+      },
+      {
+        "dex_id": "125",
+        "weight": 1500,
+        "chance": "0.1595744681",
+        "range_start": "0.5053191489",
+        "range_end": "0.6648936170"
+      },
+      {
+        "dex_id": "126",
+        "weight": 150,
+        "chance": "0.0159574468",
+        "range_start": "0.6648936170",
+        "range_end": "0.6808510638"
+      },
+      {
+        "dex_id": "127",
+        "weight": 1500,
+        "chance": "0.1595744681",
+        "range_start": "0.6808510638",
+        "range_end": "0.8404255319"
+      },
+      {
+        "dex_id": "129",
+        "weight": 1500,
+        "chance": "0.1595744681",
+        "range_start": "0.8404255319",
+        "range_end": "1.0000000000"
+      }
+    ]
+  },
+  "ASTRAL": {
+    "total_weight": 8100,
+    "count": 9,
+    "ranges": [
+      {
+        "dex_id": "130",
+        "weight": 2250,
+        "chance": "0.2777777778",
+        "range_start": "0.0000000000",
+        "range_end": "0.2777777778"
+      },
+      {
+        "dex_id": "131",
+        "weight": 250,
+        "chance": "0.0308641975",
+        "range_start": "0.2777777778",
+        "range_end": "0.3086419753"
+      },
+      {
+        "dex_id": "133",
+        "weight": 2250,
+        "chance": "0.2777777778",
+        "range_start": "0.3086419753",
+        "range_end": "0.5864197531"
+      },
+      {
+        "dex_id": "134",
+        "weight": 250,
+        "chance": "0.0308641975",
+        "range_start": "0.5864197531",
+        "range_end": "0.6172839506"
+      },
+      {
+        "dex_id": "136",
+        "weight": 1500,
+        "chance": "0.1851851852",
+        "range_start": "0.6172839506",
+        "range_end": "0.8024691358"
+      },
+      {
+        "dex_id": "139",
+        "weight": 350,
+        "chance": "0.0432098765",
+        "range_start": "0.8024691358",
+        "range_end": "0.8456790123"
+      },
+      {
+        "dex_id": "140",
+        "weight": 1000,
+        "chance": "0.1234567901",
+        "range_start": "0.8456790123",
+        "range_end": "0.9691358025"
+      },
+      {
+        "dex_id": "141",
+        "weight": 100,
+        "chance": "0.0123456790",
+        "range_start": "0.9691358025",
+        "range_end": "0.9814814815"
+      },
+      {
+        "dex_id": "143",
+        "weight": 150,
+        "chance": "0.0185185185",
+        "range_start": "0.9814814815",
+        "range_end": "1.0000000000"
+      }
+    ]
+  }
+}
