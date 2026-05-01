@@ -95,6 +95,13 @@
   /* ACTIONS */
   --btn-disabled-bg: #EBEBEB;
   --btn-disabled-fg: #B0B0B0;
+
+  /* GRID LAYOUT TUNER VARS */
+  --gc-pt:   8px;
+  --gc-pi:   20px;
+  --gc-gap:  12px;
+  --tr-top:  50px;
+  --tr-size: 128px;
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -243,10 +250,10 @@ body {
 .screen.active { display: flex; flex-direction: column; }
 
 /* ══════════════════════════════════════════════════════════
-   GRID SCREEN  — light blue Figma theme
+   GRID SCREEN  — #A2CDFF light blue theme
 ══════════════════════════════════════════════════════════ */
 #screen-grid {
-  background: linear-gradient(175deg, #A8C8E0 0%, #8BAECC 100%);
+  background: linear-gradient(180deg, #A2CDFF 0%, #A2CDFF 65%, #9CC7F2 100%);
   height: 100%; overflow: hidden;
   position: relative;
   /* display/flex-direction come from .screen.active — do NOT set here or grid never hides */
@@ -259,65 +266,72 @@ body {
 }
 .dbg:hover { background: rgba(255,255,255,0.3); }
 
-/* Welcome header banner — transparent so screen bg shows through uniformly */
+/* Welcome header banner */
 .grid-header {
   flex-shrink: 0;
-  padding: 10px 12px 8px;
+  padding: 10px 18px 8px;
   background: transparent;
 }
 .grid-welcome-row {
   display: flex; align-items: flex-end;
-  margin-bottom: 8px; min-height: 48px;
+  margin-bottom: 8px; min-height: 52px;
 }
 .grid-welcome-left {
-  display: flex; flex-direction: column; gap: 1px; flex: 1;
-  padding-right: 100px; /* leave visual room for the trainer overlay */
+  display: flex; flex-direction: column; gap: 2px; flex: 1;
+  padding-right: 130px;
 }
 .grid-welcome-eyebrow {
-  font-size: 10px; font-weight: 500; color: rgba(255,255,255,0.8);
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8);
   letter-spacing: 0.3px; display: flex; align-items: center; gap: 5px;
 }
 .grid-logo { width: 18px; height: 18px; object-fit: contain; }
 .grid-title {
-  font-size: 22px; font-weight: 900; color: white; letter-spacing: -0.5px;
-  line-height: 1; text-shadow: 0 1px 6px rgba(0,0,0,0.2);
+  font-size: 26px; font-weight: 900; color: white; letter-spacing: -0.5px;
+  line-height: 1.05; text-shadow: 0 1px 6px rgba(0,0,0,0.15);
 }
-/* Trainer — confirmed position, baked in */
+.grid-player-name {
+  font-size: 13px; font-weight: 700; color: rgba(255,255,255,0.88);
+  letter-spacing: 0.1px;
+}
+/* Trainer — background element, fades at bottom */
 .grid-trainer {
   position: absolute;
-  top: -20px; right: 9px;
-  height: 106%;
-  width: auto; object-fit: contain;
-  object-position: top right;
-  filter: drop-shadow(0 8px 24px rgba(0,0,50,0.35));
+  top: var(--tr-top, 50px); right: 10px;
+  width: var(--tr-size, 128px); height: auto;
+  object-fit: contain; object-position: top center;
+  -webkit-mask-image: linear-gradient(to bottom, black 25%, transparent 80%);
+  mask-image: linear-gradient(to bottom, black 25%, transparent 80%);
+  filter: drop-shadow(0 6px 16px rgba(0,0,50,0.22));
   pointer-events: none; z-index: 5;
 }
 
-/* Stacked pills – one per line */
+/* Stacked pills */
 .grid-stats {
   display: flex; flex-direction: column; gap: 5px; margin-bottom: 0;
 }
 .grid-stat-pill {
   display: inline-flex; align-items: center; align-self: flex-start;
-  background: rgba(255,255,255,0.28);
-  border: 1px solid rgba(255,255,255,0.45);
-  border-radius: 999px; padding: 4px 12px;
-  font-size: 11px; font-weight: 600; color: rgba(20,50,90,0.9);
+  height: 28px; padding: 0 14px;
+  border-radius: 999px;
+  border: 2px solid rgba(255,255,255,0.88);
+  background: rgba(255,255,255,0.12);
+  font-size: 11px; font-weight: 800; color: #fff;
 }
 
-/* Search + filters: sticky bar just above the grid cells */
+/* Search + filters */
 .grid-controls {
   flex-shrink: 0;
-  padding: 6px 10px 5px;
-  display: flex; flex-direction: column; gap: 5px;
-  background: rgba(140,180,210,0.3);
-  border-bottom: 1px solid rgba(255,255,255,0.2);
+  padding: 5px 18px 7px;
+  display: flex; flex-direction: column; gap: 6px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.22);
 }
 .grid-search {
   display: flex; align-items: center;
+  height: 34px;
   background: rgba(255,255,255,0.55);
-  border: 1px solid rgba(255,255,255,0.75);
-  border-radius: 999px; padding: 5px 12px; gap: 7px;
+  border: 2px solid rgba(255,255,255,0.85);
+  border-radius: 999px; padding: 0 12px; gap: 7px;
 }
 .grid-search-ico { font-size: 12px; color: rgba(30,70,110,0.55); }
 .grid-search input {
@@ -327,89 +341,157 @@ body {
 }
 .grid-search input::placeholder { color: rgba(30,70,110,0.4); }
 
-.grid-filters { display: flex; gap: 5px; }
+.grid-filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .ftab {
-  font-family: var(--font); font-size: 11px; font-weight: 600;
-  padding: 4px 13px; border-radius: 999px; cursor: pointer;
-  border: 1px solid rgba(255,255,255,0.4);
-  background: rgba(255,255,255,0.2); color: rgba(20,55,95,0.85);
+  font-family: var(--font); font-size: 11px; font-weight: 700;
+  padding: 5px 14px; border-radius: 999px; cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.55);
+  background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92);
   transition: all 0.12s;
 }
 .ftab.active, .ftab:hover {
-  background: rgba(20,55,120,0.85); color: white; border-color: transparent;
+  background: #1A3D8A; color: white; border-color: #1A3D8A;
 }
 
+/* TYPE ICON ROW — shown only when Type filter is active */
+.type-icon-row {
+  display: none;
+  flex-shrink: 0;
+  overflow-x: auto; gap: 5px;
+  padding: 5px 18px 4px;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  background: rgba(255,255,255,0.08);
+  border-bottom: 1px solid rgba(255,255,255,0.18);
+}
+.type-icon-row::-webkit-scrollbar { display: none; }
+.type-icon-row.visible { display: flex; }
+.type-icon-btn {
+  display: flex; flex-direction: column; align-items: center; gap: 2px;
+  background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.35);
+  border-radius: 12px; padding: 5px 8px; cursor: pointer; flex-shrink: 0;
+  font-family: var(--font); transition: all 0.12s; min-width: 44px;
+}
+.type-icon-btn:hover { background: rgba(255,255,255,0.32); border-color: rgba(255,255,255,0.65); }
+.type-icon-btn.active-type { background: rgba(255,255,255,0.9); border-color: white; }
+.type-icon-btn img { width: 22px; height: 22px; object-fit: contain; }
+.type-icon-btn span {
+  font-size: 7px; font-weight: 700; text-transform: uppercase;
+  color: rgba(255,255,255,0.85); white-space: nowrap;
+}
+.type-icon-btn.active-type span { color: rgba(20,50,90,0.85); }
+
+/* GRID CELLS CONTAINER */
 .grid-cells {
-  padding: 112px 12px 12px;
+  padding: var(--gc-pt, 8px) var(--gc-pi, 20px) 20px;
   display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: 8px; overflow-y: auto; flex: 1;
+  gap: var(--gc-gap, 12px); overflow-y: auto; flex: 1;
+}
+.grid-cells.type-mode {
+  display: block;
+}
+
+/* TYPE SECTIONS (inside .grid-cells.type-mode) */
+.type-section { margin-bottom: 16px; }
+.type-section-header {
+  display: flex; align-items: center; gap: 8px;
+  padding: 5px 0 7px;
+  border-bottom: 1.5px solid rgba(255,255,255,0.3);
+  margin-bottom: 8px;
+}
+.type-sec-icon { width: 24px; height: 24px; object-fit: contain; flex-shrink: 0; }
+.type-sec-info { flex: 1; min-width: 0; }
+.type-sec-name {
+  font-size: 11px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 0.5px; display: block; color: white;
+}
+.type-sec-progress {
+  font-size: 10px; font-weight: 600; color: rgba(255,255,255,0.72);
+  display: block; margin-top: 1px;
+}
+.type-sec-bar-wrap {
+  width: 62px; height: 8px; border-radius: 999px;
+  background: rgba(255,255,255,0.28); overflow: hidden; flex-shrink: 0;
+}
+.type-sec-bar { height: 100%; border-radius: 999px; transition: width 0.3s ease; }
+.type-section-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: var(--gc-gap, 12px);
 }
 
 /* Base card — unknown */
 .grid-cell {
-  background: rgba(255,255,255,0.18);
-  border: 1px solid rgba(255,255,255,0.3);
-  border-radius: 12px; padding: 7px 5px 6px;
+  aspect-ratio: 1 / 1;
+  background: rgba(255,255,255,0.16);
+  border: 2px solid rgba(255,255,255,0.42);
+  border-radius: 20px;
   cursor: default; transition: all 0.12s;
-  min-height: 80px;
   display: flex; flex-direction: column;
-  align-items: center; gap: 3px;
+  align-items: center; justify-content: center;
+  padding: 6px; position: relative; overflow: hidden;
 }
 
-/* Owned / known */
+/* Owned / saved */
 .grid-cell.known {
-  background: rgba(255,255,255,0.92);
-  border-color: rgba(255,255,255,0.95);
-  box-shadow: 0 2px 10px rgba(0,0,80,0.1);
+  background: rgba(255,255,255,0.96);
+  border: 3px solid white;
+  box-shadow: 0 6px 14px rgba(60,110,170,0.18);
   cursor: pointer;
+  justify-content: flex-start; padding-top: 20px;
 }
 .grid-cell.known:hover {
-  transform: translateY(-2px) scale(1.03);
-  box-shadow: 0 6px 18px rgba(0,0,80,0.18);
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 10px 22px rgba(60,110,170,0.28);
 }
 
 /* Seen but not captured */
 .grid-cell.seen {
-  background: rgba(255,255,255,0.38);
+  background: rgba(255,255,255,0.28);
   border-color: rgba(255,255,255,0.55);
   cursor: pointer;
+  justify-content: flex-start; padding-top: 20px;
 }
-.grid-cell.seen:hover { background: rgba(255,255,255,0.5); transform: translateY(-1px); }
+.grid-cell.seen:hover { background: rgba(255,255,255,0.40); transform: translateY(-1px); }
 
 /* Discovered-but-not-captured image */
 .gc-img-discovered {
-  width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto;
-  filter: grayscale(100%) brightness(0.65) opacity(0.6);
+  width: 56px; height: 56px; object-fit: contain; display: block; margin: 0 auto;
+  filter: grayscale(100%) brightness(0.55) opacity(0.5);
 }
-.gc-img-discovered-wrap { position: relative; width: 48px; height: 48px; margin: 0 auto; }
-.gc-img-discovered-wrap::after {
-  content: ''; position: absolute; inset: 0;
-  background: rgba(80,110,140,0.35); border-radius: 6px;
-}
+.gc-img-discovered-wrap { position: relative; width: 56px; height: 56px; margin: 0 auto; }
 
-.grid-cell.akronite { box-shadow: 0 0 14px rgba(255,215,0,0.55); border-color: #FFD700 !important; }
+.grid-cell.akronite { box-shadow: 0 0 16px rgba(255,215,0,0.6); border-color: #FFD700 !important; }
+.grid-cell.known.akronite { box-shadow: 0 6px 18px rgba(255,200,0,0.45), 0 0 12px rgba(255,215,0,0.4); }
 
-/* Dex number */
+/* Dex number — absolute top-left for known/seen */
 .gc-num {
   font-size: 9px; font-weight: 700; letter-spacing: 0.4px;
-  align-self: flex-start; padding-left: 3px; line-height: 1;
+  position: absolute; top: 6px; left: 8px; line-height: 1;
 }
-.grid-cell.known .gc-num  { color: rgba(30,60,100,0.55); }
-.grid-cell.seen  .gc-num  { color: rgba(30,60,100,0.45); }
-.grid-cell:not(.known):not(.seen) .gc-num { color: rgba(40,80,130,0.3); }
+/* Dex number — centered for unknown */
+.gc-num-unk {
+  font-size: 15px; font-weight: 900;
+  color: rgba(255,255,255,0.65);
+  text-align: center; line-height: 1;
+}
+.grid-cell.known .gc-num  { color: rgba(30,60,100,0.50); }
+.grid-cell.seen  .gc-num  { color: rgba(255,255,255,0.55); }
 
 /* Creature image */
-.gc-img { width: 48px; height: 48px; object-fit: contain; display: block; margin: 0 auto; }
-
-/* Empty slot — no image, no placeholder, just space */
-.gc-placeholder {
-  width: 48px; height: 48px;
+.gc-img {
+  width: 58px; height: 58px; object-fit: contain; display: block;
+  margin: 0 auto; image-rendering: pixelated;
 }
+
+/* Empty slot */
+.gc-placeholder { width: 58px; height: 58px; }
+
 .gc-name {
-  font-size: 8px; font-weight: 600; text-align: center; line-height: 1.2;
+  font-size: 10px; font-weight: 700; text-align: center; line-height: 1.2;
+  margin-top: auto; padding: 0 2px;
 }
 .grid-cell.known .gc-name { color: rgba(20,50,90,0.85); }
-.grid-cell.seen  .gc-name { color: rgba(20,50,90,0.45); }
+.grid-cell.seen  .gc-name { color: rgba(255,255,255,0.55); }
 
 /* ══════════════════════════════════════════════════════════
    DETAIL SCREEN
@@ -935,10 +1017,10 @@ body {
          SCREEN 1: GRID
     ════════════════════════ -->
     <div id="screen-grid" class="screen active">
-      <!-- Trainer: absolutely positioned over the whole grid screen -->
+      <!-- Trainer: background element, fades via CSS mask -->
       <img class="grid-trainer" src="assets/figma-ref/trainer_image.png" alt="Trainer"
            onerror="this.style.display='none'">
-      <!-- Header: welcome + stacked stats + trainer -->
+      <!-- Header: welcome + stacked stats -->
       <div class="grid-header">
         <div class="grid-welcome-row">
           <div class="grid-welcome-left">
@@ -946,7 +1028,8 @@ body {
               <img class="grid-logo" src="assets/logo/MiniMetamon Logo_Logomark White.png" alt="">
               Welcome To Your
             </div>
-            <div class="grid-title">Mempool™</div>
+            <div class="grid-title">Mempool</div>
+            <div class="grid-player-name">Kal-Elf</div>
           </div>
         </div>
         <div class="grid-stats">
@@ -955,7 +1038,7 @@ body {
           <span class="grid-stat-pill" id="grid-pill-bonded">0 Bonded</span>
         </div>
       </div>
-      <!-- Search + filters: pinned just above the grid -->
+      <!-- Search + filters -->
       <div class="grid-controls">
         <div class="grid-search">
           <span class="grid-search-ico">🔍</span>
@@ -963,10 +1046,13 @@ body {
         </div>
         <div class="grid-filters">
           <button class="ftab active" data-f="all"   onclick="setFilter(this)">All</button>
-          <button class="ftab"        data-f="owned" onclick="setFilter(this)">Owned</button>
-          <button class="ftab"        data-f="seen"  onclick="setFilter(this)">Seen</button>
+          <button class="ftab"        data-f="type"  onclick="setFilter(this)">Type</button>
+          <button class="ftab"        data-f="saved" onclick="setFilter(this)">Saved</button>
+          <button class="ftab"        data-f="nfts"  onclick="setFilter(this)">NFTs</button>
         </div>
       </div>
+      <!-- Type icon row — only visible when Type filter is active -->
+      <div class="type-icon-row" id="type-icon-row"></div>
       <div class="grid-cells" id="grid-cells"></div>
     </div>
 
@@ -1066,6 +1152,16 @@ body {
   </div>
 </div>
 
+
+<!-- GRID LAYOUT DEV TUNER (dev-only, remove before shipping) -->
+<div id="grid-tuner" style="width:var(--device-w);background:rgba(255,255,255,0.04);border:1px solid rgba(255,255,255,0.1);border-radius:14px;padding:10px 14px;margin-top:4px;font-family:monospace">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🎛 Grid Layout Tuner</span>
+    <button onclick="copyGridTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px" id="gt-rows"></div>
+  <div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
+</div>
 
 <!-- TEST CONTROLS (outside device) -->
 <div id="test-controls" style="width:var(--device-w);display:flex;gap:6px;flex-wrap:wrap;margin-top:4px">
@@ -1311,6 +1407,11 @@ function setFilter(btn) {
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   S.filter = btn.dataset.f;
+  // Show/hide type icon row
+  const typeRow = document.getElementById('type-icon-row');
+  if (typeRow) {
+    typeRow.classList.toggle('visible', S.filter === 'type');
+  }
   renderGrid();
 }
 
@@ -1599,70 +1700,146 @@ function triggerEncounter(biomeType) {
 // ══════════════════════════════════════════════════════════════
 //  RENDER GRID
 // ══════════════════════════════════════════════════════════════
+const TYPE_ORDER = ['EARTH','FIRE','WIND','WATER','ELECTRIC','SOUL','AETHER','VOID','MIND','ASTRAL'];
+
+function renderCard(id, ownedIds) {
+  const cat      = CATALOG[id];
+  const owned    = ownedIds.includes(id);
+  const seen     = !!S.seen[id];
+  const insts    = instancesFor(id);
+  const hasShiny = insts.some(i => i.is_shiny);
+
+  if (owned && cat) {
+    const src = insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
+    const img = src
+      ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
+      : `<div class="gc-placeholder"></div>`;
+    const countBadge = insts.length > 1
+      ? `<span style="position:absolute;top:5px;right:6px;background:rgba(56,210,196,0.9);color:#fff;font-size:8px;font-weight:700;border-radius:999px;padding:1px 5px">${insts.length}</span>`
+      : '';
+    return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+      <span class="gc-num">${id}</span>
+      ${img}
+      <span class="gc-name">${cat.name}</span>
+      ${countBadge}
+    </div>`;
+  } else if (seen && cat) {
+    const src = IMAGE_MAP[id];
+    const imgEl = src
+      ? `<div class="gc-img-discovered-wrap"><img class="gc-img-discovered" src="${src}" alt="" loading="lazy"></div>`
+      : `<div class="gc-placeholder"></div>`;
+    return `<div class="grid-cell seen" onclick="openDetail('${id}')">
+      <span class="gc-num">${id}</span>
+      ${imgEl}
+      <span class="gc-name">???</span>
+    </div>`;
+  } else {
+    return `<div class="grid-cell">
+      <span class="gc-num-unk">${id}</span>
+    </div>`;
+  }
+}
+
+function buildTypeIconRow() {
+  const row = document.getElementById('type-icon-row');
+  if (!row) return;
+  row.innerHTML = TYPE_ORDER.map(t => {
+    const icon = TYPE_ICON_MAP[t];
+    const color = tc(t);
+    return `<button class="type-icon-btn" id="type-btn-${t.toLowerCase()}"
+        onclick="scrollToType('${t}')"
+        style="border-color:${color}55">
+      <img src="assets/icons/${icon}.png" alt="${t}"
+           onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+      <span style="display:none;font-size:14px;line-height:1">${ti(t)}</span>
+      <span style="color:${color}">${t}</span>
+    </button>`;
+  }).join('');
+}
+
+function scrollToType(type) {
+  const el = document.getElementById(`type-section-${type.toLowerCase()}`);
+  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Highlight active
+  document.querySelectorAll('.type-icon-btn').forEach(b => b.classList.remove('active-type'));
+  const btn = document.getElementById(`type-btn-${type.toLowerCase()}`);
+  if (btn) btn.classList.add('active-type');
+}
+
+function renderTypeView(q, ownedIds) {
+  return TYPE_ORDER.map(type => {
+    const typeIds = Object.entries(CATALOG)
+      .filter(([id, cat]) => cat.primary === type || cat.secondary === type)
+      .map(([id]) => id)
+      .sort((a, b) => parseInt(a) - parseInt(b));
+
+    let filtered = typeIds;
+    if (q) {
+      filtered = typeIds.filter(id => {
+        const cat = CATALOG[id];
+        const name = (cat?.name || '').toLowerCase();
+        return id.includes(q) || name.includes(q);
+      });
+    }
+    if (!filtered.length) return '';
+
+    const savedCount = filtered.filter(id => ownedIds.includes(id)).length;
+    const totalCount = filtered.length;
+    const pct = totalCount > 0 ? Math.round((savedCount / totalCount) * 100) : 0;
+    const color = tc(type);
+    const icon = TYPE_ICON_MAP[type];
+
+    const cards = filtered.map(id => renderCard(id, ownedIds)).join('');
+
+    return `<div class="type-section" id="type-section-${type.toLowerCase()}">
+      <div class="type-section-header">
+        <img class="type-sec-icon" src="assets/icons/${icon}.png" alt="${type}"
+             onerror="this.style.display='none'">
+        <div class="type-sec-info">
+          <span class="type-sec-name" style="color:${color}">${type}</span>
+          <span class="type-sec-progress">${savedCount} / ${totalCount} Saved</span>
+        </div>
+        <div class="type-sec-bar-wrap">
+          <div class="type-sec-bar" style="width:${pct}%;background:${color}"></div>
+        </div>
+      </div>
+      <div class="type-section-grid">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
 function renderGrid() {
-  const q   = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();
-  const f   = S.filter;
+  const q        = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();
+  const f        = S.filter;
   const ownedIds = [...new Set(S.instances.map(i => i.dex_id))];
+  const nftIds   = [...new Set(S.instances.filter(i => i.is_nft).map(i => i.dex_id))];
 
   const seenCount   = Object.keys(S.seen).length;
-  const savedCount  = [...new Set(S.instances.map(i => i.dex_id))].length;
+  const savedCount  = ownedIds.length;
   const bondedCount = S.instances.filter(i => i.is_nft).length;
   document.getElementById('grid-pill-disc').textContent   = `${seenCount} Discovered`;
   document.getElementById('grid-pill-inst').textContent   = `${savedCount} Saved`;
   document.getElementById('grid-pill-bonded').textContent = `${bondedCount} Bonded`;
 
+  const cellsEl = document.getElementById('grid-cells');
+  cellsEl.classList.toggle('type-mode', f === 'type');
+
+  if (f === 'type') {
+    cellsEl.innerHTML = renderTypeView(q, ownedIds);
+    return;
+  }
+
   const all = Array.from({length:144}, (_,i) => String(i+1).padStart(3,'0'));
   const ids = all.filter(id => {
     const cat  = CATALOG[id];
-    const name = (cat?.name||'').toLowerCase();
+    const name = (cat?.name || '').toLowerCase();
     if (q && !id.includes(q) && !name.includes(q)) return false;
-    if (f === 'owned' && !ownedIds.includes(id)) return false;
-    if (f === 'seen'  && !S.seen[id] && !ownedIds.includes(id)) return false;
+    if (f === 'saved' && !ownedIds.includes(id)) return false;
+    if (f === 'nfts'  && !nftIds.includes(id))   return false;
     return true;
   });
 
-  document.getElementById('grid-cells').innerHTML = ids.map(id => {
-    const cat      = CATALOG[id];
-    const owned    = ownedIds.includes(id);
-    const seen     = !!S.seen[id];
-    const cls      = owned ? 'known' : (seen ? 'seen' : '');
-    const insts    = instancesFor(id);
-    const hasShiny = insts.some(i => i.is_shiny);
-
-    if (owned && cat) {
-      // Fully captured — show full card
-      const src = insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
-      const img = src
-        ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
-        : `<div class="gc-placeholder">${ti(cat.primary)}</div>`;
-      const countBadge = insts.length > 1
-        ? `<span style="position:absolute;top:4px;right:4px;background:rgba(56,210,196,0.9);color:#fff;font-size:8px;font-weight:700;border-radius:999px;padding:1px 5px">${insts.length}</span>`
-        : '';
-      return `<div class="grid-cell ${cls}${hasShiny?' akronite':''}" onclick="openDetail('${id}')" style="position:relative">
-        <span class="gc-num">${id}</span>
-        ${img}
-        <span class="gc-name">${cat.name}</span>
-        ${countBadge}
-      </div>`;
-    } else if (seen && cat) {
-      // Discovered (seen but not captured) — grayed image, all text ???, can click
-      const src = IMAGE_MAP[id];
-      const imgEl = src
-        ? `<div class="gc-img-discovered-wrap"><img class="gc-img-discovered" src="${src}" alt="" loading="lazy"></div>`
-        : `<div class="gc-placeholder"></div>`;
-      return `<div class="grid-cell ${cls}" onclick="openDetail('${id}')">
-        <span class="gc-num" style="color:rgba(255,255,255,0.3)">${id}</span>
-        ${imgEl}
-        <span class="gc-name" style="color:rgba(255,255,255,0.35)">???</span>
-      </div>`;
-    } else {
-      // Completely unknown — blank card, no click, just dex number
-      return `<div class="grid-cell">
-        <span class="gc-num" style="color:rgba(255,255,255,0.2)">${id}</span>
-        <div class="gc-placeholder"></div>
-      </div>`;
-    }
-  }).join('');
+  cellsEl.innerHTML = ids.map(id => renderCard(id, ownedIds)).join('');
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2068,16 +2245,83 @@ function resetAll() {
   document.getElementById('congrats-overlay').classList.remove('show');
   document.getElementById('enc-popup').classList.remove('show');
   document.getElementById('enc-popup-overlay').classList.remove('show');
-  document.querySelectorAll('.ftab').forEach((t,i) => t.classList.toggle('active', i===0));
+  document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
+  document.getElementById('type-icon-row')?.classList.remove('visible');
   document.getElementById('grid-q').value = '';
   renderGrid();
   showScreen('grid');
 }
 
 // ══════════════════════════════════════════════════════════════
+//  GRID LAYOUT TUNER  (dev-only)
+// ══════════════════════════════════════════════════════════════
+const GT = {
+  gcPt:  8,    // grid-cells padding-top (px)
+  gcPi:  20,   // grid-cells padding-inline (px)
+  gcGap: 12,   // grid gap (px)
+  trTop: 50,   // trainer top (px)
+  trSize:128,  // trainer width (px)
+};
+const GT_DEFS = [
+  { key:'gcPt',   label:'Grid top',      unit:'px', step:2,  min:0,  max:80,  cssVar:'--gc-pt',   cssSuffix:'px' },
+  { key:'gcPi',   label:'Grid side',     unit:'px', step:2,  min:8,  max:40,  cssVar:'--gc-pi',   cssSuffix:'px' },
+  { key:'gcGap',  label:'Card gap',      unit:'px', step:1,  min:4,  max:24,  cssVar:'--gc-gap',  cssSuffix:'px' },
+  { key:'trTop',  label:'Trainer top',   unit:'px', step:2,  min:-30,max:120, cssVar:'--tr-top',  cssSuffix:'px' },
+  { key:'trSize', label:'Trainer width', unit:'px', step:4,  min:60, max:240, cssVar:'--tr-size', cssSuffix:'px' },
+];
+function _applyGT() {
+  const root = document.documentElement;
+  GT_DEFS.forEach(r => {
+    root.style.setProperty(r.cssVar, GT[r.key] + r.cssSuffix);
+    const el = document.getElementById('gt-' + r.key);
+    if (el) el.value = GT[r.key];
+  });
+  const ro = document.getElementById('gt-readout');
+  if (ro) ro.textContent =
+    `pt:${GT.gcPt}px  pi:${GT.gcPi}px  gap:${GT.gcGap}px  tr-top:${GT.trTop}px  tr-size:${GT.trSize}px`;
+}
+function _gtAdj(key, delta) {
+  const r = GT_DEFS.find(x => x.key === key); if (!r) return;
+  let v = GT[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  GT[key] = v; _applyGT();
+}
+function _gtSet(key, val) {
+  const r = GT_DEFS.find(x => x.key === key); if (!r) return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  GT[key] = v; _applyGT();
+}
+function copyGridTuner() {
+  const ro = document.getElementById('gt-readout');
+  if (ro) navigator.clipboard?.writeText('📋 ' + ro.textContent).catch(()=>{});
+}
+function _initGridTuner() {
+  const wrap = document.getElementById('gt-rows'); if (!wrap) return;
+  wrap.innerHTML = '';
+  GT_DEFS.forEach(r => {
+    const d = document.createElement('div');
+    d.style.cssText = 'display:flex;align-items:center;gap:3px';
+    d.innerHTML =
+      `<span style="width:80px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
+      `<button onclick="_gtAdj('${r.key}',-${r.step})" style="padding:1px 5px;border-radius:4px;border:none;background:rgba(255,255,255,0.12);color:white;cursor:pointer;font-size:11px;line-height:1.4">−</button>` +
+      `<input id="gt-${r.key}" type="number" value="${GT[r.key]}" onchange="_gtSet('${r.key}',this.value)"
+         style="width:44px;text-align:center;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:white;font-size:10px;padding:1px 3px;font-family:monospace">` +
+      `<button onclick="_gtAdj('${r.key}',${r.step})" style="padding:1px 5px;border-radius:4px;border:none;background:rgba(255,255,255,0.12);color:white;cursor:pointer;font-size:11px;line-height:1.4">+</button>` +
+      `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
+    wrap.appendChild(d);
+  });
+  _applyGT();
+}
+
+// ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
 _initTuner();
+_initGridTuner();
+buildTypeIconRow();
 loadData();
 </script>
 </body>
