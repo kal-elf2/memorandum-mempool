@@ -703,12 +703,89 @@ body {
 /* ══════════════════════════════════════════════════════════
    DETAIL SCREEN
 ══════════════════════════════════════════════════════════ */
-#screen-detail { background: white; height: 100%; overflow: hidden; }
+/* Detail / Collection screen tokens — sync DT + _applyDT() on #screen-detail
+   Locked defaults (v5): top 57/10 · back 23,15 · hero 5/24/0 · spr 152@1,0 · dex 0,-2 · name -6,-9 · wm 66@-30,-35 · badges gap7 · tabs 41/14/24 · body 9/24 · sec 9/6 · desc13 · chip 12/9/6 r9 · evo img44 gap5 pb5 · inst 58 · act py10 px18 gap6 */
+#screen-detail {
+  background: white; height: 100%; overflow: hidden;
+  --dt-top-h: 57px; --dt-top-pad-x: 10px;
+  --dt-back-x: 23px; --dt-back-y: 15px;
+  --dt-hero-pad-t: 5px; --dt-hero-pad-x: 24px; --dt-hero-pad-b: 0px; --dt-hero-min-h: 80px;
+  --dt-sprite-sz: 152px; --dt-sprite-x: 1px; --dt-sprite-y: 0px;
+  --dt-dex-x: 0px; --dt-dex-y: -2px;
+  --dt-name-x: -6px; --dt-name-y: -9px;
+  --dt-wm-fs: 66px; --dt-wm-x: -30px; --dt-wm-y: -35px; --dt-wm-op: 0.09;
+  --dt-badge-gap: 7px; --dt-badge-scale: 1;
+  --dt-tab-h: 41px; --dt-tab-fs: 14px; --dt-tab-pad-x: 24px;
+  --dt-body-pad: 24px; --dt-body-top-pad: 9px;
+  --dt-sec-mt: 9px; --dt-sec-mb: 6px;
+  --dt-chip-pad-x: 12px; --dt-chip-pad-y: 9px; --dt-chip-gap: 6px; --dt-chip-radius: 9px;
+  --dt-evo-y: 0px; --dt-evo-scale: 1; --dt-evo-gap: 5px; --dt-evo-pad-b: 5px; --dt-evo-img-sz: 44px;
+  --dt-inst-row-minh: 1px; --dt-inst-img-sz: 58px; --dt-inst-img-x: -1px; --dt-inst-img-y: -1px;
+  --dt-inst-text-x: 0px; --dt-inst-text-y: 0px; --dt-inst-gap: 10px; --dt-inst-mb: 6px;
+  --dt-action-pad-y: 10px; --dt-action-pad-x: 18px; --dt-action-gap: 6px; --dt-action-min-h: 0px;
+  --dt-desc-fs: 13px;
+}
 
 .detail-hero {
   background: linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%);
-  position: relative; overflow: hidden;
-  padding: 8px 12px 0; flex-shrink: 0;
+  /* Inner clip for gradient; badge row uses narrower max-width + horizontal scroll so pills are not clipped here */
+  position: relative;
+  overflow: hidden;
+  isolation: isolate;
+  padding: calc(var(--dt-top-h) + var(--dt-back-y) + var(--dt-hero-pad-t))
+    calc(var(--dt-hero-pad-x) + var(--dt-top-pad-x))
+    var(--dt-hero-pad-b)
+    calc(var(--dt-hero-pad-x) + var(--dt-top-pad-x));
+  flex-shrink: 0;
+  min-height: var(--dt-hero-min-h);
+}
+
+/* Type pills in detail body (above Description / Collection content) */
+#screen-detail .detail-type-row {
+  display: flex; flex-wrap: wrap; gap: 6px;
+  margin-bottom: 10px;
+}
+#screen-detail .detail-type-row .type-badge {
+  background: rgba(255,255,255,0.98) !important;
+  color: #1e1e22 !important;
+  border-color: rgba(0,0,0,0.1) !important;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+}
+#screen-detail .detail-type-row .type-ico-emoji {
+  background: rgba(0,0,0,0.06) !important;
+}
+
+.mint-lore-dt {
+  display: inline-flex;
+  vertical-align: middle;
+  position: relative;
+}
+.mint-lore-dt summary {
+  list-style: none;
+  cursor: pointer;
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.22);
+  background: rgba(255,255,255,0.85);
+  font-size: 10px; font-weight: 800; font-style: italic;
+  color: var(--text-muted);
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+  user-select: none;
+}
+.mint-lore-dt summary::-webkit-details-marker { display: none; }
+.mint-lore-txt {
+  position: absolute;
+  left: 0; top: calc(100% + 6px);
+  z-index: 20;
+  max-width: 260px;
+  padding: 8px 10px;
+  border-radius: 10px;
+  background: rgba(30,30,34,0.96);
+  color: rgba(255,255,255,0.92);
+  font-size: 10px; font-weight: 500;
+  line-height: 1.45;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.25);
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 .detail-back {
@@ -716,22 +793,62 @@ body {
   background: rgba(255,255,255,0.9); border-radius: 50%; border: none;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
   font-size: 17px; font-weight: 700; color: var(--text-dark);
-  position: relative; z-index: 5;
+  position: absolute;
+  left: var(--dt-back-x);
+  top: var(--dt-back-y);
+  z-index: 15;
   transition: transform 0.12s, background 0.12s;
   line-height: 1; padding-bottom: 1px;
 }
 .detail-back:hover { transform: scale(1.1); background: white; }
 
 .hero-content {
-  display: flex; justify-content: space-between;
-  align-items: flex-end; padding-top: 4px;
-  position: relative; z-index: 2; min-height: 82px;
+  display: block;
+  position: relative;
+  z-index: 5;
+  padding-top: 4px;
+  padding-right: 12px;
+  box-sizing: border-box;
+  min-height: var(--dt-hero-min-h);
 }
-.hero-text { flex: 1; padding-bottom: 10px; }
-.hero-dex { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); letter-spacing: 0.8px; margin-bottom: 1px; }
+.hero-img-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 0 calc(var(--dt-hero-pad-x) + var(--dt-top-pad-x)) var(--dt-hero-pad-b) 0;
+}
+.hero-text {
+  position: relative;
+  z-index: 1;
+  box-sizing: border-box;
+  /* Narrow column when sprite shifts right (+sprite-x) so pills sit left of the figure */
+  max-width: min(100%, calc(100% - var(--dt-sprite-sz) + 18px - var(--dt-sprite-x)));
+  padding-right: 10px;
+  padding-bottom: 10px;
+  transform: translate(var(--dt-name-x), var(--dt-name-y));
+}
+.hero-dex {
+  font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.8); letter-spacing: 0.8px; margin-bottom: 1px;
+  transform: translate(var(--dt-dex-x), var(--dt-dex-y));
+}
 .hero-name { font-size: 22px; font-weight: 700; color: white; line-height: 1.0; letter-spacing: -0.5px; margin-bottom: 5px; }
 
-.hero-badges { display: flex; gap: 5px; flex-wrap: wrap; }
+.hero-badges {
+  display: flex; gap: var(--dt-badge-gap); flex-wrap: nowrap; align-items: center;
+  overflow-x: auto; -webkit-overflow-scrolling: touch;
+  overflow-y: visible;
+  transform: scale(var(--dt-badge-scale));
+  transform-origin: left bottom;
+  padding: 2px 4px 4px 0;
+  position: relative;
+  z-index: 6;
+}
+.hero-badges::-webkit-scrollbar { height: 0; }
+.hero-badges > * { flex-shrink: 0; }
 .badge {
   display: inline-flex; align-items: center;
   padding: 3px 9px; border-radius: 999px;
@@ -745,8 +862,11 @@ body {
 }
 
 .hero-img-wrap {
-  width: 110px; height: 110px; flex-shrink: 0;
-  position: relative; align-self: flex-end;
+  width: var(--dt-sprite-sz); height: var(--dt-sprite-sz); flex-shrink: 0;
+  position: relative;
+  transform: translate(var(--dt-sprite-x), var(--dt-sprite-y));
+  z-index: 0;
+  isolation: isolate;
 }
 .hero-img {
   width: 100%; height: 100%; object-fit: contain;
@@ -760,13 +880,17 @@ body {
 }
 .hero-wm {
   position: absolute; bottom: 0; right: 0; left: 0;
-  font-size: 70px; font-weight: 900; font-style: italic;
-  color: rgba(255,255,255,0.09); line-height: 1;
+  font-size: var(--dt-wm-fs); font-weight: 900; font-style: italic;
+  color: rgba(255,255,255,var(--dt-wm-op)); line-height: 1;
   pointer-events: none; text-align: right;
   padding-right: 10px; overflow: hidden; white-space: nowrap;
   letter-spacing: -2px; z-index: 1;
   user-select: none;
+  transform: translate(var(--dt-wm-x), var(--dt-wm-y));
 }
+
+/* First block in tab body: pull type row up slightly under curved body */
+.detail-body .tab-pane > .detail-type-row:first-child { margin-top: 0; }
 
 /* INSTANCE SELECTOR (multiple instances of same dex) */
 .instance-bar {
@@ -787,15 +911,18 @@ body {
 /* TABS */
 .detail-tabs {
   background: linear-gradient(135deg, var(--hero-1) 0%, var(--hero-2) 100%);
-  display: flex; padding: 0 14px; flex-shrink: 0;
+  display: flex; padding: 0 var(--dt-tab-pad-x); flex-shrink: 0;
+  min-height: var(--dt-tab-h); align-items: stretch;
 }
 .dtab {
-  font-family: var(--font); font-size: 13px; font-weight: 500;
+  font-family: var(--font); font-size: var(--dt-tab-fs); font-weight: 500;
   color: rgba(255,255,255,0.6);
-  padding: 10px 4px; margin-right: 18px;
+  padding: 0 4px; margin-right: 18px;
   background: none; border: none;
   border-bottom: 3px solid transparent;
   cursor: pointer; transition: all 0.12s;
+  display: inline-flex; align-items: center; align-self: stretch;
+  box-sizing: border-box;
 }
 .dtab.active { color: white; font-weight: 700; border-bottom-color: var(--accent); }
 
@@ -805,15 +932,13 @@ body {
   background: white;
   border-radius: 16px 16px 0 0;
   margin-top: -10px; position: relative; z-index: 2;
-  padding: 12px 12px 8px;
+  padding: var(--dt-body-top-pad) var(--dt-body-pad) 6px;
 }
 .tab-pane { display: none; }
 .tab-pane.active { display: block; }
 
 /* SECTION TITLES */
-.sec { font-size: 14px; font-weight: 700; color: var(--text-dark); margin: 12px 0 6px; }
-.sec:first-child { margin-top: 0; }
-
+.sec { font-size: 14px; font-weight: 700; color: var(--text-dark); margin: var(--dt-sec-mt) 0 var(--dt-sec-mb); }
 /* TYPE RIBBON BADGES (Figma-style diagonal ribbon) */
 .type-row { display: flex; gap: 6px; margin-bottom: 12px; flex-wrap: wrap; }
 .type-badge {
@@ -827,16 +952,16 @@ body {
 .type-ico-emoji { width: 20px; height: 20px; display: flex; align-items: center; justify-content: center; font-size: 11px; border-radius: 50%; background: rgba(255,255,255,0.3); }
 
 /* DESCRIPTION */
-.desc-text { font-size: 13px; line-height: 1.65; color: var(--text-muted); margin-bottom: 0; }
+.desc-text { font-size: var(--dt-desc-fs, 13px); line-height: 1.55; color: var(--text-muted); margin-bottom: 0; }
 
 /* STATS */
 .stats-grid {
   display: grid; grid-template-columns: repeat(2, 1fr);
-  gap: 6px; margin-bottom: 0;
+  gap: var(--dt-chip-gap); margin-bottom: 0;
 }
 .stat-chip {
   background: var(--chip-bg); border: 1px solid var(--chip-border);
-  border-radius: 10px; padding: 9px 10px;
+  border-radius: var(--dt-chip-radius); padding: var(--dt-chip-pad-y) var(--dt-chip-pad-x);
   display: flex; flex-direction: column; gap: 1px;
 }
 .stat-chip.wide { grid-column: 1 / -1; }
@@ -846,7 +971,7 @@ body {
 /* PROGRESSION */
 .memcore-box {
   background: var(--chip-bg); border: 1px solid var(--chip-border);
-  border-radius: 12px; padding: 9px 10px; margin-bottom: 8px;
+  border-radius: 12px; padding: var(--dt-chip-pad-y) var(--dt-chip-pad-x); margin-bottom: 8px;
 }
 .mc-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 7px; }
 .mc-label { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
@@ -885,7 +1010,12 @@ body {
 .mb-locked    { background: rgba(160,160,168,0.08); color: #909098; border-color: rgba(160,160,168,0.25); }
 
 /* EVOLUTION LINE */
-.evo-line { display: flex; align-items: center; justify-content: center; gap: 5px; overflow-x: auto; padding-bottom: 3px; margin-bottom: 8px; }
+.evo-line {
+  display: flex; align-items: center; justify-content: center; gap: var(--dt-evo-gap);
+  overflow-x: auto; padding-bottom: var(--dt-evo-pad-b); margin-bottom: 6px;
+  transform: translateY(var(--dt-evo-y)) scale(var(--dt-evo-scale));
+  transform-origin: top center;
+}
 .evo-card {
   flex-shrink: 0; width: 76px;
   background: var(--chip-bg); border: 2px solid transparent;
@@ -893,13 +1023,23 @@ body {
   text-align: center; cursor: pointer; transition: all 0.12s;
 }
 .evo-card.current { border-color: var(--hero-1); background: rgba(56,210,196,0.07); }
-.evo-card:hover:not(.current) { transform: scale(1.04); border-color: var(--chip-border); }
-.evo-card-img { width: 44px; height: 44px; object-fit: contain; display: block; margin: 0 auto 3px; }
+.evo-card:hover:not(.current):not(.evo-card-locked) { transform: scale(1.04); border-color: var(--chip-border); }
+.evo-card.evo-card-locked { cursor: default; opacity: 0.92; }
+.evo-card.evo-card-locked:hover { transform: none; }
+.evo-card-img {
+  width: var(--dt-evo-img-sz); height: var(--dt-evo-img-sz);
+  object-fit: contain; display: block; margin: 0 auto 3px;
+  filter: drop-shadow(0 calc(var(--dt-evo-img-sz) * 0.02) calc(var(--dt-evo-img-sz) * 0.14) rgba(0,0,0,0.3));
+}
+.evo-card-img.evo-silhouette {
+  filter: drop-shadow(0 calc(var(--dt-evo-img-sz) * 0.02) calc(var(--dt-evo-img-sz) * 0.14) rgba(0,0,0,0.3)) brightness(0) invert(46%);
+  opacity: 0.42;
+}
 .evo-card-ph {
-  width: 44px; height: 44px; border-radius: 8px;
+  width: var(--dt-evo-img-sz); height: var(--dt-evo-img-sz); border-radius: 8px;
   background: var(--divider);
   display: flex; align-items: center; justify-content: center;
-  font-size: 18px; color: var(--text-muted); margin: 0 auto 3px;
+  font-size: clamp(14px, calc(var(--dt-evo-img-sz) * 0.38), 22px); color: var(--text-muted); margin: 0 auto 3px;
 }
 .evo-num { font-size: 8px; font-weight: 700; color: var(--text-muted); }
 .evo-name { font-size: 9px; font-weight: 700; color: var(--text-dark); line-height: 1.2; margin-top: 1px; }
@@ -922,8 +1062,9 @@ body {
 
 .evo-req-box {
   background: var(--chip-bg); border: 1px solid var(--chip-border);
-  border-radius: 10px; padding: 10px; margin-bottom: 6px;
+  border-radius: 10px; padding: var(--dt-chip-pad-y) var(--dt-chip-pad-x); margin-bottom: 4px;
 }
+.evo-req-static { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 4px; }
 .evo-final {
   background: rgba(56,210,196,0.06); border: 1.5px solid rgba(56,210,196,0.2);
   border-radius: 10px; padding: 14px; text-align: center;
@@ -942,21 +1083,38 @@ body {
   display: flex; align-items: center; justify-content: center; font-size: 18px;
 }
 .coll-empty p { font-size: 12px; }
+.coll-sort-row {
+  display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 8px;
+}
+.coll-sort {
+  font-family: var(--font); font-size: 9px; font-weight: 700;
+  padding: 4px 8px; border-radius: 999px; border: 1px solid var(--divider);
+  background: var(--chip-bg); color: var(--text-muted);
+  cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px;
+}
+.coll-sort.active { background: rgba(56,210,196,0.15); border-color: var(--hero-1); color: var(--text-dark); }
+
 .inst-card {
-  display: flex; align-items: center; gap: 10px;
+  display: flex; align-items: center; gap: var(--dt-inst-gap);
   background: var(--chip-bg); border: 1px solid var(--chip-border);
-  border-radius: 12px; padding: 10px; margin-bottom: 6px;
+  border-radius: 12px; padding: 10px; margin-bottom: var(--dt-inst-mb);
+  min-height: var(--dt-inst-row-minh);
   cursor: pointer; transition: all 0.12s;
 }
 .inst-card:hover { background: #F0F0F8; }
 .inst-card.active-inst { border-color: var(--hero-1); background: rgba(56,210,196,0.06); }
-.inst-card-img { width: 44px; height: 44px; object-fit: contain; flex-shrink: 0; }
+.inst-card.akronite-inst { box-shadow: 0 0 0 1px rgba(255,215,0,0.45); border-color: rgba(255,215,0,0.55); }
+.inst-card-img {
+  width: var(--dt-inst-img-sz); height: var(--dt-inst-img-sz); object-fit: contain; flex-shrink: 0;
+  transform: translate(var(--dt-inst-img-x), var(--dt-inst-img-y));
+}
 .inst-card-ph {
-  width: 44px; height: 44px; border-radius: 8px; background: var(--divider);
+  width: var(--dt-inst-img-sz); height: var(--dt-inst-img-sz); border-radius: 8px; background: var(--divider);
   display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0;
 }
-.inst-card-info { flex: 1; min-width: 0; }
+.inst-card-info { flex: 1; min-width: 0; transform: translate(var(--dt-inst-text-x), var(--dt-inst-text-y)); }
 .inst-card-name { font-size: 12px; font-weight: 700; color: var(--text-dark); }
+.inst-card-prog { font-size: 10px; font-weight: 600; color: var(--text-muted); margin-top: 2px; }
 .inst-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
 .inst-card-ess { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-align: right; }
 .inst-nft-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #20A090; }
@@ -966,8 +1124,9 @@ body {
   position: sticky; bottom: 0;
   background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
   border-top: 1px solid var(--divider);
-  padding: 6px 8px;
-  display: flex; gap: 5px; z-index: 5; flex-shrink: 0;
+  padding: var(--dt-action-pad-y) var(--dt-action-pad-x);
+  display: flex; gap: var(--dt-action-gap); z-index: 5; flex-shrink: 0;
+  min-height: var(--dt-action-min-h);
 }
 .abtn {
   flex: 1; padding: 8px 4px;
@@ -986,6 +1145,36 @@ body {
   cursor: not-allowed; transform: none !important;
   box-shadow: none !important;
 }
+
+.dev-memcore-bar {
+  display: none; width: var(--device-w);
+  align-items: center; flex-wrap: wrap; gap: 6px;
+  margin-top: 6px; padding: 8px 10px;
+  background: rgba(0,0,0,0.22); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 12px; box-sizing: border-box;
+}
+
+/* Detail / Collection dev tuner (shown only on Memory detail screen) */
+#detail-tuner {
+  display: none;
+  position: fixed; right: 10px; top: 20px; width: 240px; max-height: calc(100vh - 40px);
+  overflow-y: auto; background: rgba(10,16,30,0.92); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; padding: 10px 12px; font-family: monospace; z-index: 8888;
+  backdrop-filter: blur(8px);
+}
+#detail-tuner .dt-head {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(255,255,255,0.35); margin-bottom: 6px;
+}
+#detail-tuner .dt-sec {
+  font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.65px;
+  color: rgba(255,255,255,0.38); margin-top: 8px; margin-bottom: 3px;
+}
+#detail-tuner .dt-row { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; }
+#detail-tuner .dt-lbl { width: 72px; font-size: 9px; color: rgba(255,255,255,0.45); flex-shrink: 0; }
+#detail-tuner .dt-btn { padding: 1px 5px; border-radius: 4px; border: none; background: rgba(255,255,255,0.12); color: white; cursor: pointer; font-size: 11px; }
+#detail-tuner .dt-inp { width: 42px; text-align: center; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; color: white; font-size: 10px; padding: 1px 3px; font-family: monospace; }
+#detail-tuner .dt-readout { margin-top: 6px; font-size: 8px; color: rgba(255,255,255,0.28); word-break: break-all; line-height: 1.35; max-height: 120px; overflow-y: auto; }
 
 /* ══════════════════════════════════════════════════════════
    ENCOUNTER BIOME PANEL (outside device)
@@ -1417,13 +1606,16 @@ body {
 
       <div class="detail-hero" id="detail-hero">
         <button class="detail-back" onclick="showScreen('grid')">‹</button>
+        <div class="hero-wm" id="hero-wm"></div>
+        <div class="hero-img-layer" aria-hidden="true">
+          <div class="hero-img-wrap" id="hero-img-wrap"></div>
+        </div>
         <div class="hero-content">
           <div class="hero-text">
             <div class="hero-dex" id="hero-dex">#001</div>
             <div class="hero-name" id="hero-name">Pangreed</div>
             <div class="hero-badges" id="hero-badges"></div>
           </div>
-          <div class="hero-img-wrap" id="hero-img-wrap"></div>
         </div>
       </div>
 
@@ -1433,35 +1625,29 @@ body {
       </div>
 
       <div class="detail-body">
-        <!-- debug strip -->
-        <div class="grid-debug" style="margin: -12px -12px 10px; border-radius: 0;">
-          <button class="dbg" onclick="debugMC(10)" style="background:rgba(56,210,196,0.3)">+10 ◆</button>
-          <button class="dbg" onclick="debugMC(30)" style="background:rgba(56,210,196,0.3)">+30 ◆</button>
-          <span style="font-size:10px;color:rgba(255,255,255,0.6);font-family:var(--font);align-self:center;margin-left:auto" id="mc-dbg"></span>
-        </div>
-
         <!-- DETAILS TAB: species info + evolution tree -->
         <div class="tab-pane active" id="tab-details">
-          <div class="type-row" id="type-row"></div>
+          <div class="detail-type-row" id="detail-type-details"></div>
           <div class="sec">Description</div>
           <p class="desc-text" id="desc-text"></p>
           <div class="sec">Stats</div>
           <div class="stats-grid" id="stats-grid"></div>
-          <div class="sec" style="margin-top:14px">Evolution</div>
+          <div class="sec" style="margin-top:10px">Evolution</div>
           <div class="evo-line" id="evo-line"></div>
           <div id="evo-req"></div>
         </div>
 
         <!-- COLLECTION TAB: per-instance actions -->
         <div class="tab-pane" id="tab-collection">
-          <!-- Progression (per base-memory family) -->
+          <div class="detail-type-row" id="detail-type-collection"></div>
+          <!-- Family bank + selected instance progression -->
           <div class="memcore-box">
             <div class="mc-head">
               <span class="mc-label">◆ Available</span>
               <span class="mc-val" id="mc-avail">0</span>
             </div>
             <div class="mc-head" style="margin-bottom:4px">
-              <span class="mc-label">Stage Progress</span>
+              <span class="mc-label">Stage Progress (this instance)</span>
               <span class="mc-val" id="mc-fraction">0 / 30</span>
             </div>
             <div class="progress-track">
@@ -1470,8 +1656,9 @@ body {
             <div class="mc-caption" id="mc-caption">Collect ◆ to level up</div>
           </div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
+          <div class="coll-sort-row" id="coll-sort-row"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
-            <span class="sec" style="margin:0">Instances</span>
+            <span class="sec" style="margin:0" id="coll-memories-title">Memories</span>
             <span id="coll-count" style="font-size:11px;color:var(--text-muted);font-family:var(--font)"></span>
           </div>
           <div id="coll-content"></div>
@@ -1488,6 +1675,13 @@ body {
 
   </div><!-- /screen-area -->
 </div><!-- /device-frame -->
+
+<div id="dev-memcore-bar" class="dev-memcore-bar" aria-hidden="true">
+  <span style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:0.6px;color:rgba(255,255,255,0.35);font-family:var(--font)">Dev ◆</span>
+  <button type="button" class="dbg" onclick="debugMC(10)" style="background:rgba(56,210,196,0.28)">+10 ◆</button>
+  <button type="button" class="dbg" onclick="debugMC(30)" style="background:rgba(56,210,196,0.28)">+30 ◆</button>
+  <span id="mc-dbg" style="font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--font);margin-left:auto"></span>
+</div>
 
 <!-- ENCOUNTER BIOME BUTTONS -->
 <div id="encounter-panel">
@@ -1524,6 +1718,16 @@ body {
   </div>
   <div style="display:flex;flex-direction:column" id="ct-rows"></div>
   <div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="ct-readout">—</div>
+</div>
+
+<div id="detail-tuner">
+  <div class="dt-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <span>🧬 Memory Detail Tuner</span>
+    <button type="button" class="dbg" onclick="copyDetailTuner()" style="font-size:9px;padding:2px 8px">📋 Copy</button>
+  </div>
+  <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Top inset + pad X reserve space above / beside hero content. <strong style="color:rgba(255,255,255,0.5)">Back X/Y</strong> = ‹ button.</div>
+  <div id="dt-rows"></div>
+  <div class="dt-readout" id="dt-readout">—</div>
 </div>
 
 <!-- TEST CONTROLS (outside device) -->
@@ -1753,6 +1957,7 @@ const S = {
   progress:            {},       // base_memory → memcore spent on current stage progress
   instances:           [],       // all Memory instances (each encounter creates one)
   filter:              "all",
+  collSort:            "akronite",
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -1808,6 +2013,7 @@ async function loadData() {
 
     buildEncounterButtons();
     renderGrid();
+    syncDevPanelVisibility('grid');
   } catch(e) {
     document.getElementById('error-msg').textContent = 'Error: ' + e.message + '\n\nRun via: npx serve .';
     document.querySelector('.spinner').style.display = 'none';
@@ -1820,6 +2026,7 @@ async function loadData() {
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
+  syncDevPanelVisibility(name);
   if (name === 'detail') renderDetail();
 }
 
@@ -1831,13 +2038,7 @@ function switchTab(btn) {
   document.getElementById('tab-' + tabName).classList.add('active');
   const actionBar = document.getElementById('action-bar');
   if (actionBar) actionBar.style.display = tabName === 'collection' ? 'flex' : 'none';
-  if (tabName === 'collection') {
-    const mem = MEMORIES[S.selectedId];
-    if (mem) {
-      const base = mem.base_memory;
-      updateButtons(mem, S.bank[base]||0, S.progress[base]||0, mem.max_mc, currentInstance());
-    }
-  }
+  renderDetail();
 }
 
 function setFilter(btn) {
@@ -1908,6 +2109,12 @@ function evoChainFrom(baseId) {
   return chain;
 }
 
+/** True if this dex is reached only by evolving another form (wild Akronite disallowed). */
+function isEvolutionOnlyForm(dexId) {
+  if (!dexId || !MEMORIES) return false;
+  return Object.values(MEMORIES).some(m => m && m.evolves_to === dexId);
+}
+
 // ══════════════════════════════════════════════════════════════
 //  INSTANCE HELPERS
 // ══════════════════════════════════════════════════════════════
@@ -1918,6 +2125,89 @@ function instancesFor(id) {
 function currentInstance() {
   const insts = instancesFor(S.selectedId);
   return insts[Math.min(S.selectedInstanceIdx, insts.length - 1)] || null;
+}
+
+function normalizeFamilyMcToInstances(base, insts) {
+  const p = S.progress[base] || 0;
+  if (p <= 0 || !insts.length) return;
+  if (!insts.every(i => i.mc_spent === undefined)) return;
+  insts.forEach((inst, idx) => { inst.mc_spent = idx === 0 ? p : 0; });
+  S.progress[base] = 0;
+}
+
+function instanceMcSpent(inst, base) {
+  if (!inst) return 0;
+  if (inst.mc_spent !== undefined) return inst.mc_spent;
+  return S.progress[base] || 0;
+}
+
+function sortInstances(insts, mem) {
+  const base = mem.base_memory;
+  const arr = [...insts];
+  const cmpAkro = (a, b) => (!!b.is_shiny ? 1 : 0) - (!!a.is_shiny ? 1 : 0);
+  const cmpLvl = (a, b) => instanceMcSpent(b, base) - instanceMcSpent(a, base);
+  const cmpEss = (a, b) => (b.revealed_essence || 0) - (a.revealed_essence || 0);
+  arr.sort((a, b) => {
+    let x = 0;
+    if (S.collSort === 'akronite') {
+      x = cmpAkro(a, b); if (x) return x;
+      x = cmpLvl(a, b); if (x) return x;
+      return cmpEss(a, b);
+    }
+    if (S.collSort === 'level') {
+      x = cmpLvl(a, b); if (x) return x;
+      x = cmpAkro(a, b); if (x) return x;
+      return cmpEss(a, b);
+    }
+    if (S.collSort === 'essence') {
+      x = cmpEss(a, b); if (x) return x;
+      x = cmpAkro(a, b); if (x) return x;
+      return cmpLvl(a, b);
+    }
+    if (S.collSort === 'recent') {
+      return (b.acquired_at || 0) - (a.acquired_at || 0);
+    }
+    return 0;
+  });
+  return arr;
+}
+
+/** Index in raw `insts` for the instance that sorts first under current collSort. */
+function selectedIdxForSortedTop(insts, mem) {
+  if (!mem || !insts.length) return 0;
+  const sorted = sortInstances(insts, mem);
+  const top = sorted[0];
+  const i = insts.findIndex(x => x.instanceId === top.instanceId);
+  return i >= 0 ? i : 0;
+}
+
+function setCollSort(k) {
+  S.collSort = k;
+  const row = document.getElementById('coll-sort-row');
+  if (row) {
+    row.querySelectorAll('.coll-sort').forEach(b => b.classList.toggle('active', b.dataset.sort === k));
+  }
+  const mem = MEMORIES[S.selectedId];
+  if (mem) {
+    const base = mem.base_memory;
+    let insts = instancesFor(S.selectedId);
+    normalizeFamilyMcToInstances(base, insts);
+    insts = instancesFor(S.selectedId);
+    S.selectedInstanceIdx = selectedIdxForSortedTop(insts, mem);
+  }
+  renderDetail();
+}
+
+function syncDevPanelVisibility(screenName) {
+  const det = screenName === 'detail';
+  const gt = document.getElementById('grid-tuner');
+  const ct = document.getElementById('card-tuner');
+  const dtt = document.getElementById('detail-tuner');
+  const mb = document.getElementById('dev-memcore-bar');
+  if (gt) gt.style.display = det ? 'none' : '';
+  if (ct) ct.style.display = det ? 'none' : '';
+  if (dtt) dtt.style.display = det ? 'block' : 'none';
+  if (mb) mb.style.display = det ? 'flex' : 'none';
 }
 
 function isAtMaxLevel(base) {
@@ -1954,8 +2244,9 @@ function rollEncounter(biomeType) {
   const mem   = MEMORIES[dexId];
   if (!mem) return null;
 
-  // Roll 2: Akronite (shiny)
-  const isShiny = Math.random() < SHINY_CHANCE;
+  // Roll 2: Akronite (shiny) — never on wild evolution-only stages (need shiny N−1 + evolve)
+  let isShiny = Math.random() < SHINY_CHANCE;
+  if (isEvolutionOnlyForm(dexId)) isShiny = false;
 
   // Roll 3: Personality
   const personality = PERSONALITIES[Math.floor(Math.random() * 4)];
@@ -1993,6 +2284,8 @@ function rollEncounter(biomeType) {
     is_nft:         false,
     nft_minted_at_stage: null,
     nft_essence:    null,
+    mc_spent:       0,
+    acquired_at:    Date.now(),
   };
 
   // Track if this is the very first encounter of this dex_id
@@ -2369,8 +2662,17 @@ function renderGrid() {
 // ══════════════════════════════════════════════════════════════
 function openDetail(id) {
   if (!CATALOG[id]) return; // data not loaded yet
-  S.selectedId          = id;
-  S.selectedInstanceIdx = 0;
+  S.selectedId = id;
+  const mem = MEMORIES[id];
+  if (mem) {
+    const base = mem.base_memory;
+    let insts = instancesFor(id);
+    normalizeFamilyMcToInstances(base, insts);
+    insts = instancesFor(id);
+    S.selectedInstanceIdx = selectedIdxForSortedTop(insts, mem);
+  } else {
+    S.selectedInstanceIdx = 0;
+  }
   document.querySelectorAll('.dtab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'details'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-details'));
   const actionBar = document.getElementById('action-bar');
@@ -2385,15 +2687,17 @@ function renderDetail() {
 
   const base     = mem.base_memory;
   const bank     = S.bank[base]     || 0;
-  const progress = S.progress[base] || 0;
   const maxMC    = mem.max_mc;
-  const atMax    = progress >= maxMC;
   const pType    = mem.type[0] || 'WIND';
   const grad     = heroGrad(pType);
-  const insts    = instancesFor(id);
+  let insts      = instancesFor(id);
+  normalizeFamilyMcToInstances(base, insts);
+  insts = instancesFor(id);
   const inst     = insts[Math.min(S.selectedInstanceIdx, Math.max(0, insts.length - 1))] || null;
+  const progress = instanceMcSpent(inst, base);
+  const atMax    = progress >= maxMC;
+  const onColl   = document.getElementById('tab-collection').classList.contains('active');
 
-  // ── Hero
   document.getElementById('detail-hero').style.background  = grad;
   document.getElementById('detail-tabs').style.background  = grad;
   document.getElementById('hero-dex').textContent          = `#${id}`;
@@ -2401,33 +2705,30 @@ function renderDetail() {
 
   const badgesEl = document.getElementById('hero-badges');
   const capR     = mem.rarity.charAt(0).toUpperCase() + mem.rarity.slice(1);
-  let badgesHtml = `<span class="badge" style="background:${rc(mem.rarity)}33;border-color:${rc(mem.rarity)}66">${capR}</span>`;
-  if (inst) badgesHtml += personalityBadgeHtml(inst.personality);
+  let badgesHtml = '';
   if (inst?.is_shiny) badgesHtml += '<span class="shiny-badge">★ Akronite</span>';
-  if (inst?.is_nft)   badgesHtml += '<span class="badge" style="background:rgba(56,210,196,0.25);border-color:rgba(56,210,196,0.5);color:#20D0C0">⬡ NFT</span>';
+  badgesHtml += `<span class="badge" style="background:${rc(mem.rarity)}33;border-color:${rc(mem.rarity)}66">${capR}</span>`;
+  if (onColl && inst) badgesHtml += personalityBadgeHtml(inst.personality);
+  if (inst?.is_nft) badgesHtml += '<span class="badge" style="background:rgba(56,210,196,0.25);border-color:rgba(56,210,196,0.5);color:#20D0C0">⬡ NFT</span>';
   badgesEl.innerHTML = badgesHtml;
 
-  // Hero image (larger wrap, no wm inside)
   const wrap = document.getElementById('hero-img-wrap');
-  const imgSrc = inst?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
-  wrap.innerHTML = imgSrc
-    ? `<img class="hero-img" src="${imgSrc}" alt="${mem.name}">`
+  const headerImg = inst?.is_shiny ? (SHINY_MAP[id] || IMAGE_MAP[id]) : IMAGE_MAP[id];
+  wrap.innerHTML = headerImg
+    ? `<img class="hero-img" src="${headerImg}" alt="${mem.name}">`
     : `<div class="hero-placeholder">${ti(pType)}</div>`;
 
-  // Full-name watermark spanning the hero background
-  const heroEl = document.getElementById('detail-hero');
-  let wm = heroEl.querySelector('.hero-wm');
-  if (!wm) { wm = document.createElement('div'); wm.className = 'hero-wm'; heroEl.appendChild(wm); }
-  wm.textContent = mem.name;
+  const wm = document.getElementById('hero-wm');
+  if (wm) wm.textContent = mem.name;
 
-  // ── Types (primary only — secondary is not duplicated in type grid / columns)
-  const primaryType = mem.type[0];
-  document.getElementById('type-row').innerHTML = primaryType ? typeBadgeHtml(primaryType) : '';
+  const typeHtml = (mem.type || []).map(t => typeBadgeHtml(t)).join('') || '';
+  const elTypeD = document.getElementById('detail-type-details');
+  const elTypeC = document.getElementById('detail-type-collection');
+  if (elTypeD) elTypeD.innerHTML = typeHtml;
+  if (elTypeC) elTypeC.innerHTML = typeHtml;
 
-  // ── Description
   document.getElementById('desc-text').textContent = mem.description;
 
-  // ── Stats
   const chain = evoChainFrom(base);
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-chip wide">
@@ -2443,9 +2744,7 @@ function renderDetail() {
       <span class="stat-lbl">Weight</span>
     </div>`;
 
-  // ── Progression
-  // progress = memcore spent, bank = unspent available
-  const pct   = Math.min(100, (progress / maxMC) * 100);
+  const pct = Math.min(100, (progress / maxMC) * 100);
   document.getElementById('mc-avail').textContent    = `${bank} ◆`;
   document.getElementById('mc-fraction').textContent = `${progress} / ${maxMC} ◆`;
   const fill = document.getElementById('progress-fill');
@@ -2459,63 +2758,90 @@ function renderDetail() {
     if (bank < 1) captionEl.textContent = `No ◆ in bank — collect more to level up`;
     else captionEl.textContent = `${maxMC - progress} ◆ remaining to max`;
   }
-  document.getElementById('mc-dbg').textContent = `◆ ${bank} avail · ${progress}/${maxMC}`;
+  const mcDbg = document.getElementById('mc-dbg');
+  if (mcDbg) mcDbg.textContent = `${base} · ${bank} avail · this instance ${progress}/${maxMC}`;
 
-  // ── Mint Status
   const mintEl   = document.getElementById('mint-status');
   const isMinted = inst?.is_nft || false;
-  // count how many instances of this base memory are already minted
   const mintedCount = S.instances.filter(i => {
     const m = MEMORIES[i.dex_id]; return m && m.base_memory === base && i.is_nft;
   }).length;
   const maxMints   = mem.max_mints;
-  const supplyStr  = maxMints !== null ? `${mintedCount} / ${maxMints.toLocaleString()} minted` : '∞ supply';
+  const mintedStr  = maxMints !== null ? `${mintedCount} / ${maxMints.toLocaleString()} MINTED` : `${mintedCount} minted (∞ supply)`;
 
   if (!inst) {
     mintEl.innerHTML = `<span class="mint-badge mb-locked">No instance owned</span>`;
   } else if (isMinted) {
     mintEl.innerHTML = `<span class="mint-badge mb-minted">✓ Minted · NFT Essence: ${inst.nft_essence}</span>
-      <span class="mint-badge mb-locked" style="font-size:9px">${supplyStr}</span>`;
+      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
   } else if (!mem.mintable) {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">Non-mintable</span>`;
+    mintEl.innerHTML = `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why non-mintable?">i</summary><div class="mint-lore-txt"><strong>Mint at Stage 1 only.</strong> After evolution, the bond runs too hot to anchor on-chain — too strong once evolved. Eternal companionship has to be sworn <em>before</em> the next form wakes; walk Collection, max your ◆, then seal the oath.</div></details>`;
   } else if (inst.origin_state === 'evolved') {
     mintEl.innerHTML = `<span class="mint-badge mb-locked">Must mint before evolving</span>`;
   } else if (!atMax) {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">Reach max ◆ to mint · ${supplyStr}</span>`;
+    mintEl.innerHTML = `<span class="mint-badge mb-locked">MAX LVL REQUIRED TO MINT · ${mintedStr}</span>`;
   } else {
     mintEl.innerHTML = `<span class="mint-badge mb-mintable">★ Ready to Mint</span>
-      <span class="mint-badge mb-locked" style="font-size:9px">${supplyStr}</span>`;
+      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
   }
 
-  // ── Evolution & Collection tabs
-  renderEvoLine(id, mem, base, progress);
+  const sortRow = document.getElementById('coll-sort-row');
+  if (sortRow && !sortRow.innerHTML.trim()) {
+    sortRow.innerHTML = ['akronite','level','essence','recent'].map(k => {
+      const labels = { akronite: 'Akronite', level: 'Level', essence: 'Essence', recent: 'Recent' };
+      return `<button type="button" class="coll-sort${S.collSort===k?' active':''}" data-sort="${k}" onclick="setCollSort('${k}')">${labels[k]}</button>`;
+    }).join('');
+  } else if (sortRow) {
+    sortRow.querySelectorAll('.coll-sort').forEach(b => b.classList.toggle('active', b.dataset.sort === S.collSort));
+  }
+
+  const titleEl = document.getElementById('coll-memories-title');
+  if (titleEl) titleEl.textContent = `${mem.name} Memories`;
+
+  renderEvoLine(id, mem, base);
   renderCollection(id, mem, insts, inst);
   updateButtons(mem, bank, progress, maxMC, inst);
 }
 
-function selectInstance(idx) {
-  S.selectedInstanceIdx = idx;
+function selectInstance(sortedIdx) {
+  const mem = MEMORIES[S.selectedId]; if (!mem) return;
+  const insts = instancesFor(S.selectedId);
+  const sorted = sortInstances(insts, mem);
+  const picked = sorted[sortedIdx];
+  if (!picked) return;
+  const idx = insts.findIndex(i => i.instanceId === picked.instanceId);
+  S.selectedInstanceIdx = idx >= 0 ? idx : 0;
   renderDetail();
 }
 
-function renderEvoLine(id, mem, base, progress) {
+function renderEvoLine(id, mem, base) {
   const chain = evoChainFrom(base);
 
   document.getElementById('evo-line').innerHTML = chain.map((eid, idx) => {
     const em     = MEMORIES[eid];
     const cat    = CATALOG[eid];
     const name   = em?.name   || cat?.name  || eid;
-    const rar    = em?.rarity || cat?.rarity || '';
     const ptype  = em?.type?.[0] || cat?.primary || 'WIND';
     const isCur  = eid === id;
-    const isSeen = !!S.seen[eid] || S.instances.some(i => i.dex_id === eid);
+    const owned  = S.instances.some(i => i.dex_id === eid);
+    const seenOnly = !!S.seen[eid] && !owned;
+    const unknown = !S.seen[eid] && !owned;
 
-    // Unknown evolutions show a ? placeholder; no image, no rarity
-    const imgEl = isSeen
-      ? (IMAGE_MAP[eid] ? `<img class="evo-card-img" src="${IMAGE_MAP[eid]}" alt="${name}" loading="lazy">` : `<div class="evo-card-ph">${ti(ptype)}</div>`)
-      : `<div class="evo-card-ph" style="font-size:22px;font-weight:700;color:var(--text-muted)">?</div>`;
+    let imgEl;
+    if (unknown) {
+      imgEl = `<div class="evo-card-ph" style="font-size:22px;font-weight:700;color:var(--text-muted)">?</div>`;
+    } else if (owned && IMAGE_MAP[eid]) {
+      imgEl = `<img class="evo-card-img" src="${IMAGE_MAP[eid]}" alt="${name}" loading="lazy">`;
+    } else if (seenOnly && IMAGE_MAP[eid]) {
+      imgEl = `<img class="evo-card-img evo-silhouette" src="${IMAGE_MAP[eid]}" alt="" loading="lazy">`;
+    } else {
+      imgEl = `<div class="evo-card-ph">${ti(ptype)}</div>`;
+    }
 
-    // Spirit indicator between cards
+    const clickable = owned && !isCur;
+    const cardCls = `evo-card${isCur ? ' current' : ''}${!clickable && !isCur ? ' evo-card-locked' : ''}`;
+    const onclk = clickable ? ` onclick="openDetail('${eid}')"` : '';
+
     let prefix = '';
     if (idx > 0) {
       const prevMem    = MEMORIES[chain[idx-1]];
@@ -2533,30 +2859,23 @@ function renderEvoLine(id, mem, base, progress) {
       }
     }
 
-    return `${prefix}<div class="evo-card${isCur?' current':''}" onclick="openDetail('${eid}')">
+    const displayName = unknown ? '???' : name;
+    return `${prefix}<div class="${cardCls}"${onclk}>
       ${imgEl}
       <div class="evo-num">#${eid}</div>
-      <div class="evo-name">${isSeen ? name : '???'}</div>
+      <div class="evo-name">${displayName}</div>
     </div>`;
   }).join('');
 
   const reqEl = document.getElementById('evo-req');
   if (mem.evolves_to) {
     const evoReq = mem.mc_for_evo || mem.mc_needed;
-    const maxMC  = mem.max_mc;
-    const atMax  = progress >= maxMC;
     const spirit = mem.spirit_req;
     const hasSp  = !spirit || !!PLAYER_SPIRITS[spirit];
 
     reqEl.innerHTML = `
       <div class="evo-req-box">
-        <div class="mc-head">
-          <span class="mc-label">Stage Progress (need max)</span>
-          <span class="mc-val" style="color:${atMax?'#20A090':'inherit'}">${progress} / ${maxMC} ◆ ${atMax ? '✓' : ''}</span>
-        </div>
-        <div class="progress-track">
-          <div class="progress-fill${atMax?' maxed':''}" style="width:${Math.min(100,(progress/maxMC)*100)}%"></div>
-        </div>
+        <div class="evo-req-static">Next evolution needs <strong>${evoReq != null ? evoReq + ' ◆' : '—'}</strong> on an owned instance — <strong>level up</strong> and <strong>evolve</strong> from <strong>Collection</strong> after you hit the cap.</div>
         ${spirit ? `<div class="spirit-warn">
           ${SPIRIT_MAP[spirit] ? `<img src="${SPIRIT_MAP[spirit]}" style="width:16px;height:16px;object-fit:contain">` : '🔮'}
           ${hasSp ? '✓ Have' : '✗ Need'} <strong>${spirit}</strong> spirit for this evolution
@@ -2570,8 +2889,10 @@ function renderEvoLine(id, mem, base, progress) {
 }
 
 function renderCollection(id, mem, insts, activeInst) {
-  document.getElementById('coll-count').textContent = `${insts.length} ${insts.length===1?'instance':'instances'}`;
+  document.getElementById('coll-count').textContent = `${insts.length} ${insts.length === 1 ? 'Memory' : 'Memories'}`;
   const el = document.getElementById('coll-content');
+  const base = mem.base_memory;
+  const maxMC = mem.max_mc;
 
   if (!insts.length) {
     el.innerHTML = `<div class="coll-empty">
@@ -2582,18 +2903,21 @@ function renderCollection(id, mem, insts, activeInst) {
     return;
   }
 
-  el.innerHTML = insts.map((ins, i) => {
+  const sorted = sortInstances(insts, mem);
+  el.innerHTML = sorted.map((ins, i) => {
     const src      = ins.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
-    const isActive = ins === activeInst;
+    const isActive = activeInst && ins.instanceId === activeInst.instanceId;
     const persCol  = PERSONALITY_COLORS[ins.personality] || '#888';
     const nftBadge = ins.is_nft
       ? `<span style="background:rgba(56,210,196,0.15);color:#20D0C0;border:1px solid rgba(56,210,196,0.4);border-radius:999px;padding:2px 7px;font-size:9px;font-weight:700;display:inline-flex;align-items:center;gap:3px">⬡ NFT${ins.nft_essence ? ` · ${ins.nft_essence} ess` : ''}</span>`
       : '';
-    return `<div class="inst-card${isActive?' active-inst':''}" onclick="selectInstance(${i})">
+    const progI = instanceMcSpent(ins, base);
+    return `<div class="inst-card${isActive?' active-inst':''}${ins.is_shiny?' akronite-inst':''}" onclick="selectInstance(${i})">
       ${src ? `<img class="inst-card-img" src="${src}" alt="">` : `<div class="inst-card-ph">${ti(mem.type[0])}</div>`}
       <div class="inst-card-info">
         <div class="inst-card-name">${mem.name}${ins.is_shiny ? ' ★' : ''}</div>
-        <div class="inst-card-tags" style="gap:4px;flex-wrap:wrap">
+        <div class="inst-card-prog">${progI} / ${maxMC} ◆ · stage ${ins.current_stage ?? mem.stage}</div>
+        <div class="inst-card-tags" style="gap:4px;flex-wrap:wrap;margin-top:2px">
           <span style="font-size:9px;font-weight:700;color:${persCol};background:${persCol}22;border-radius:999px;padding:2px 7px">${ins.personality}</span>
           ${nftBadge}
         </div>
@@ -2642,13 +2966,13 @@ function doLevelUp() {
   const mem = MEMORIES[S.selectedId]; if (!mem) return;
   const base  = mem.base_memory;
   const bank  = S.bank[base]     || 0;
-  const prog  = S.progress[base] || 0;
+  const inst  = currentInstance(); if (!inst) return;
   const maxMC = mem.max_mc;
-  if (prog >= maxMC || bank < 1) return;
+  const spent = instanceMcSpent(inst, base);
+  if (spent >= maxMC || bank < 1) return;
 
-  // Spend 1 ◆ per click, advance progress by 1
-  S.bank[base]     = bank - 1;
-  S.progress[base] = Math.min(prog + 1, maxMC);
+  S.bank[base] = bank - 1;
+  inst.mc_spent = spent + 1;
   renderDetail();
 }
 
@@ -2657,23 +2981,28 @@ function doEvolve() {
   const mem = MEMORIES[id]; if (!mem || !mem.evolves_to) return;
   const inst = currentInstance(); if (!inst || inst.is_nft) return;
   const base  = mem.base_memory;
-  const prog  = S.progress[base] || 0;
-  if (prog < mem.max_mc) return; // must be max level
+  const spent = instanceMcSpent(inst, base);
+  if (spent < mem.max_mc) return; // must be max level
 
   const targetId = mem.evolves_to;
   const target   = MEMORIES[targetId]; if (!target) return;
 
   const newlyOwnsTarget = !S.instances.some(i => i.dex_id === targetId);
+  const carryPersonality = inst.personality;
+  const carryShiny       = inst.is_shiny;
 
-  // Evolve the instance
+  // Evolve the instance (personality + Akronite carry the same soul forward)
   inst.dex_id        = targetId;
   inst.name          = target.name;
   inst.rarity        = target.rarity;
   inst.current_stage = target.stage;
   inst.origin_state  = 'evolved';
+  inst.personality   = carryPersonality;
+  inst.is_shiny      = carryShiny;
 
-  // Reset progress for the new stage (keep bank intact)
+  // Reset progress for the new stage (per-instance)
   S.progress[base] = 0;
+  inst.mc_spent = 0;
 
   // Mark new dex as seen/owned
   S.seen[targetId] = true;
@@ -2693,7 +3022,7 @@ function doMint() {
   const mem  = MEMORIES[S.selectedId]; if (!mem) return;
   if (!mem.mintable || inst.is_nft || inst.origin_state !== 'saved') return;
   const base = mem.base_memory;
-  if ((S.progress[base] || 0) < mem.max_mc) return;
+  if (instanceMcSpent(inst, base) < mem.max_mc) return;
 
   inst.is_nft              = true;
   inst.nft_minted_at_stage = inst.current_stage;
@@ -2724,6 +3053,8 @@ function addDebugInstances(ids) {
       is_nft:          false,
       nft_minted_at_stage: null,
       nft_essence:     null,
+      mc_spent:        0,
+      acquired_at:     Date.now(),
     };
     S.seen[id] = true;
     S.instances.push(inst);
@@ -2757,11 +3088,12 @@ function debugSee(n) {
 }
 
 function debugAddMC(amount) {
+  if (!document.getElementById('screen-detail')?.classList.contains('active')) return;
   const id  = S.selectedId;
   const mem = MEMORIES[id]; if (!mem) return;
   const base = mem.base_memory;
   S.bank[base] = (S.bank[base] || 0) + amount;
-  if (document.getElementById('screen-detail').classList.contains('active')) renderDetail();
+  renderDetail();
 }
 
 function debugMC(amount) {
@@ -2770,6 +3102,7 @@ function debugMC(amount) {
 
 function resetAll() {
   S.seen = {}; S.bank = {}; S.progress = {}; S.instances = []; S.filter = 'all';
+  S.collSort = 'akronite';
   _congratsInstance = null;
   _congratsDismissToDetail = false;
   document.getElementById('congrats-overlay').classList.remove('show');
@@ -2786,6 +3119,8 @@ function resetAll() {
   document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
   document.getElementById('type-icon-row')?.classList.remove('visible');
   document.getElementById('grid-q').value = '';
+  const csr = document.getElementById('coll-sort-row');
+  if (csr) csr.innerHTML = '';
   const sg = document.getElementById('screen-grid');
   if (sg) {
     clearTimeout(sg._hdrCollapseT);
@@ -3085,12 +3420,209 @@ function _initCardTuner() {
   _applyCT();
 }
 
+// ── MEMORY DETAIL / COLLECTION TUNER (CSS vars on #screen-detail only)
+const DT = {
+  topH: 57, topPadX: 10, backX: 23, backY: 15,
+  heroPadT: 5, heroPadX: 24, heroPadB: 0, heroMinH: 80,
+  spriteSz: 152, spriteX: 1, spriteY: 0,
+  dexX: 0, dexY: -2, nameX: -6, nameY: -9,
+  wmFs: 66, wmX: -30, wmY: -35, wmOp: 9,
+  badgeGap: 7, badgeSc: 100,
+  tabH: 41, tabFs: 14, tabPadX: 24,
+  bodyPad: 24, bodyTopPad: 9,
+  secMt: 9, secMb: 6,
+  chipPx: 12, chipPy: 9, chipGap: 6, chipRad: 9,
+  descFs: 13,
+  evoY: 0, evoSc: 100, evoGap: 5, evoPadB: 5, evoImgSz: 44,
+  instRowMinH: 1, instImgSz: 58, instImgX: -1, instImgY: -1,
+  instTx: 0, instTy: 0, instGap: 10, instMb: 6,
+  actPy: 10, actPx: 18, actGap: 6, actMinH: 0,
+};
+const DT_SECTIONS = [
+  { label: 'Top inset', items: [
+    { key:'topH', label:'Inset H', unit:'px', step:1, min:0, max:88, cssVar:'--dt-top-h', mode:'px' },
+    { key:'topPadX', label:'Pad X', unit:'px', step:1, min:0, max:24, cssVar:'--dt-top-pad-x', mode:'px' },
+    { key:'backX', label:'Back X', unit:'px', step:1, min:-8, max:48, cssVar:'--dt-back-x', mode:'px' },
+    { key:'backY', label:'Back Y', unit:'px', step:1, min:0, max:48, cssVar:'--dt-back-y', mode:'px' },
+  ]},
+  { label: 'Hero', items: [
+    { key:'heroPadT', label:'Pad T', unit:'px', step:1, min:0, max:32, cssVar:'--dt-hero-pad-t', mode:'px' },
+    { key:'heroPadX', label:'Pad X', unit:'px', step:1, min:4, max:32, cssVar:'--dt-hero-pad-x', mode:'px' },
+    { key:'heroPadB', label:'Pad B', unit:'px', step:1, min:0, max:24, cssVar:'--dt-hero-pad-b', mode:'px' },
+    { key:'heroMinH', label:'Min H', unit:'px', step:2, min:52, max:160, cssVar:'--dt-hero-min-h', mode:'px' },
+  ]},
+  { label: 'Sprite', items: [
+    { key:'spriteSz', label:'Size', unit:'px', step:2, min:48, max:180, cssVar:'--dt-sprite-sz', mode:'px' },
+    { key:'spriteX', label:'X', unit:'px', step:1, min:-40, max:40, cssVar:'--dt-sprite-x', mode:'px' },
+    { key:'spriteY', label:'Y', unit:'px', step:1, min:-40, max:40, cssVar:'--dt-sprite-y', mode:'px' },
+  ]},
+  { label: 'Dex / name', items: [
+    { key:'dexX', label:'Dex X', unit:'px', step:1, min:-24, max:24, cssVar:'--dt-dex-x', mode:'px' },
+    { key:'dexY', label:'Dex Y', unit:'px', step:1, min:-24, max:24, cssVar:'--dt-dex-y', mode:'px' },
+    { key:'nameX', label:'Name X', unit:'px', step:1, min:-24, max:24, cssVar:'--dt-name-x', mode:'px' },
+    { key:'nameY', label:'Name Y', unit:'px', step:1, min:-24, max:24, cssVar:'--dt-name-y', mode:'px' },
+  ]},
+  { label: 'Watermark', items: [
+    { key:'wmFs', label:'Size', unit:'px', step:2, min:28, max:120, cssVar:'--dt-wm-fs', mode:'px' },
+    { key:'wmX', label:'X', unit:'px', step:1, min:-80, max:80, cssVar:'--dt-wm-x', mode:'px' },
+    { key:'wmY', label:'Y', unit:'px', step:1, min:-80, max:80, cssVar:'--dt-wm-y', mode:'px' },
+    { key:'wmOp', label:'α %', unit:'%', step:1, min:2, max:40, cssVar:'--dt-wm-op', mode:'alphaPct' },
+  ]},
+  { label: 'Badges', items: [
+    { key:'badgeGap', label:'Gap', unit:'px', step:1, min:0, max:16, cssVar:'--dt-badge-gap', mode:'px' },
+    { key:'badgeSc', label:'Scale%', unit:'%', step:5, min:70, max:130, cssVar:'__badgeSc', mode:'skip' },
+  ]},
+  { label: 'Tabs', items: [
+    { key:'tabH', label:'Height', unit:'px', step:1, min:32, max:64, cssVar:'--dt-tab-h', mode:'px' },
+    { key:'tabFs', label:'Text', unit:'px', step:1, min:10, max:17, cssVar:'--dt-tab-fs', mode:'px' },
+    { key:'tabPadX', label:'Pad X', unit:'px', step:1, min:4, max:32, cssVar:'--dt-tab-pad-x', mode:'px' },
+  ]},
+  { label: 'Body', items: [
+    { key:'bodyTopPad', label:'Pad T', unit:'px', step:1, min:4, max:32, cssVar:'--dt-body-top-pad', mode:'px' },
+    { key:'bodyPad', label:'Pad X', unit:'px', step:1, min:4, max:32, cssVar:'--dt-body-pad', mode:'px' },
+    { key:'secMt', label:'Sec Y', unit:'px', step:1, min:4, max:20, cssVar:'--dt-sec-mt', mode:'px' },
+    { key:'secMb', label:'Sec gap', unit:'px', step:1, min:2, max:16, cssVar:'--dt-sec-mb', mode:'px' },
+    { key:'descFs', label:'Desc px', unit:'px', step:1, min:10, max:16, cssVar:'--dt-desc-fs', mode:'px' },
+  ]},
+  { label: 'Chips', items: [
+    { key:'chipPx', label:'Pad X', unit:'px', step:1, min:4, max:16, cssVar:'--dt-chip-pad-x', mode:'px' },
+    { key:'chipPy', label:'Pad Y', unit:'px', step:1, min:4, max:16, cssVar:'--dt-chip-pad-y', mode:'px' },
+    { key:'chipGap', label:'Gap', unit:'px', step:1, min:2, max:14, cssVar:'--dt-chip-gap', mode:'px' },
+    { key:'chipRad', label:'Radius', unit:'px', step:1, min:4, max:18, cssVar:'--dt-chip-radius', mode:'px' },
+  ]},
+  { label: 'Evo row', items: [
+    { key:'evoY', label:'Y', unit:'px', step:1, min:-24, max:24, cssVar:'--dt-evo-y', mode:'px' },
+    { key:'evoSc', label:'Scale%', unit:'%', step:5, min:70, max:130, cssVar:'__evoSc', mode:'skip' },
+    { key:'evoImgSz', label:'Img sz', unit:'px', step:1, min:28, max:56, cssVar:'--dt-evo-img-sz', mode:'px' },
+    { key:'evoGap', label:'Gap', unit:'px', step:1, min:0, max:16, cssVar:'--dt-evo-gap', mode:'px' },
+    { key:'evoPadB', label:'Pad B', unit:'px', step:1, min:0, max:16, cssVar:'--dt-evo-pad-b', mode:'px' },
+  ]},
+  { label: 'Instance row', items: [
+    { key:'instRowMinH', label:'Min H', unit:'px', step:1, min:0, max:80, cssVar:'--dt-inst-row-minh', mode:'px' },
+    { key:'instImgSz', label:'Spr sz', unit:'px', step:1, min:28, max:80, cssVar:'--dt-inst-img-sz', mode:'px' },
+    { key:'instImgX', label:'Spr X', unit:'px', step:1, min:-20, max:20, cssVar:'--dt-inst-img-x', mode:'px' },
+    { key:'instImgY', label:'Spr Y', unit:'px', step:1, min:-20, max:20, cssVar:'--dt-inst-img-y', mode:'px' },
+    { key:'instTx', label:'Text X', unit:'px', step:1, min:-12, max:12, cssVar:'--dt-inst-text-x', mode:'px' },
+    { key:'instTy', label:'Text Y', unit:'px', step:1, min:-12, max:12, cssVar:'--dt-inst-text-y', mode:'px' },
+    { key:'instGap', label:'Gap', unit:'px', step:1, min:2, max:20, cssVar:'--dt-inst-gap', mode:'px' },
+    { key:'instMb', label:'Row gap', unit:'px', step:1, min:0, max:16, cssVar:'--dt-inst-mb', mode:'px' },
+  ]},
+  { label: 'Action bar', items: [
+    { key:'actPy', label:'Pad Y', unit:'px', step:1, min:2, max:24, cssVar:'--dt-action-pad-y', mode:'px' },
+    { key:'actPx', label:'Pad X', unit:'px', step:1, min:2, max:24, cssVar:'--dt-action-pad-x', mode:'px' },
+    { key:'actGap', label:'Btn gap', unit:'px', step:1, min:0, max:16, cssVar:'--dt-action-gap', mode:'px' },
+    { key:'actMinH', label:'Min H', unit:'px', step:1, min:0, max:56, cssVar:'--dt-action-min-h', mode:'px' },
+  ]},
+];
+
+function _dtFind(key) {
+  for (const s of DT_SECTIONS) {
+    const r = s.items.find(x => x.key === key);
+    if (r) return r;
+  }
+  return null;
+}
+
+function _applyDT() {
+  const panel = document.getElementById('screen-detail');
+  if (!panel) return;
+  DT_SECTIONS.forEach(s => s.items.forEach(r => {
+    if (r.mode === 'skip') {
+      const elSk = document.getElementById('dt-' + r.key);
+      if (elSk) elSk.value = DT[r.key];
+      return;
+    }
+    const v = DT[r.key];
+    const val = r.mode === 'alphaPct' ? String(v / 100) : (v + 'px');
+    panel.style.setProperty(r.cssVar, val);
+    const el = document.getElementById('dt-' + r.key);
+    if (el) el.value = DT[r.key];
+  }));
+  panel.style.setProperty('--dt-badge-scale', String(DT.badgeSc / 100));
+  panel.style.setProperty('--dt-evo-scale', String(DT.evoSc / 100));
+  const ro = document.getElementById('dt-readout');
+  if (ro) {
+    ro.style.whiteSpace = 'pre-line';
+    ro.textContent = [
+      `top ${DT.topH}/${DT.topPadX} · back ${DT.backX},${DT.backY}`,
+      `hero ${DT.heroPadT}/${DT.heroPadX}/${DT.heroPadB} · minH ${DT.heroMinH} · spr ${DT.spriteSz}@${DT.spriteX},${DT.spriteY}`,
+      `dex ${DT.dexX},${DT.dexY} · name ${DT.nameX},${DT.nameY} · wm ${DT.wmFs}@${DT.wmX},${DT.wmY} α${DT.wmOp} · badges gap ${DT.badgeGap} sc${DT.badgeSc}%`,
+      `tabs ${DT.tabH}/${DT.tabFs}/${DT.tabPadX} · body T/side ${DT.bodyTopPad}/${DT.bodyPad} · sec ${DT.secMt}/${DT.secMb} · desc ${DT.descFs}`,
+      `chip ${DT.chipPx}/${DT.chipPy}/${DT.chipGap}/r${DT.chipRad} · evo y${DT.evoY} sc${DT.evoSc}% img${DT.evoImgSz} gap ${DT.evoGap} pb${DT.evoPadB}`,
+      `inst minH ${DT.instRowMinH} img ${DT.instImgSz}@${DT.instImgX},${DT.instImgY} txt ${DT.instTx},${DT.instTy} gap ${DT.instGap}/${DT.instMb}`,
+      `act py${DT.actPy} px${DT.actPx} gap ${DT.actGap} minH ${DT.actMinH}`,
+    ].join('\n');
+  }
+  try { localStorage.setItem('mempool-detail-dt-v5', JSON.stringify(DT)); } catch (e) {}
+}
+
+function _dtAdj(key, delta) {
+  const r = _dtFind(key); if (!r || r.mode === 'skip') return;
+  let v = DT[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  DT[key] = v;
+  _applyDT();
+}
+function _dtSet(key, val) {
+  const r = _dtFind(key); if (!r || r.mode === 'skip') return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  DT[key] = v;
+  _applyDT();
+}
+function copyDetailTuner() {
+  const ro = document.getElementById('dt-readout');
+  if (ro) navigator.clipboard?.writeText(ro.textContent).catch(()=>{});
+}
+
+function _initDetailTuner() {
+  try {
+    const raw = localStorage.getItem('mempool-detail-dt-v5');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') {
+        for (const k of Object.keys(DT)) {
+          if (saved[k] !== undefined && typeof saved[k] === typeof DT[k]) {
+            const n = saved[k];
+            if (typeof n === 'number' && !Number.isNaN(n)) DT[k] = n;
+          }
+        }
+      }
+    }
+  } catch (e) {}
+  const wrap = document.getElementById('dt-rows');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  DT_SECTIONS.forEach(sec => {
+    const h = document.createElement('div');
+    h.className = 'dt-sec';
+    h.textContent = sec.label;
+    wrap.appendChild(h);
+    sec.items.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'dt-row';
+      const step = r.step ?? 1;
+      d.innerHTML =
+        `<span class="dt-lbl">${r.label}</span>` +
+        `<button type="button" class="dt-btn" onclick="_dtAdj('${r.key}',-${step})">−</button>` +
+        `<input id="dt-${r.key}" class="dt-inp" type="number" value="${DT[r.key]}" onchange="_dtSet('${r.key}',this.value)">` +
+        `<button type="button" class="dt-btn" onclick="_dtAdj('${r.key}',${step})">+</button>` +
+        `<span style="font-size:8px;color:rgba(255,255,255,0.28);width:14px;text-align:right">${r.unit}</span>`;
+      wrap.appendChild(d);
+    });
+  });
+  _applyDT();
+}
+
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
 _initTuner();
 _initGridTuner();
 _initCardTuner();
+_initDetailTuner();
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════
 //  GRID EXPAND / COLLAPSE  (scroll-to-collapse or toggle button)
