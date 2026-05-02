@@ -267,6 +267,187 @@ body {
 }
 #enc-popup-overlay.show { opacity: 1; pointer-events: all; }
 
+/* INSTANCE MODAL (collection — per-memory actions) */
+.imx-overlay {
+  position: fixed; inset: 0; z-index: 8040;
+  background: rgba(0,0,0,0.52); backdrop-filter: blur(var(--imx-blur, 6px));
+  opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.imx-overlay.show { opacity: 1; pointer-events: all; }
+.imx-panel {
+  position: fixed; top: 50%; left: 50%;
+  transform: translate(-50%, -50%) scale(var(--imx-scale, 1));
+  z-index: 8041;
+  width: var(--imx-w, 300px);
+  max-width: calc(100vw - 24px);
+  max-height: calc(100vh - 24px);
+  overflow: hidden;
+  background: white;
+  border-radius: var(--imx-rad, 26px);
+  box-shadow: 0 24px 80px rgba(0,0,0,0.55);
+  opacity: 0; pointer-events: none;
+  transition: opacity 0.22s ease, transform 0.22s cubic-bezier(0.34, 1.45, 0.64, 1);
+}
+.imx-panel.show {
+  opacity: 1; pointer-events: all;
+}
+.imx-hero {
+  height: var(--imx-hero-h, 168px);
+  display: flex; align-items: flex-end; justify-content: center;
+  position: relative; overflow: hidden;
+  padding-bottom: var(--imx-hero-pad-b, 10px);
+  background: var(--imx-hero-fallback, #D4A820);
+}
+.imx-hero-types {
+  position: absolute; top: var(--imx-htypes-t, 8px); left: var(--imx-htypes-l, 10px);
+  max-width: calc(100% - 24px);
+  display: flex; flex-wrap: wrap; gap: 4px; z-index: 4;
+  pointer-events: none;
+}
+.imx-hero-types .type-badge {
+  font-size: 9px; padding: 3px 8px 3px 4px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+}
+.imx-hero-nft-ribbon {
+  position: absolute; top: 8px; right: 8px; z-index: 4;
+  font-size: 9px; font-weight: 800; letter-spacing: 0.55px; text-transform: uppercase;
+  color: #103030; background: linear-gradient(135deg, #B8F0E8, #60D4C4);
+  border: 1px solid rgba(32,160,144,0.45);
+  border-radius: 999px; padding: 4px 10px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+  pointer-events: none;
+}
+.imx-hero-nft-ribbon[hidden] { display: none !important; }
+.imx-id-row {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 8px;
+  margin-bottom: 2px;
+}
+.imx-id-row .imx-id { margin: 0; flex-shrink: 0; }
+.imx-bp-btn {
+  flex-shrink: 0;
+  font-family: var(--font); font-size: 10px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px;
+  padding: 5px 10px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--chip-border);
+  background: rgba(56,210,196,0.12); color: #188878;
+}
+.imx-bp-btn:hover { background: rgba(56,210,196,0.2); }
+
+.imx-concept-overlay {
+  position: fixed; inset: 0; z-index: 8052;
+  background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px; opacity: 0; pointer-events: none; transition: opacity 0.2s;
+}
+.imx-concept-overlay.show { opacity: 1; pointer-events: all; }
+.imx-concept-panel {
+  position: relative; max-width: min(560px, 96vw); max-height: 92vh;
+  background: #1a1e28; border-radius: 14px; padding: 10px;
+  box-shadow: 0 24px 64px rgba(0,0,0,0.55);
+}
+.imx-concept-panel img {
+  display: block; max-width: 100%; max-height: calc(92vh - 24px);
+  width: auto; height: auto; object-fit: contain; border-radius: 8px;
+}
+.imx-concept-close {
+  position: absolute; top: -4px; right: -4px; width: 32px; height: 32px;
+  border: none; border-radius: 50%; cursor: pointer;
+  font-size: 20px; line-height: 1; color: white;
+  background: rgba(0,0,0,0.45); z-index: 2;
+}
+.imx-concept-close:hover { background: rgba(0,0,0,0.65); }
+.imx-hero-img {
+  width: var(--imx-spr-sz, 124px); height: var(--imx-spr-sz, 124px);
+  object-fit: contain;
+  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.28));
+  position: relative; z-index: 2;
+}
+.imx-wm {
+  position: absolute; right: var(--imx-wm-r, -8px); bottom: var(--imx-wm-b, -18px);
+  font-size: var(--imx-wm-fs, 104px); font-weight: 700; font-style: italic;
+  color: rgba(255,255,255,0.14); line-height: 1; pointer-events: none;
+}
+.imx-body { padding: var(--imx-body-py, 16px) var(--imx-body-px, 18px) var(--imx-body-pb, 18px); overflow-y: auto; max-height: calc(100vh - 220px); }
+.imx-id { font-size: var(--imx-id-fs, 12px); color: var(--text-muted); font-weight: 600; letter-spacing: 0.6px; }
+.imx-name { font-size: var(--imx-name-fs, 22px); font-weight: 700; color: var(--text-dark); line-height: 1.12; margin: 4px 0 var(--imx-name-mb, 10px); }
+.imx-tags { display: flex; gap: var(--imx-tag-gap, 6px); flex-wrap: wrap; margin-bottom: var(--imx-tag-mb, 12px); }
+.imx-pill {
+  font-size: var(--imx-pill-fs, 9px); font-weight: 700; text-transform: uppercase; letter-spacing: 0.45px;
+  padding: 4px 10px; border-radius: 999px; border: 1.5px solid transparent;
+}
+.imx-essence {
+  background: var(--chip-bg); border: 1px solid var(--chip-border);
+  border-radius: var(--imx-ess-rad, 12px);
+  padding: var(--imx-ess-py, 10px) var(--imx-ess-px, 12px);
+  margin-bottom: var(--imx-ess-mb, 12px);
+}
+.imx-ess-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.45px; }
+.imx-ess-val { font-size: 18px; font-weight: 700; color: var(--text-dark); }
+.imx-stg-box {
+  background: var(--chip-bg); border: 1px solid var(--chip-border);
+  border-radius: var(--imx-stg-rad, 12px);
+  padding: var(--imx-stg-py, 10px) var(--imx-stg-px, 12px);
+  margin-bottom: var(--imx-stg-mb, 12px);
+}
+.imx-stg-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+.imx-stg-lbl { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.45px; }
+.imx-stg-val { font-size: 13px; font-weight: 700; color: var(--text-dark); }
+.imx-track { height: var(--imx-bar-h, 6px); background: var(--divider); border-radius: 999px; overflow: hidden; margin-bottom: 5px; }
+.imx-fill {
+  height: 100%; border-radius: 999px;
+  background: linear-gradient(90deg, var(--hero-1), var(--hero-2));
+  transition: width 0.35s ease;
+}
+.imx-fill.maxed { background: linear-gradient(90deg, #38D27A, #68F2A0); }
+.imx-cap { font-size: 10px; color: var(--text-muted); text-align: right; }
+.imx-mint { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin-bottom: var(--imx-mint-mb, 10px); }
+.imx-actions { display: flex; gap: var(--imx-act-gap, 6px); margin-bottom: 10px; flex-wrap: wrap; }
+.ic-btn {
+  flex: 1; min-width: 72px; padding: var(--imx-btn-py, 9px) var(--imx-btn-px, 4px);
+  border-radius: var(--imx-btn-rad, 10px); border: none;
+  font-family: var(--font); font-size: var(--imx-btn-fs, 10px); font-weight: 700;
+  cursor: pointer; transition: all 0.12s;
+  text-transform: uppercase; letter-spacing: 0.35px; color: white;
+}
+.ic-btn:active:not(:disabled) { transform: scale(0.96); }
+.ic-btn-levelup { background: linear-gradient(135deg, #38D2C4, #20B8AA); }
+.ic-btn-evolve  { background: linear-gradient(135deg, #8A4FCC, #6030A8); }
+.ic-btn-mint    { background: linear-gradient(135deg, #FFB800, #E09000); color: #2A1800; }
+.ic-btn:disabled {
+  background: var(--btn-disabled-bg) !important;
+  color: var(--btn-disabled-fg) !important;
+  cursor: not-allowed; transform: none !important;
+}
+.imx-done {
+  width: 100%; padding: 10px;
+  background: var(--chip-bg); border: 1px solid var(--chip-border);
+  border-radius: 12px; font-family: var(--font);
+  font-size: 11px; font-weight: 700; color: var(--text-muted);
+  cursor: pointer; text-transform: uppercase; letter-spacing: 0.45px;
+}
+.imx-done:hover { background: var(--divider); }
+
+#instance-card-tuner {
+  display: none;
+  position: fixed; left: 10px; top: 20px; width: 230px; max-height: calc(100vh - 40px);
+  overflow-y: auto; background: rgba(10,16,30,0.92); border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 14px; padding: 10px 12px; font-family: monospace; z-index: 8890;
+  backdrop-filter: blur(8px);
+}
+#instance-card-tuner .it-head {
+  font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+  color: rgba(255,255,255,0.35); margin-bottom: 6px;
+}
+#instance-card-tuner .it-sec {
+  font-size: 8px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.65px;
+  color: rgba(255,255,255,0.38); margin-top: 8px; margin-bottom: 3px;
+}
+#instance-card-tuner .it-row { display: flex; align-items: center; gap: 3px; margin-bottom: 2px; }
+#instance-card-tuner .it-lbl { width: 70px; font-size: 9px; color: rgba(255,255,255,0.45); flex-shrink: 0; }
+#instance-card-tuner .it-btn { padding: 1px 5px; border-radius: 4px; border: none; background: rgba(255,255,255,0.12); color: white; cursor: pointer; font-size: 11px; }
+#instance-card-tuner .it-inp { width: 40px; text-align: center; background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.18); border-radius: 4px; color: white; font-size: 10px; padding: 1px 3px; font-family: monospace; }
+#instance-card-tuner .it-readout { margin-top: 6px; font-size: 8px; color: rgba(255,255,255,0.28); word-break: break-all; line-height: 1.35; max-height: 100px; overflow-y: auto; }
+
 /* AKRONITE SHIMMER */
 .shiny-badge {
   display: inline-flex; align-items: center; gap: 4px;
@@ -1096,6 +1277,7 @@ body {
 
 .inst-card {
   display: flex; align-items: center; gap: var(--dt-inst-gap);
+  position: relative;
   background: var(--chip-bg); border: 1px solid var(--chip-border);
   border-radius: 12px; padding: 10px; margin-bottom: var(--dt-inst-mb);
   min-height: var(--dt-inst-row-minh);
@@ -1118,32 +1300,12 @@ body {
 .inst-card-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 3px; }
 .inst-card-ess { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-align: right; }
 .inst-nft-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #20A090; }
-
-/* ACTION BAR */
-.action-bar {
-  position: sticky; bottom: 0;
-  background: rgba(255,255,255,0.97); backdrop-filter: blur(10px);
-  border-top: 1px solid var(--divider);
-  padding: var(--dt-action-pad-y) var(--dt-action-pad-x);
-  display: flex; gap: var(--dt-action-gap); z-index: 5; flex-shrink: 0;
-  min-height: var(--dt-action-min-h);
-}
-.abtn {
-  flex: 1; padding: 8px 4px;
-  border-radius: 10px; border: none;
-  font-family: var(--font); font-size: 11px; font-weight: 700;
-  cursor: pointer; transition: all 0.12s;
-  text-transform: uppercase; letter-spacing: 0.4px; color: white;
-}
-.abtn:active:not(:disabled) { transform: scale(0.96); }
-.abtn-levelup { background: linear-gradient(135deg, #38D2C4, #20B8AA); }
-.abtn-evolve  { background: linear-gradient(135deg, #8A4FCC, #6030A8); }
-.abtn-mint    { background: linear-gradient(135deg, #FFB800, #E09000); color: #2A1800; }
-.abtn:disabled {
-  background: var(--btn-disabled-bg) !important;
-  color: var(--btn-disabled-fg) !important;
-  cursor: not-allowed; transform: none !important;
-  box-shadow: none !important;
+.inst-nft-corner {
+  position: absolute; top: 6px; right: 8px;
+  font-size: 8px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
+  color: #106A5C; background: rgba(56,210,196,0.22);
+  border: 1px solid rgba(32,160,144,0.35); border-radius: 6px;
+  padding: 2px 6px; z-index: 1;
 }
 
 .dev-memcore-bar {
@@ -1509,6 +1671,51 @@ body {
   </div>
 </div>
 
+<!-- INSTANCE CARD (collection — level / evolve / mint) -->
+<div id="imx-overlay" class="imx-overlay" onclick="closeInstanceModal()" aria-hidden="true"></div>
+<div id="imx-panel" class="imx-panel" role="dialog" aria-modal="true" aria-labelledby="imx-name" onclick="event.stopPropagation()">
+  <div class="imx-hero" id="imx-hero">
+    <div class="imx-hero-types" id="imx-hero-types"></div>
+    <div class="imx-hero-nft-ribbon" id="imx-hero-nft-ribbon" hidden>NFT · Bonded</div>
+    <img class="imx-hero-img" id="imx-img" src="" alt="">
+    <div class="imx-wm" id="imx-wm"></div>
+  </div>
+  <div class="imx-body">
+    <div class="imx-id-row">
+      <span class="imx-id" id="imx-id"></span>
+      <button type="button" class="imx-bp-btn" id="imx-bp-btn" onclick="openImxConceptArt()">Blueprint</button>
+    </div>
+    <div class="imx-name" id="imx-name"></div>
+    <div class="imx-tags" id="imx-tags"></div>
+    <div class="imx-essence">
+      <div class="imx-ess-lbl">Revealed Essence</div>
+      <div class="imx-ess-val" id="imx-ess"></div>
+    </div>
+    <div class="imx-stg-box">
+      <div class="imx-stg-head">
+        <span class="imx-stg-lbl">Stage progress</span>
+        <span class="imx-stg-val" id="imx-mc-frac"></span>
+      </div>
+      <div class="imx-track"><div class="imx-fill" id="imx-fill"></div></div>
+      <div class="imx-cap" id="imx-cap"></div>
+    </div>
+    <div class="imx-mint" id="imx-mint"></div>
+    <div class="imx-actions">
+      <button type="button" class="ic-btn ic-btn-levelup" id="ic-btn-lvl"  onclick="doLevelUp()">Level Up</button>
+      <button type="button" class="ic-btn ic-btn-evolve"  id="ic-btn-evo"  onclick="doEvolve()">Evolve</button>
+      <button type="button" class="ic-btn ic-btn-mint"    id="ic-btn-mint" onclick="doMint()">Mint NFT</button>
+    </div>
+    <button type="button" class="imx-done" onclick="closeInstanceModal()">Done</button>
+  </div>
+</div>
+
+<div id="imx-concept-overlay" class="imx-concept-overlay" onclick="closeImxConceptArt()" aria-hidden="true">
+  <div class="imx-concept-panel" onclick="event.stopPropagation()">
+    <button type="button" class="imx-concept-close" onclick="closeImxConceptArt()" aria-label="Close blueprint">×</button>
+    <img id="imx-concept-img" src="" alt="Concept blueprint">
+  </div>
+</div>
+
 <!-- CONGRATULATIONS OVERLAY (full-page, first-time encounter) -->
 <div id="congrats-overlay">
   <button type="button" class="congrats-close" onclick="closeCongrats('dismiss')" aria-label="Close">×</button>
@@ -1640,20 +1847,11 @@ body {
         <!-- COLLECTION TAB: per-instance actions -->
         <div class="tab-pane" id="tab-collection">
           <div class="detail-type-row" id="detail-type-collection"></div>
-          <!-- Family bank + selected instance progression -->
           <div class="memcore-box">
             <div class="mc-head">
-              <span class="mc-label">◆ Available</span>
+              <span class="mc-label">◆ Available (family)</span>
               <span class="mc-val" id="mc-avail">0</span>
             </div>
-            <div class="mc-head" style="margin-bottom:4px">
-              <span class="mc-label">Stage Progress (this instance)</span>
-              <span class="mc-val" id="mc-fraction">0 / 30</span>
-            </div>
-            <div class="progress-track">
-              <div class="progress-fill" id="progress-fill" style="width:0%"></div>
-            </div>
-            <div class="mc-caption" id="mc-caption">Collect ◆ to level up</div>
           </div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
           <div class="coll-sort-row" id="coll-sort-row"></div>
@@ -1665,12 +1863,6 @@ body {
         </div>
       </div><!-- /detail-body -->
 
-      <!-- Action bar: only visible on Collection tab -->
-      <div class="action-bar" id="action-bar" style="display:none">
-        <button class="abtn abtn-levelup" id="btn-lvl"  onclick="doLevelUp()">Level Up</button>
-        <button class="abtn abtn-evolve"  id="btn-evo"  onclick="doEvolve()">Evolve</button>
-        <button class="abtn abtn-mint"    id="btn-mint" onclick="doMint()">Mint NFT</button>
-      </div>
     </div><!-- /screen-detail -->
 
   </div><!-- /screen-area -->
@@ -1687,7 +1879,10 @@ body {
 <div id="encounter-panel">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
     <div class="enc-panel-title" style="margin:0">Encounter Biomes — click to roll</div>
-    <div style="display:flex;align-items:center;gap:6px">
+    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end">
+      <label style="display:flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:rgba(255,255,255,0.4);font-family:var(--font);cursor:pointer;user-select:none">
+        <input type="checkbox" id="dev-repeat-enc" style="margin:0" onchange="DEV_SHOW_REPEAT_ENCOUNTER_POPUP=this.checked"> Dev repeat save card
+      </label>
       <label style="font-size:10px;font-weight:700;color:rgba(255,255,255,0.45);text-transform:uppercase;letter-spacing:0.6px;font-family:var(--font)">★ Chance</label>
       <input id="shiny-pct" type="number" min="0" max="100" step="1" value="1"
         oninput="SHINY_CHANCE = Math.min(1, Math.max(0, parseFloat(this.value||0)/100))"
@@ -1728,6 +1923,16 @@ body {
   <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Top inset + pad X reserve space above / beside hero content. <strong style="color:rgba(255,255,255,0.5)">Back X/Y</strong> = ‹ button.</div>
   <div id="dt-rows"></div>
   <div class="dt-readout" id="dt-readout">—</div>
+</div>
+
+<div id="instance-card-tuner">
+  <div class="it-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+    <span>🪪 Instance Card Tuner</span>
+    <button type="button" class="dbg" onclick="copyInstanceCardTuner()" style="font-size:9px;padding:2px 8px">📋 Copy</button>
+  </div>
+  <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Opens when you tap a memory on Collection. Vars apply to the instance modal only.</div>
+  <div id="it-rows"></div>
+  <div class="it-readout" id="it-readout">—</div>
 </div>
 
 <!-- TEST CONTROLS (outside device) -->
@@ -1930,6 +2135,8 @@ const SPIRIT_MAP = {
 //  GAME CONSTANTS (from memory_dev_logic_spec.py)
 // ══════════════════════════════════════════════════════════════
 let SHINY_CHANCE = 0.01;
+/** Dev only: show the “save card” popup on repeat encounters (normally first-time only). */
+let DEV_SHOW_REPEAT_ENCOUNTER_POPUP = false;
 const PERSONALITIES = ['brave', 'bubbly', 'bashful', 'grumpy'];
 const PERSONALITY_COLORS = { brave:'#E05020', bubbly:'#D060B0', bashful:'#2E8FD8', grumpy:'#8A4FCC' };
 const NFT_STATIC_MULTIPLIER = 1.80;
@@ -1958,6 +2165,7 @@ const S = {
   instances:           [],       // all Memory instances (each encounter creates one)
   filter:              "all",
   collSort:            "akronite",
+  instanceCardOpen:    false,
 };
 
 // ══════════════════════════════════════════════════════════════
@@ -2024,6 +2232,7 @@ async function loadData() {
 //  NAVIGATION
 // ══════════════════════════════════════════════════════════════
 function showScreen(name) {
+  if (name === 'grid') closeInstanceModal();
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
   document.getElementById('screen-' + name).classList.add('active');
   syncDevPanelVisibility(name);
@@ -2036,8 +2245,7 @@ function switchTab(btn) {
   btn.classList.add('active');
   const tabName = btn.dataset.tab;
   document.getElementById('tab-' + tabName).classList.add('active');
-  const actionBar = document.getElementById('action-bar');
-  if (actionBar) actionBar.style.display = tabName === 'collection' ? 'flex' : 'none';
+  if (tabName !== 'collection') closeInstanceModal();
   renderDetail();
 }
 
@@ -2096,6 +2304,141 @@ function typeBadgeHtml(t) {
 function personalityBadgeHtml(p) {
   const col = PERSONALITY_COLORS[p] || '#888';
   return `<span class="badge personality" style="background:${col};border-color:${col};">${p}</span>`;
+}
+
+function buildMintStatusInnerHtml(mem, inst, base, atMax) {
+  const isMinted = inst?.is_nft || false;
+  const mintedCount = S.instances.filter(i => {
+    const m = MEMORIES[i.dex_id]; return m && m.base_memory === base && i.is_nft;
+  }).length;
+  const maxMints   = mem.max_mints;
+  const mintedStr  = maxMints !== null ? `${mintedCount} / ${maxMints.toLocaleString()} MINTED` : `${mintedCount} minted (∞ supply)`;
+
+  if (!inst) {
+    return `<span class="mint-badge mb-locked">No instance owned</span>`;
+  }
+  if (isMinted) {
+    return `<span class="mint-badge mb-minted">✓ Minted · NFT Essence: ${inst.nft_essence}</span>
+      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
+  }
+  if (!mem.mintable) {
+    return `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why non-mintable?">i</summary><div class="mint-lore-txt"><strong>Mint at Stage 1 only.</strong> After evolution, the bond runs too hot to anchor on-chain — too strong once evolved. Eternal companionship has to be sworn <em>before</em> the next form wakes; walk Collection, max your ◆, then seal the oath.</div></details>`;
+  }
+  if (inst.origin_state === 'evolved') {
+    return `<span class="mint-badge mb-locked" title="You can only seal an on-chain bond on the form you first caught. This evolution has grown too powerful — that vow window has passed.">Grown past the bond window — not mintable from this form</span>`;
+  }
+  if (!atMax) {
+    return `<span class="mint-badge mb-locked">MAX LVL REQUIRED TO MINT · ${mintedStr}</span>`;
+  }
+  return `<span class="mint-badge mb-mintable">★ Ready to Mint</span>
+    <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
+}
+
+let _instCardKeydownHandler = null;
+
+function closeImxConceptArt() {
+  document.getElementById('imx-concept-overlay')?.classList.remove('show');
+  const img = document.getElementById('imx-concept-img');
+  if (img) {
+    img.removeAttribute('src');
+    img.removeAttribute('data-fallback-done');
+  }
+}
+
+function openImxConceptArt() {
+  const id = S.selectedId;
+  const inst = currentInstance();
+  const img = document.getElementById('imx-concept-img');
+  const ov = document.getElementById('imx-concept-overlay');
+  if (!img || !ov || !id) return;
+  const pStandard = `assets/concept/${id}_concept.png`;
+  const pShiny = `assets/concept/${id}s_concept.png`;
+  img.removeAttribute('data-fallback-done');
+  img.onerror = function() {
+    if (this.dataset.fallbackDone) return;
+    this.dataset.fallbackDone = '1';
+    this.src = (this.src.indexOf('s_concept.png') >= 0) ? pStandard : pShiny;
+  };
+  img.src = inst?.is_shiny ? pShiny : pStandard;
+  ov.classList.add('show');
+}
+
+function closeInstanceModal() {
+  S.instanceCardOpen = false;
+  closeImxConceptArt();
+  document.getElementById('imx-overlay')?.classList.remove('show');
+  document.getElementById('imx-panel')?.classList.remove('show');
+  if (_instCardKeydownHandler) {
+    document.removeEventListener('keydown', _instCardKeydownHandler);
+    _instCardKeydownHandler = null;
+  }
+  const onDetail = document.getElementById('screen-detail')?.classList.contains('active');
+  syncDevPanelVisibility(onDetail ? 'detail' : 'grid');
+}
+
+function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
+  if (!inst) { closeInstanceModal(); return; }
+  const pType = mem.type[0] || 'WIND';
+  const grad = heroGrad(pType);
+  const hero = document.getElementById('imx-hero');
+  if (hero) hero.style.background = grad;
+
+  const hTypes = document.getElementById('imx-hero-types');
+  if (hTypes) {
+    hTypes.innerHTML = (mem.type || []).map(t => typeBadgeHtml(t)).join('') || '';
+  }
+  const nftRibbon = document.getElementById('imx-hero-nft-ribbon');
+  if (nftRibbon) {
+    if (inst.is_nft) {
+      nftRibbon.hidden = false;
+      nftRibbon.textContent = 'NFT · Bonded on-chain';
+    } else {
+      nftRibbon.hidden = true;
+    }
+  }
+
+  const src = inst.is_shiny ? (SHINY_MAP[id] || IMAGE_MAP[id]) : IMAGE_MAP[id];
+  const img = document.getElementById('imx-img');
+  if (img) {
+    if (src) { img.src = src; img.style.display = ''; }
+    else { img.removeAttribute('src'); img.style.display = 'none'; }
+  }
+  const wm = document.getElementById('imx-wm');
+  if (wm) wm.textContent = (mem.name || '?').charAt(0);
+
+  document.getElementById('imx-id').textContent = `#${id}`;
+  document.getElementById('imx-name').textContent = mem.name + (inst.is_shiny ? ' ★' : '');
+
+  const capR = mem.rarity.charAt(0).toUpperCase() + mem.rarity.slice(1);
+  const persCol = PERSONALITY_COLORS[inst.personality] || '#888';
+  const persU = (inst.personality || '').toUpperCase();
+  let tags = `<span class="imx-pill" style="background:#ECECEF;color:#5A5A62;border-color:#D0D0D8">${capR}</span>`;
+  tags += `<span class="imx-pill" style="background:${persCol};color:#fff;border-color:${persCol}">${persU}</span>`;
+  if (inst.is_shiny) tags += `<span class="shiny-badge" style="font-size:8px;padding:3px 8px">★ Akronite</span>`;
+  if (inst.is_nft) {
+    tags += `<span class="imx-pill" style="background:linear-gradient(135deg,rgba(56,210,196,0.35),rgba(32,160,144,0.2));color:#106A5A;border-color:rgba(32,160,144,0.55)">⬡ NFT · BONDED</span>`;
+  }
+  document.getElementById('imx-tags').innerHTML = tags;
+
+  document.getElementById('imx-ess').textContent = inst.revealed_essence + ' pts';
+
+  const pct = Math.min(100, (progress / maxMC) * 100);
+  document.getElementById('imx-mc-frac').textContent =
+    `${progress} / ${maxMC} ◆ · stage ${inst.current_stage ?? mem.stage}`;
+  const fill = document.getElementById('imx-fill');
+  fill.style.width = pct + '%';
+  fill.classList.toggle('maxed', atMax);
+  const cap = document.getElementById('imx-cap');
+  if (atMax) {
+    cap.textContent = mem.evolves_to ? 'Max ◆ — ready to evolve!' : 'Max ◆ reached — fully evolved!';
+  } else if (bank < 1) {
+    cap.textContent = 'No ◆ in family bank — collect more to level up';
+  } else {
+    cap.textContent = `${maxMC - progress} ◆ until max for this form`;
+  }
+
+  const base = mem.base_memory;
+  document.getElementById('imx-mint').innerHTML = buildMintStatusInnerHtml(mem, inst, base, atMax);
 }
 
 function evoChainFrom(baseId) {
@@ -2167,6 +2510,12 @@ function sortInstances(insts, mem) {
     if (S.collSort === 'recent') {
       return (b.acquired_at || 0) - (a.acquired_at || 0);
     }
+    if (S.collSort === 'nft') {
+      x = (!!b.is_nft ? 1 : 0) - (!!a.is_nft ? 1 : 0); if (x) return x;
+      x = cmpAkro(a, b); if (x) return x;
+      x = cmpLvl(a, b); if (x) return x;
+      return cmpEss(a, b);
+    }
     return 0;
   });
   return arr;
@@ -2199,14 +2548,24 @@ function setCollSort(k) {
 }
 
 function syncDevPanelVisibility(screenName) {
+  const icOpen = S.instanceCardOpen;
   const det = screenName === 'detail';
   const gt = document.getElementById('grid-tuner');
   const ct = document.getElementById('card-tuner');
   const dtt = document.getElementById('detail-tuner');
+  const it = document.getElementById('instance-card-tuner');
   const mb = document.getElementById('dev-memcore-bar');
-  if (gt) gt.style.display = det ? 'none' : '';
-  if (ct) ct.style.display = det ? 'none' : '';
-  if (dtt) dtt.style.display = det ? 'block' : 'none';
+  if (icOpen) {
+    if (gt) gt.style.display = 'none';
+    if (ct) ct.style.display = 'none';
+    if (dtt) dtt.style.display = 'none';
+    if (it) it.style.display = 'block';
+  } else {
+    if (gt) gt.style.display = det ? 'none' : '';
+    if (ct) ct.style.display = det ? 'none' : '';
+    if (dtt) dtt.style.display = det ? 'block' : 'none';
+    if (it) it.style.display = 'none';
+  }
   if (mb) mb.style.display = det ? 'flex' : 'none';
 }
 
@@ -2311,6 +2670,7 @@ function rollEncounter(biomeType) {
 let _encPopupKeydownHandler = null;
 
 function showEncounterPopup(instance) {
+  closeInstanceModal();
   const mem   = MEMORIES[instance.dex_id];
   const pType = mem.type[0] || 'WIND';
   const grad  = heroGrad(pType);
@@ -2323,9 +2683,11 @@ function showEncounterPopup(instance) {
   document.getElementById('enc-popup-name').textContent = instance.name + (instance.is_shiny ? ' ★' : '');
 
   const tagsEl = document.getElementById('enc-popup-tags');
-  const rarityTag = `<span class="mint-badge" style="background:${rc(instance.rarity)}22;color:${rc(instance.rarity)};border-color:${rc(instance.rarity)}44">${instance.rarity}</span>`;
-  const persTag = personalityBadgeHtml(instance.personality);
-  const shinyTag = instance.is_shiny ? '<span class="shiny-badge">★ Akronite</span>' : '';
+  const capR = (instance.rarity || 'common').charAt(0).toUpperCase() + (instance.rarity || 'common').slice(1);
+  const rarityTag = `<span class="imx-pill" style="background:#ECECEF;color:#5A5A62;border-color:#D0D0D8">${capR}</span>`;
+  const persCol = PERSONALITY_COLORS[instance.personality] || '#888';
+  const persTag = `<span class="imx-pill" style="background:${persCol};color:#fff;border-color:${persCol}">${(instance.personality || '').toUpperCase()}</span>`;
+  const shinyTag = instance.is_shiny ? '<span class="shiny-badge" style="font-size:8px;padding:3px 8px">★ Akronite</span>' : '';
   tagsEl.innerHTML = rarityTag + persTag + shinyTag;
 
   document.getElementById('enc-popup-ess').textContent = instance.revealed_essence + ' pts';
@@ -2360,6 +2722,7 @@ let _congratsKeydownHandler = null;
 let _congratsDismissToDetail = false;
 
 function showCongrats(instance, opts) {
+  closeInstanceModal();
   _congratsDismissToDetail = !!(opts && opts.dismissToDetail);
   _congratsInstance = instance;
   const capR    = (instance.rarity||'').charAt(0).toUpperCase()+(instance.rarity||'').slice(1);
@@ -2456,7 +2819,7 @@ function triggerEncounter(biomeType) {
   logEncounter(instance);
   if (instance._isFirst) {
     showCongrats(instance);
-  } else {
+  } else if (DEV_SHOW_REPEAT_ENCOUNTER_POPUP) {
     showEncounterPopup(instance);
   }
   renderGrid();
@@ -2662,6 +3025,7 @@ function renderGrid() {
 // ══════════════════════════════════════════════════════════════
 function openDetail(id) {
   if (!CATALOG[id]) return; // data not loaded yet
+  closeInstanceModal();
   S.selectedId = id;
   const mem = MEMORIES[id];
   if (mem) {
@@ -2675,8 +3039,6 @@ function openDetail(id) {
   }
   document.querySelectorAll('.dtab').forEach(t => t.classList.toggle('active', t.dataset.tab === 'details'));
   document.querySelectorAll('.tab-pane').forEach(p => p.classList.toggle('active', p.id === 'tab-details'));
-  const actionBar = document.getElementById('action-bar');
-  if (actionBar) actionBar.style.display = 'none';
   showScreen('detail');
 }
 
@@ -2701,19 +3063,14 @@ function renderDetail() {
   document.getElementById('detail-hero').style.background  = grad;
   document.getElementById('detail-tabs').style.background  = grad;
   document.getElementById('hero-dex').textContent          = `#${id}`;
-  document.getElementById('hero-name').textContent         = mem.name + (inst?.is_shiny ? ' ★' : '');
+  document.getElementById('hero-name').textContent         = mem.name;
 
   const badgesEl = document.getElementById('hero-badges');
   const capR     = mem.rarity.charAt(0).toUpperCase() + mem.rarity.slice(1);
-  let badgesHtml = '';
-  if (inst?.is_shiny) badgesHtml += '<span class="shiny-badge">★ Akronite</span>';
-  badgesHtml += `<span class="badge" style="background:${rc(mem.rarity)}33;border-color:${rc(mem.rarity)}66">${capR}</span>`;
-  if (onColl && inst) badgesHtml += personalityBadgeHtml(inst.personality);
-  if (inst?.is_nft) badgesHtml += '<span class="badge" style="background:rgba(56,210,196,0.25);border-color:rgba(56,210,196,0.5);color:#20D0C0">⬡ NFT</span>';
-  badgesEl.innerHTML = badgesHtml;
+  badgesEl.innerHTML = `<span class="badge" style="background:${rc(mem.rarity)}33;border-color:${rc(mem.rarity)}66">${capR}</span>`;
 
   const wrap = document.getElementById('hero-img-wrap');
-  const headerImg = inst?.is_shiny ? (SHINY_MAP[id] || IMAGE_MAP[id]) : IMAGE_MAP[id];
+  const headerImg = IMAGE_MAP[id];
   wrap.innerHTML = headerImg
     ? `<img class="hero-img" src="${headerImg}" alt="${mem.name}">`
     : `<div class="hero-placeholder">${ti(pType)}</div>`;
@@ -2744,51 +3101,16 @@ function renderDetail() {
       <span class="stat-lbl">Weight</span>
     </div>`;
 
-  const pct = Math.min(100, (progress / maxMC) * 100);
-  document.getElementById('mc-avail').textContent    = `${bank} ◆`;
-  document.getElementById('mc-fraction').textContent = `${progress} / ${maxMC} ◆`;
-  const fill = document.getElementById('progress-fill');
-  fill.style.width = pct + '%';
-  fill.classList.toggle('maxed', atMax);
-
-  const captionEl = document.getElementById('mc-caption');
-  if (atMax) {
-    captionEl.textContent = mem.evolves_to ? 'Max ◆ — ready to evolve!' : 'Max ◆ reached — fully evolved!';
-  } else {
-    if (bank < 1) captionEl.textContent = `No ◆ in bank — collect more to level up`;
-    else captionEl.textContent = `${maxMC - progress} ◆ remaining to max`;
-  }
+  document.getElementById('mc-avail').textContent = `${bank} ◆`;
   const mcDbg = document.getElementById('mc-dbg');
-  if (mcDbg) mcDbg.textContent = `${base} · ${bank} avail · this instance ${progress}/${maxMC}`;
+  if (mcDbg) mcDbg.textContent = `${base} · ${bank} avail · selected instance ${progress}/${maxMC}`;
 
-  const mintEl   = document.getElementById('mint-status');
-  const isMinted = inst?.is_nft || false;
-  const mintedCount = S.instances.filter(i => {
-    const m = MEMORIES[i.dex_id]; return m && m.base_memory === base && i.is_nft;
-  }).length;
-  const maxMints   = mem.max_mints;
-  const mintedStr  = maxMints !== null ? `${mintedCount} / ${maxMints.toLocaleString()} MINTED` : `${mintedCount} minted (∞ supply)`;
-
-  if (!inst) {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">No instance owned</span>`;
-  } else if (isMinted) {
-    mintEl.innerHTML = `<span class="mint-badge mb-minted">✓ Minted · NFT Essence: ${inst.nft_essence}</span>
-      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
-  } else if (!mem.mintable) {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why non-mintable?">i</summary><div class="mint-lore-txt"><strong>Mint at Stage 1 only.</strong> After evolution, the bond runs too hot to anchor on-chain — too strong once evolved. Eternal companionship has to be sworn <em>before</em> the next form wakes; walk Collection, max your ◆, then seal the oath.</div></details>`;
-  } else if (inst.origin_state === 'evolved') {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">Must mint before evolving</span>`;
-  } else if (!atMax) {
-    mintEl.innerHTML = `<span class="mint-badge mb-locked">MAX LVL REQUIRED TO MINT · ${mintedStr}</span>`;
-  } else {
-    mintEl.innerHTML = `<span class="mint-badge mb-mintable">★ Ready to Mint</span>
-      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
-  }
+  document.getElementById('mint-status').innerHTML = buildMintStatusInnerHtml(mem, inst, base, atMax);
 
   const sortRow = document.getElementById('coll-sort-row');
   if (sortRow && !sortRow.innerHTML.trim()) {
-    sortRow.innerHTML = ['akronite','level','essence','recent'].map(k => {
-      const labels = { akronite: 'Akronite', level: 'Level', essence: 'Essence', recent: 'Recent' };
+    sortRow.innerHTML = ['akronite','level','essence','recent','nft'].map(k => {
+      const labels = { akronite: 'Akronite', level: 'Level', essence: 'Essence', recent: 'Recent', nft: 'NFT' };
       return `<button type="button" class="coll-sort${S.collSort===k?' active':''}" data-sort="${k}" onclick="setCollSort('${k}')">${labels[k]}</button>`;
     }).join('');
   } else if (sortRow) {
@@ -2801,6 +3123,12 @@ function renderDetail() {
   renderEvoLine(id, mem, base);
   renderCollection(id, mem, insts, inst);
   updateButtons(mem, bank, progress, maxMC, inst);
+
+  if (S.instanceCardOpen && onColl && inst) {
+    refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax);
+  } else if (S.instanceCardOpen && (!onColl || !inst)) {
+    closeInstanceModal();
+  }
 }
 
 function selectInstance(sortedIdx) {
@@ -2811,7 +3139,23 @@ function selectInstance(sortedIdx) {
   if (!picked) return;
   const idx = insts.findIndex(i => i.instanceId === picked.instanceId);
   S.selectedInstanceIdx = idx >= 0 ? idx : 0;
+  S.instanceCardOpen = true;
+  document.getElementById('imx-overlay')?.classList.add('show');
+  document.getElementById('imx-panel')?.classList.add('show');
+  if (_instCardKeydownHandler) document.removeEventListener('keydown', _instCardKeydownHandler);
+  _instCardKeydownHandler = (e) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      if (document.getElementById('imx-concept-overlay')?.classList.contains('show')) {
+        closeImxConceptArt();
+      } else {
+        closeInstanceModal();
+      }
+    }
+  };
+  document.addEventListener('keydown', _instCardKeydownHandler);
   renderDetail();
+  syncDevPanelVisibility('detail');
 }
 
 function renderEvoLine(id, mem, base) {
@@ -2891,8 +3235,6 @@ function renderEvoLine(id, mem, base) {
 function renderCollection(id, mem, insts, activeInst) {
   document.getElementById('coll-count').textContent = `${insts.length} ${insts.length === 1 ? 'Memory' : 'Memories'}`;
   const el = document.getElementById('coll-content');
-  const base = mem.base_memory;
-  const maxMC = mem.max_mc;
 
   if (!insts.length) {
     el.innerHTML = `<div class="coll-empty">
@@ -2907,20 +3249,12 @@ function renderCollection(id, mem, insts, activeInst) {
   el.innerHTML = sorted.map((ins, i) => {
     const src      = ins.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
     const isActive = activeInst && ins.instanceId === activeInst.instanceId;
-    const persCol  = PERSONALITY_COLORS[ins.personality] || '#888';
-    const nftBadge = ins.is_nft
-      ? `<span style="background:rgba(56,210,196,0.15);color:#20D0C0;border:1px solid rgba(56,210,196,0.4);border-radius:999px;padding:2px 7px;font-size:9px;font-weight:700;display:inline-flex;align-items:center;gap:3px">⬡ NFT${ins.nft_essence ? ` · ${ins.nft_essence} ess` : ''}</span>`
-      : '';
-    const progI = instanceMcSpent(ins, base);
     return `<div class="inst-card${isActive?' active-inst':''}${ins.is_shiny?' akronite-inst':''}" onclick="selectInstance(${i})">
+      ${ins.is_nft ? '<span class="inst-nft-corner">NFT</span>' : ''}
       ${src ? `<img class="inst-card-img" src="${src}" alt="">` : `<div class="inst-card-ph">${ti(mem.type[0])}</div>`}
       <div class="inst-card-info">
         <div class="inst-card-name">${mem.name}${ins.is_shiny ? ' ★' : ''}</div>
-        <div class="inst-card-prog">${progI} / ${maxMC} ◆ · stage ${ins.current_stage ?? mem.stage}</div>
-        <div class="inst-card-tags" style="gap:4px;flex-wrap:wrap;margin-top:2px">
-          <span style="font-size:9px;font-weight:700;color:${persCol};background:${persCol}22;border-radius:999px;padding:2px 7px">${ins.personality}</span>
-          ${nftBadge}
-        </div>
+        <div class="inst-card-prog" style="font-size:10px;color:var(--text-muted);font-weight:600">Tap for stage, mint &amp; actions</div>
       </div>
       <div class="inst-card-ess">
         <div style="font-size:14px;font-weight:700;color:var(--text-dark)">${ins.revealed_essence}</div>
@@ -2937,9 +3271,10 @@ function updateButtons(mem, bank, progress, maxMC, inst) {
   const atMax   = progress >= maxMC;
   const hasSp   = !mem.spirit_req || !!PLAYER_SPIRITS[mem.spirit_req];
 
-  const lvlBtn  = document.getElementById('btn-lvl');
-  const evoBtn  = document.getElementById('btn-evo');
-  const mintBtn = document.getElementById('btn-mint');
+  const lvlBtn  = document.getElementById('ic-btn-lvl');
+  const evoBtn  = document.getElementById('ic-btn-evo');
+  const mintBtn = document.getElementById('ic-btn-mint');
+  if (!lvlBtn || !evoBtn || !mintBtn) return;
 
   // LEVEL UP: 1 ◆ per click — just needs any MC in bank + not at max
   const canLevel = !!inst && !atMax && bank >= 1;
@@ -2956,7 +3291,9 @@ function updateButtons(mem, bank, progress, maxMC, inst) {
   const canMint = !!inst && mem.mintable && atMax && inst.origin_state === 'saved' && !inst.is_nft;
   mintBtn.disabled  = !canMint;
   mintBtn.textContent = inst?.is_nft ? '✓ Minted' : 'Mint NFT';
-  mintBtn.title = !mem.mintable ? 'Non-mintable' : !inst ? 'No instance' : inst.origin_state === 'evolved' ? 'Must mint before evolving' : !atMax ? 'Reach max level first' : inst.is_nft ? 'Already minted' : '';
+  mintBtn.title = !mem.mintable ? 'Non-mintable' : !inst ? 'No instance' : inst.origin_state === 'evolved'
+    ? 'Bonds are sealed only on your first-caught form. This evolution can no longer be minted.'
+    : !atMax ? 'Reach max level first' : inst.is_nft ? 'Already minted' : '';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -2979,7 +3316,7 @@ function doLevelUp() {
 function doEvolve() {
   const id  = S.selectedId;
   const mem = MEMORIES[id]; if (!mem || !mem.evolves_to) return;
-  const inst = currentInstance(); if (!inst || inst.is_nft) return;
+  const inst = currentInstance(); if (!inst) return;
   const base  = mem.base_memory;
   const spent = instanceMcSpent(inst, base);
   if (spent < mem.max_mc) return; // must be max level
@@ -3103,6 +3440,17 @@ function debugMC(amount) {
 function resetAll() {
   S.seen = {}; S.bank = {}; S.progress = {}; S.instances = []; S.filter = 'all';
   S.collSort = 'akronite';
+  S.instanceCardOpen = false;
+  document.getElementById('imx-overlay')?.classList.remove('show');
+  document.getElementById('imx-panel')?.classList.remove('show');
+  closeImxConceptArt();
+  if (_instCardKeydownHandler) {
+    document.removeEventListener('keydown', _instCardKeydownHandler);
+    _instCardKeydownHandler = null;
+  }
+  DEV_SHOW_REPEAT_ENCOUNTER_POPUP = false;
+  const devRep = document.getElementById('dev-repeat-enc');
+  if (devRep) devRep.checked = false;
   _congratsInstance = null;
   _congratsDismissToDetail = false;
   document.getElementById('congrats-overlay').classList.remove('show');
@@ -3577,6 +3925,172 @@ function copyDetailTuner() {
   if (ro) navigator.clipboard?.writeText(ro.textContent).catch(()=>{});
 }
 
+// ── INSTANCE CARD MODAL TUNER (#imx-panel + backdrop blur)
+const IT = {
+  w: 304, rad: 20, blur: 6, scale: 98,
+  heroH: 168, heroPadB: 10, sprSz: 142,
+  wmFs: 108, wmR: 40, wmB: -4,
+  bodyPy: 14, bodyPx: 17, bodyPb: 18,
+  idFs: 13, nameFs: 22, nameMb: 10,
+  tagGap: 6, tagMb: 14, pillFs: 9,
+  essRad: 8, essPy: 10, essPx: 12, essMb: 11,
+  stgRad: 12, stgPy: 10, stgPx: 12, stgMb: 12,
+  barH: 6,
+  mintMb: 10,
+  actGap: 6,
+  btnPy: 9, btnPx: 4, btnRad: 10, btnFs: 10,
+};
+const IT_SECTIONS = [
+  { label: 'Shell', items: [
+    { key:'w', label:'Width', unit:'px', step:2, min:240, max:380, cssVar:'--imx-w', mode:'px' },
+    { key:'rad', label:'Radius', unit:'px', step:1, min:12, max:40, cssVar:'--imx-rad', mode:'px' },
+    { key:'blur', label:'Backdrop', unit:'px', step:1, min:0, max:20, cssVar:'__blur', mode:'blur' },
+    { key:'scale', label:'Pop %', unit:'%', step:2, min:85, max:115, cssVar:'--imx-scale', mode:'scalePct' },
+  ]},
+  { label: 'Hero', items: [
+    { key:'heroH', label:'Height', unit:'px', step:2, min:120, max:240, cssVar:'--imx-hero-h', mode:'px' },
+    { key:'heroPadB', label:'Pad bot', unit:'px', step:1, min:0, max:24, cssVar:'--imx-hero-pad-b', mode:'px' },
+    { key:'sprSz', label:'Sprite', unit:'px', step:2, min:80, max:160, cssVar:'--imx-spr-sz', mode:'px' },
+    { key:'wmFs', label:'WM size', unit:'px', step:2, min:48, max:140, cssVar:'--imx-wm-fs', mode:'px' },
+    { key:'wmR', label:'WM R', unit:'px', step:1, min:-40, max:40, cssVar:'--imx-wm-r', mode:'px' },
+    { key:'wmB', label:'WM B', unit:'px', step:1, min:-60, max:40, cssVar:'--imx-wm-b', mode:'px' },
+  ]},
+  { label: 'Body', items: [
+    { key:'bodyPy', label:'Pad Y', unit:'px', step:1, min:8, max:28, cssVar:'--imx-body-py', mode:'px' },
+    { key:'bodyPx', label:'Pad X', unit:'px', step:1, min:8, max:28, cssVar:'--imx-body-px', mode:'px' },
+    { key:'bodyPb', label:'Pad bot', unit:'px', step:1, min:8, max:32, cssVar:'--imx-body-pb', mode:'px' },
+    { key:'idFs', label:'# id', unit:'px', step:1, min:10, max:18, cssVar:'--imx-id-fs', mode:'px' },
+    { key:'nameFs', label:'Name', unit:'px', step:1, min:16, max:28, cssVar:'--imx-name-fs', mode:'px' },
+    { key:'nameMb', label:'Name gap', unit:'px', step:1, min:0, max:20, cssVar:'--imx-name-mb', mode:'px' },
+  ]},
+  { label: 'Tags', items: [
+    { key:'tagGap', label:'Gap', unit:'px', step:1, min:0, max:14, cssVar:'--imx-tag-gap', mode:'px' },
+    { key:'tagMb', label:'Below', unit:'px', step:1, min:0, max:24, cssVar:'--imx-tag-mb', mode:'px' },
+    { key:'pillFs', label:'Pill text', unit:'px', step:1, min:7, max:11, cssVar:'--imx-pill-fs', mode:'px' },
+  ]},
+  { label: 'Essence', items: [
+    { key:'essRad', label:'Radius', unit:'px', step:1, min:6, max:20, cssVar:'--imx-ess-rad', mode:'px' },
+    { key:'essPy', label:'Pad Y', unit:'px', step:1, min:6, max:18, cssVar:'--imx-ess-py', mode:'px' },
+    { key:'essPx', label:'Pad X', unit:'px', step:1, min:6, max:18, cssVar:'--imx-ess-px', mode:'px' },
+    { key:'essMb', label:'Below', unit:'px', step:1, min:0, max:24, cssVar:'--imx-ess-mb', mode:'px' },
+  ]},
+  { label: 'Stage', items: [
+    { key:'stgRad', label:'Radius', unit:'px', step:1, min:6, max:20, cssVar:'--imx-stg-rad', mode:'px' },
+    { key:'stgPy', label:'Pad Y', unit:'px', step:1, min:6, max:18, cssVar:'--imx-stg-py', mode:'px' },
+    { key:'stgPx', label:'Pad X', unit:'px', step:1, min:6, max:18, cssVar:'--imx-stg-px', mode:'px' },
+    { key:'stgMb', label:'Below', unit:'px', step:1, min:0, max:24, cssVar:'--imx-stg-mb', mode:'px' },
+    { key:'barH', label:'Bar H', unit:'px', step:1, min:4, max:12, cssVar:'--imx-bar-h', mode:'px' },
+  ]},
+  { label: 'Mint+btns', items: [
+    { key:'mintMb', label:'Mint gap', unit:'px', step:1, min:0, max:24, cssVar:'--imx-mint-mb', mode:'px' },
+    { key:'actGap', label:'Btn gap', unit:'px', step:1, min:0, max:14, cssVar:'--imx-act-gap', mode:'px' },
+    { key:'btnPy', label:'Btn py', unit:'px', step:1, min:6, max:14, cssVar:'--imx-btn-py', mode:'px' },
+    { key:'btnPx', label:'Btn px', unit:'px', step:1, min:2, max:12, cssVar:'--imx-btn-px', mode:'px' },
+    { key:'btnRad', label:'Btn rad', unit:'px', step:1, min:6, max:16, cssVar:'--imx-btn-rad', mode:'px' },
+    { key:'btnFs', label:'Btn text', unit:'px', step:1, min:8, max:12, cssVar:'--imx-btn-fs', mode:'px' },
+  ]},
+];
+
+function _itFind(key) {
+  for (const s of IT_SECTIONS) {
+    const r = s.items.find(x => x.key === key);
+    if (r) return r;
+  }
+  return null;
+}
+
+function _applyIT() {
+  const panel = document.getElementById('imx-panel');
+  const ov = document.getElementById('imx-overlay');
+  if (!panel) return;
+  IT_SECTIONS.forEach(s => s.items.forEach(r => {
+    const v = IT[r.key];
+    const elInp = document.getElementById('it-' + r.key);
+    if (r.mode === 'blur') {
+      if (elInp) elInp.value = IT[r.key];
+      return;
+    }
+    const val = r.mode === 'scalePct' ? String(v / 100) : (v + 'px');
+    panel.style.setProperty(r.cssVar, val);
+    if (elInp) elInp.value = IT[r.key];
+  }));
+  if (ov) ov.style.setProperty('--imx-blur', IT.blur + 'px');
+  const ro = document.getElementById('it-readout');
+  if (ro) {
+    ro.style.whiteSpace = 'pre-line';
+    ro.textContent = [
+      `shell w${IT.w} r${IT.rad} blur${IT.blur} sc${IT.scale}%`,
+      `hero h${IT.heroH} padB${IT.heroPadB} spr${IT.sprSz} wm${IT.wmFs} R${IT.wmR} B${IT.wmB}`,
+      `body py/px/pb ${IT.bodyPy}/${IT.bodyPx}/${IT.bodyPb} id${IT.idFs} name${IT.nameFs} gap${IT.nameMb}`,
+      `tags gap${IT.tagGap} below${IT.tagMb} pill${IT.pillFs}`,
+      `ess r${IT.essRad} py${IT.essPy} px${IT.essPx} below${IT.essMb}`,
+      `stage r${IT.stgRad} py${IT.stgPy} px${IT.stgPx} below${IT.stgMb} bar${IT.barH}`,
+      `mint+btns mintMb${IT.mintMb} gap${IT.actGap} btn py${IT.btnPy} px${IT.btnPx} r${IT.btnRad} fs${IT.btnFs}`,
+    ].join('\n');
+  }
+  try { localStorage.setItem('mempool-imx-v2', JSON.stringify(IT)); } catch (e) {}
+}
+
+function _itAdj(key, delta) {
+  const r = _itFind(key); if (!r) return;
+  let v = IT[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  IT[key] = v;
+  _applyIT();
+}
+function _itSet(key, val) {
+  const r = _itFind(key); if (!r) return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  IT[key] = v;
+  _applyIT();
+}
+function copyInstanceCardTuner() {
+  const ro = document.getElementById('it-readout');
+  if (ro) navigator.clipboard?.writeText(ro.textContent).catch(()=>{});
+}
+
+function _initInstanceCardTuner() {
+  try {
+    const raw = localStorage.getItem('mempool-imx-v2') || localStorage.getItem('mempool-imx-v1');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') {
+        for (const k of Object.keys(IT)) {
+          if (saved[k] !== undefined && typeof saved[k] === typeof IT[k]) {
+            const n = saved[k];
+            if (typeof n === 'number' && !Number.isNaN(n)) IT[k] = n;
+          }
+        }
+      }
+    }
+  } catch (e) {}
+  const wrap = document.getElementById('it-rows');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  IT_SECTIONS.forEach(sec => {
+    const h = document.createElement('div');
+    h.className = 'it-sec';
+    h.textContent = sec.label;
+    wrap.appendChild(h);
+    sec.items.forEach(r => {
+      const d = document.createElement('div');
+      d.className = 'it-row';
+      const step = r.step ?? 1;
+      d.innerHTML =
+        `<span class="it-lbl">${r.label}</span>` +
+        `<button type="button" class="it-btn" onclick="_itAdj('${r.key}',-${step})">−</button>` +
+        `<input id="it-${r.key}" class="it-inp" type="number" value="${IT[r.key]}" onchange="_itSet('${r.key}',this.value)">` +
+        `<button type="button" class="it-btn" onclick="_itAdj('${r.key}',${step})">+</button>` +
+        `<span style="font-size:8px;color:rgba(255,255,255,0.28);width:14px;text-align:right">${r.unit}</span>`;
+      wrap.appendChild(d);
+    });
+  });
+  _applyIT();
+}
+
 function _initDetailTuner() {
   try {
     const raw = localStorage.getItem('mempool-detail-dt-v5');
@@ -3623,6 +4137,7 @@ _initTuner();
 _initGridTuner();
 _initCardTuner();
 _initDetailTuner();
+_initInstanceCardTuner();
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════
 //  GRID EXPAND / COLLAPSE  (scroll-to-collapse or toggle button)
