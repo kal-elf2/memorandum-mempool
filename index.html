@@ -123,7 +123,7 @@
   --type-row-pt:   5px;
   --type-row-pb:   4px;
   --type-first-mt: 0px;
-  --type-active-ring: 6px;
+  --type-active-ring: 3px;
   --bg-logo-sz:    324px;
   --bg-logo-top:   14px;
   --bg-logo-x:     0px;
@@ -298,6 +298,31 @@ body {
   padding-bottom: var(--imx-hero-pad-b, 10px);
   background: var(--imx-hero-fallback, #D4A820);
 }
+.imx-hero::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: var(--g3d-bot, 0px);
+  width: var(--g3d-bot-w, 260%);
+  height: var(--g3d-h, 120%);
+  transform: translateX(-50%) perspective(var(--g3d-persp, 220px)) rotateX(var(--g3d-rx, 52deg));
+  transform-origin: center bottom;
+  z-index: 1;
+  background:
+    repeating-linear-gradient(90deg,
+      rgba(255,255,255, var(--g3d-line-a, 0.09)) 0px,
+      rgba(255,255,255, var(--g3d-line-a, 0.09)) var(--g3d-lw, 1px),
+      transparent var(--g3d-lw, 1px),
+      transparent var(--g3d-gap, 26px)),
+    repeating-linear-gradient(0deg,
+      rgba(255,255,255, var(--g3d-line-a, 0.09)) 0px,
+      rgba(255,255,255, var(--g3d-line-a, 0.09)) var(--g3d-lw, 1px),
+      transparent var(--g3d-lw, 1px),
+      transparent var(--g3d-gap, 26px));
+  -webkit-mask-image: linear-gradient(to bottom, transparent var(--g3d-fade-top, 0%), rgba(0,0,0, var(--g3d-mid-a, 0.5)) var(--g3d-fade-mid, 40%), black 100%);
+  mask-image: linear-gradient(to bottom, transparent var(--g3d-fade-top, 0%), rgba(0,0,0, var(--g3d-mid-a, 0.5)) var(--g3d-fade-mid, 40%), black 100%);
+  pointer-events: none;
+}
 .imx-hero-types {
   position: absolute; top: var(--imx-htypes-t, 8px); left: var(--imx-htypes-l, 10px);
   max-width: calc(100% - 24px);
@@ -306,7 +331,9 @@ body {
 }
 .imx-hero-types .type-badge {
   font-size: 9px; padding: 3px 8px 3px 4px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  background: rgba(255,255,255,0.92) !important;
+  border-color: rgba(0,0,0,0.12) !important;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
 }
 .imx-hero-nft-ribbon {
   position: absolute; top: 8px; right: 8px; z-index: 4;
@@ -363,9 +390,15 @@ body {
   position: relative; z-index: 2;
 }
 .imx-wm {
-  position: absolute; right: var(--imx-wm-r, -8px); bottom: var(--imx-wm-b, -18px);
-  font-size: var(--imx-wm-fs, 104px); font-weight: 700; font-style: italic;
-  color: rgba(255,255,255,0.14); line-height: 1; pointer-events: none;
+  position: absolute;
+  left: var(--imx-wm-x, -100px);
+  bottom: var(--imx-wm-y, -18px);
+  font-size: var(--imx-wm-fs, 104px);
+  font-weight: 700; font-style: italic;
+  letter-spacing: var(--imx-wm-kern, -4px);
+  color: rgba(255,255,255, var(--imx-wm-a, 0.14));
+  line-height: 1; pointer-events: none; z-index: 1;
+  white-space: nowrap;
 }
 .imx-body { padding: var(--imx-body-py, 16px) var(--imx-body-px, 18px) var(--imx-body-pb, 18px); overflow-y: auto; max-height: calc(100vh - 220px); }
 .imx-id { font-size: var(--imx-id-fs, 12px); color: var(--text-muted); font-weight: 600; letter-spacing: 0.6px; }
@@ -628,16 +661,16 @@ body {
   position: relative;
   z-index: 6;
 }
-.grid-filters { display: flex; gap: 6px; flex-wrap: wrap; }
+.grid-filters { display: flex; gap: 5px; flex-wrap: nowrap; }
 .ftab {
-  font-family: var(--font); font-size: 11px; font-weight: 700;
-  padding: 5px 14px; border-radius: 999px; cursor: pointer;
+  font-family: var(--font); font-size: 10px; font-weight: 700;
+  padding: 5px 11px; border-radius: 999px; cursor: pointer;
   border: 2px solid rgba(255,255,255,0.55);
   background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92);
-  transition: all 0.12s;
+  transition: all 0.12s; white-space: nowrap;
 }
 .ftab.active, .ftab:hover {
-  background: #1A3D8A; color: white; border-color: #1A3D8A;
+  background: #20B8AA; color: white; border-color: #20B8AA;
 }
 
 /* ── 5. TYPE ICON ROW — all 10 equal-width buttons ── */
@@ -1072,6 +1105,7 @@ body {
 
 /* First block in tab body: pull type row up slightly under curved body */
 .detail-body .tab-pane > .detail-type-row:first-child { margin-top: 0; }
+.detail-body .tab-pane > .coll-type-mc-row:first-child { margin-top: 0; }
 
 /* INSTANCE SELECTOR (multiple instances of same dex) */
 .instance-bar {
@@ -1097,15 +1131,23 @@ body {
 }
 .dtab {
   font-family: var(--font); font-size: var(--dt-tab-fs); font-weight: 500;
-  color: rgba(255,255,255,0.6);
-  padding: 0 4px; margin-right: 18px;
+  color: rgba(255,255,255,0.55);
+  padding: 0 12px; margin-right: 6px;
   background: none; border: none;
   border-bottom: 3px solid transparent;
-  cursor: pointer; transition: all 0.12s;
+  border-radius: 8px 8px 0 0;
+  cursor: pointer; transition: all 0.15s ease;
   display: inline-flex; align-items: center; align-self: stretch;
   box-sizing: border-box;
+  position: relative;
 }
-.dtab.active { color: white; font-weight: 700; border-bottom-color: var(--accent); }
+.dtab:hover { color: rgba(255,255,255,0.85); background: rgba(255,255,255,0.08); }
+.dtab.active {
+  color: white; font-weight: 700;
+  background: rgba(255,255,255,0.15);
+  border-bottom-color: white;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
 
 /* BODY */
 .detail-body {
@@ -1148,6 +1190,18 @@ body {
 .stat-chip.wide { grid-column: 1 / -1; }
 .stat-val { font-size: 15px; font-weight: 700; color: var(--text-dark); }
 .stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
+
+/* COLLECTION TYPE + MEMCORE ROW */
+.coll-type-mc-row {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-bottom: 10px;
+}
+.mc-inline {
+  font-size: 11px; font-weight: 700; color: var(--text-dark);
+  background: var(--chip-bg); border: 1px solid var(--chip-border);
+  border-radius: 999px; padding: 4px 10px; white-space: nowrap;
+  flex-shrink: 0;
+}
 
 /* PROGRESSION */
 .memcore-box {
@@ -1301,7 +1355,7 @@ body {
 .inst-card-ess { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-left: auto; text-align: right; }
 .inst-nft-tag { font-size: 9px; font-weight: 700; text-transform: uppercase; color: #20A090; }
 .inst-nft-corner {
-  position: absolute; top: 6px; right: 8px;
+  position: absolute; top: 6px; right: var(--inst-nft-x, 8px);
   font-size: 8px; font-weight: 800; letter-spacing: 0.4px; text-transform: uppercase;
   color: #106A5C; background: rgba(56,210,196,0.22);
   border: 1px solid rgba(32,160,144,0.35); border-radius: 6px;
@@ -1676,7 +1730,7 @@ body {
 <div id="imx-panel" class="imx-panel" role="dialog" aria-modal="true" aria-labelledby="imx-name" onclick="event.stopPropagation()">
   <div class="imx-hero" id="imx-hero">
     <div class="imx-hero-types" id="imx-hero-types"></div>
-    <div class="imx-hero-nft-ribbon" id="imx-hero-nft-ribbon" hidden>NFT · Bonded</div>
+    <div class="imx-hero-nft-ribbon" id="imx-hero-nft-ribbon" hidden>BONDED</div>
     <img class="imx-hero-img" id="imx-img" src="" alt="">
     <div class="imx-wm" id="imx-wm"></div>
   </div>
@@ -1687,9 +1741,15 @@ body {
     </div>
     <div class="imx-name" id="imx-name"></div>
     <div class="imx-tags" id="imx-tags"></div>
-    <div class="imx-essence">
-      <div class="imx-ess-lbl">Revealed Essence</div>
-      <div class="imx-ess-val" id="imx-ess"></div>
+    <div style="display:flex;gap:8px;margin-bottom:var(--imx-ess-mb, 12px)">
+      <div class="imx-essence" style="flex:1;margin-bottom:0">
+        <div class="imx-ess-lbl">Essence</div>
+        <div class="imx-ess-val" id="imx-ess"></div>
+      </div>
+      <div class="imx-essence" style="flex:1;margin-bottom:0">
+        <div class="imx-ess-lbl">Memcore ◆</div>
+        <div class="imx-ess-val" id="imx-mc-bank"></div>
+      </div>
     </div>
     <div class="imx-stg-box">
       <div class="imx-stg-head">
@@ -1794,10 +1854,11 @@ body {
       </div>
       <div class="grid-filters-wrap">
         <div class="grid-filters">
-          <button class="ftab active" data-f="all"   onclick="setFilter(this)">All</button>
-          <button class="ftab"        data-f="type"  onclick="setFilter(this)">Type</button>
-          <button class="ftab"        data-f="saved" onclick="setFilter(this)">Saved</button>
-          <button class="ftab"        data-f="nfts"  onclick="setFilter(this)">NFTs</button>
+          <button class="ftab active" data-f="all"      onclick="setFilter(this)">All</button>
+          <button class="ftab"        data-f="type"     onclick="setFilter(this)">Type</button>
+          <button class="ftab"        data-f="saved"    onclick="setFilter(this)">Saved</button>
+          <button class="ftab"        data-f="akronite" onclick="setFilter(this)">Akronite</button>
+          <button class="ftab"        data-f="nfts"     onclick="setFilter(this)">Bonded</button>
         </div>
       </div>
       <!-- 5. Type icon row (conditional) -->
@@ -1846,12 +1907,9 @@ body {
 
         <!-- COLLECTION TAB: per-instance actions -->
         <div class="tab-pane" id="tab-collection">
-          <div class="detail-type-row" id="detail-type-collection"></div>
-          <div class="memcore-box">
-            <div class="mc-head">
-              <span class="mc-label">◆ Available (family)</span>
-              <span class="mc-val" id="mc-avail">0</span>
-            </div>
+          <div class="coll-type-mc-row">
+            <div class="detail-type-row" id="detail-type-collection" style="margin-bottom:0"></div>
+            <span class="mc-inline" id="mc-avail">0 ◆</span>
           </div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
           <div class="coll-sort-row" id="coll-sort-row"></div>
@@ -1933,6 +1991,15 @@ body {
   <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Opens when you tap a memory on Collection. Vars apply to the instance modal only.</div>
   <div id="it-rows"></div>
   <div class="it-readout" id="it-readout">—</div>
+</div>
+
+<div id="grid3d-tuner" style="display:none;position:fixed;right:10px;top:20px;width:230px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8891;backdrop-filter:blur(8px)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🔲 3D Grid Tuner</span>
+    <button onclick="copyGrid3dTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
+  </div>
+  <div id="g3d-rows"></div>
+  <div style="margin-top:6px;font-size:8px;color:rgba(255,255,255,0.28);word-break:break-all;line-height:1.35;max-height:80px;overflow-y:auto;white-space:pre-line" id="g3d-readout">—</div>
 </div>
 
 <!-- TEST CONTROLS (outside device) -->
@@ -2160,6 +2227,7 @@ const S = {
   selectedId:          "001",
   selectedInstanceIdx: 0,       // index in instancesFor(selectedId)
   seen:                {},       // dex_id → true
+  owned:               {},       // dex_id → true (permanent — once owned, always shown as known)
   bank:                {},       // base_memory → unspent memcore available
   progress:            {},       // base_memory → memcore spent on current stage progress
   instances:           [],       // all Memory instances (each encounter creates one)
@@ -2318,7 +2386,7 @@ function buildMintStatusInnerHtml(mem, inst, base, atMax) {
     return `<span class="mint-badge mb-locked">No instance owned</span>`;
   }
   if (isMinted) {
-    return `<span class="mint-badge mb-minted">✓ Minted · NFT Essence: ${inst.nft_essence}</span>
+    return `<span class="mint-badge mb-minted">✓ Bonded · Essence: ${inst.nft_essence}</span>
       <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
   }
   if (!mem.mintable) {
@@ -2330,7 +2398,8 @@ function buildMintStatusInnerHtml(mem, inst, base, atMax) {
   if (!atMax) {
     return `<span class="mint-badge mb-locked">MAX LVL REQUIRED TO MINT · ${mintedStr}</span>`;
   }
-  return `<span class="mint-badge mb-mintable">★ Ready to Mint</span>
+  const projectedEss = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
+  return `<span class="mint-badge mb-mintable">★ Ready to Mint · Bonded Essence: ${projectedEss}</span>
     <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
 }
 
@@ -2391,7 +2460,7 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   if (nftRibbon) {
     if (inst.is_nft) {
       nftRibbon.hidden = false;
-      nftRibbon.textContent = 'NFT · Bonded on-chain';
+      nftRibbon.textContent = 'BONDED';
     } else {
       nftRibbon.hidden = true;
     }
@@ -2416,11 +2485,13 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   tags += `<span class="imx-pill" style="background:${persCol};color:#fff;border-color:${persCol}">${persU}</span>`;
   if (inst.is_shiny) tags += `<span class="shiny-badge" style="font-size:8px;padding:3px 8px">★ Akronite</span>`;
   if (inst.is_nft) {
-    tags += `<span class="imx-pill" style="background:linear-gradient(135deg,rgba(56,210,196,0.35),rgba(32,160,144,0.2));color:#106A5A;border-color:rgba(32,160,144,0.55)">⬡ NFT · BONDED</span>`;
+    tags += `<span class="imx-pill" style="background:linear-gradient(135deg,rgba(56,210,196,0.35),rgba(32,160,144,0.2));color:#106A5A;border-color:rgba(32,160,144,0.55)">⬡ BONDED</span>`;
   }
   document.getElementById('imx-tags').innerHTML = tags;
 
-  document.getElementById('imx-ess').textContent = inst.revealed_essence + ' pts';
+  const displayEss = inst.is_nft ? inst.nft_essence : inst.revealed_essence;
+  document.getElementById('imx-ess').textContent = displayEss;
+  document.getElementById('imx-mc-bank').textContent = bank;
 
   const pct = Math.min(100, (progress / maxMC) * 100);
   document.getElementById('imx-mc-frac').textContent =
@@ -2432,7 +2503,7 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   if (atMax) {
     cap.textContent = mem.evolves_to ? 'Max ◆ — ready to evolve!' : 'Max ◆ reached — fully evolved!';
   } else if (bank < 1) {
-    cap.textContent = 'No ◆ in family bank — collect more to level up';
+    cap.textContent = 'Collect more ◆ to level up';
   } else {
     cap.textContent = `${maxMC - progress} ◆ until max for this form`;
   }
@@ -2554,17 +2625,20 @@ function syncDevPanelVisibility(screenName) {
   const ct = document.getElementById('card-tuner');
   const dtt = document.getElementById('detail-tuner');
   const it = document.getElementById('instance-card-tuner');
+  const g3d = document.getElementById('grid3d-tuner');
   const mb = document.getElementById('dev-memcore-bar');
   if (icOpen) {
     if (gt) gt.style.display = 'none';
     if (ct) ct.style.display = 'none';
     if (dtt) dtt.style.display = 'none';
     if (it) it.style.display = 'block';
+    if (g3d) g3d.style.display = 'block';
   } else {
     if (gt) gt.style.display = det ? 'none' : '';
     if (ct) ct.style.display = det ? 'none' : '';
     if (dtt) dtt.style.display = det ? 'block' : 'none';
     if (it) it.style.display = 'none';
+    if (g3d) g3d.style.display = 'none';
   }
   if (mb) mb.style.display = det ? 'flex' : 'none';
 }
@@ -2652,6 +2726,7 @@ function rollEncounter(biomeType) {
 
   // Add to state
   S.seen[dexId]     = true;
+  S.owned[dexId]    = true;
   S.instances.push(instance);
 
   // Add sanctuary yield memcore to the family bank (testing shortcut)
@@ -2833,16 +2908,17 @@ const TYPE_ORDER = ['EARTH','FIRE','WIND','WATER','ELECTRIC','SOUL','AETHER','VO
 function renderCard(id, ownedIds) {
   const cat      = CATALOG[id];
   const owned    = ownedIds.includes(id);
+  const everOwned = !!S.owned[id];
   const seen     = !!S.seen[id];
   const insts    = instancesFor(id);
   const hasShiny = insts.some(i => i.is_shiny);
 
-  if (owned && cat) {
-    const src = insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
+  if ((owned || everOwned) && cat) {
+    const src = (insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id]) || IMAGE_MAP[id];
     const img = src
       ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
       : `<div class="gc-placeholder"></div>`;
-    const countBadge = insts.length > 1
+    const countBadge = insts.length > 0
       ? `<span class="gc-count">${insts.length}</span>`
       : '';
     return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
@@ -2987,7 +3063,7 @@ window.addEventListener('resize', syncCardRows);
 function renderGrid() {
   const q        = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();
   const f        = S.filter;
-  const ownedIds = [...new Set(S.instances.map(i => i.dex_id))];
+  const ownedIds = [...new Set([...S.instances.map(i => i.dex_id), ...Object.keys(S.owned)])];
   const nftIds   = [...new Set(S.instances.filter(i => i.is_nft).map(i => i.dex_id))];
 
   const seenCount   = Object.keys(S.seen).length;
@@ -3006,15 +3082,28 @@ function renderGrid() {
     return;
   }
 
+  const akroniteIds = [...new Set(S.instances.filter(i => i.is_shiny).map(i => i.dex_id))];
+
   const all = Array.from({length:144}, (_,i) => String(i+1).padStart(3,'0'));
   const ids = all.filter(id => {
     const cat  = CATALOG[id];
     const name = (cat?.name || '').toLowerCase();
     if (q && !id.includes(q) && !name.includes(q)) return false;
-    if (f === 'saved' && !ownedIds.includes(id)) return false;
-    if (f === 'nfts'  && !nftIds.includes(id))   return false;
+    if (f === 'saved'    && !ownedIds.includes(id))    return false;
+    if (f === 'nfts'     && !nftIds.includes(id))      return false;
+    if (f === 'akronite' && !akroniteIds.includes(id)) return false;
     return true;
   });
+
+  if (!ids.length && (f === 'nfts' || f === 'akronite')) {
+    const label = f === 'nfts' ? 'Bonded' : 'Akronite';
+    cellsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text-muted);font-size:13px;line-height:1.6">
+      <div style="font-size:22px;margin-bottom:8px;opacity:0.4">${f === 'nfts' ? '⬡' : '★'}</div>
+      No ${label} memories yet
+    </div>`;
+    syncCardRows();
+    return;
+  }
 
   cellsEl.innerHTML = ids.map(id => renderCard(id, ownedIds)).join('');
   syncCardRows();
@@ -3110,7 +3199,7 @@ function renderDetail() {
   const sortRow = document.getElementById('coll-sort-row');
   if (sortRow && !sortRow.innerHTML.trim()) {
     sortRow.innerHTML = ['akronite','level','essence','recent','nft'].map(k => {
-      const labels = { akronite: 'Akronite', level: 'Level', essence: 'Essence', recent: 'Recent', nft: 'NFT' };
+      const labels = { akronite: 'Akronite', level: 'Level', essence: 'Essence', recent: 'Recent', nft: 'Bonded' };
       return `<button type="button" class="coll-sort${S.collSort===k?' active':''}" data-sort="${k}" onclick="setCollSort('${k}')">${labels[k]}</button>`;
     }).join('');
   } else if (sortRow) {
@@ -3245,19 +3334,35 @@ function renderCollection(id, mem, insts, activeInst) {
     return;
   }
 
-  const sorted = sortInstances(insts, mem);
+  let sorted = sortInstances(insts, mem);
+  if (S.collSort === 'nft') sorted = sorted.filter(i => i.is_nft);
+
+  if (!sorted.length && S.collSort === 'nft') {
+    el.innerHTML = `<div style="text-align:center;padding:32px 16px;color:var(--text-muted);font-size:12px;line-height:1.5">
+      <div style="font-size:18px;margin-bottom:6px;opacity:0.4">⬡</div>
+      No bonded memories for ${mem.name}
+    </div>`;
+    return;
+  }
+
+  const base = mem.base_memory;
   el.innerHTML = sorted.map((ins, i) => {
     const src      = ins.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id];
     const isActive = activeInst && ins.instanceId === activeInst.instanceId;
+    const spent    = instanceMcSpent(ins, base);
+    const maxMC    = mem.max_mc;
+    const lvlPct   = Math.min(100, Math.round((spent / maxMC) * 100));
+    const persCol  = PERSONALITY_COLORS[ins.personality] || '#888';
+    const persU    = (ins.personality || '').charAt(0).toUpperCase() + (ins.personality || '').slice(1);
     return `<div class="inst-card${isActive?' active-inst':''}${ins.is_shiny?' akronite-inst':''}" onclick="selectInstance(${i})">
-      ${ins.is_nft ? '<span class="inst-nft-corner">NFT</span>' : ''}
+      ${ins.is_nft ? '<span class="inst-nft-corner">BONDED</span>' : ''}
       ${src ? `<img class="inst-card-img" src="${src}" alt="">` : `<div class="inst-card-ph">${ti(mem.type[0])}</div>`}
       <div class="inst-card-info">
         <div class="inst-card-name">${mem.name}${ins.is_shiny ? ' ★' : ''}</div>
-        <div class="inst-card-prog" style="font-size:10px;color:var(--text-muted);font-weight:600">Tap for stage, mint &amp; actions</div>
+        <div class="inst-card-prog">Lv ${spent}/${maxMC} · <span style="color:${persCol};font-weight:700">${persU}</span></div>
       </div>
       <div class="inst-card-ess">
-        <div style="font-size:14px;font-weight:700;color:var(--text-dark)">${ins.revealed_essence}</div>
+        <div style="font-size:14px;font-weight:700;color:var(--text-dark)">${ins.is_nft ? ins.nft_essence : ins.revealed_essence}</div>
         <div style="font-size:9px;color:var(--text-muted)">essence</div>
       </div>
     </div>`;
@@ -3337,13 +3442,21 @@ function doEvolve() {
   inst.personality   = carryPersonality;
   inst.is_shiny      = carryShiny;
 
-  // Reset progress for the new stage (per-instance)
-  S.progress[base] = 0;
-  inst.mc_spent = 0;
+  // Essence grows on evolution (1.25x per stage)
+  inst.revealed_essence = Math.max(1, Math.round(inst.revealed_essence * 1.25));
+  if (inst.is_nft) {
+    inst.nft_essence = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
+  }
 
-  // Mark new dex as seen/owned
-  S.seen[targetId] = true;
-  S.selectedId     = targetId;
+  // Carry forward previous stage max as starting progress for the new form
+  S.progress[base] = 0;
+  inst.mc_spent = mem.max_mc;
+
+  // Mark both old and new dex as permanently owned
+  S.owned[id]       = true;
+  S.owned[targetId] = true;
+  S.seen[targetId]  = true;
+  S.selectedId      = targetId;
   S.selectedInstanceIdx = 0;
 
   renderGrid();
@@ -3394,6 +3507,7 @@ function addDebugInstances(ids) {
       acquired_at:     Date.now(),
     };
     S.seen[id] = true;
+    S.owned[id] = true;
     S.instances.push(inst);
     const base = mem.base_memory;
     if (S.bank[base] === undefined) S.bank[base] = 0;
@@ -3438,7 +3552,7 @@ function debugMC(amount) {
 }
 
 function resetAll() {
-  S.seen = {}; S.bank = {}; S.progress = {}; S.instances = []; S.filter = 'all';
+  S.seen = {}; S.owned = {}; S.bank = {}; S.progress = {}; S.instances = []; S.filter = 'all';
   S.collSort = 'akronite';
   S.instanceCardOpen = false;
   document.getElementById('imx-overlay')?.classList.remove('show');
@@ -3928,17 +4042,18 @@ function copyDetailTuner() {
 // ── INSTANCE CARD MODAL TUNER (#imx-panel + backdrop blur)
 const IT = {
   w: 304, rad: 20, blur: 6, scale: 98,
-  heroH: 168, heroPadB: 10, sprSz: 142,
-  wmFs: 108, wmR: 40, wmB: -4,
+  heroH: 188, heroPadB: 10, sprSz: 142,
+  wmFs: 108, wmX: -100, wmY: -18, wmKern: -4, wmA: 14,
   bodyPy: 14, bodyPx: 17, bodyPb: 18,
   idFs: 13, nameFs: 22, nameMb: 10,
-  tagGap: 6, tagMb: 14, pillFs: 9,
+  tagGap: 7, tagMb: 10, pillFs: 7,
   essRad: 8, essPy: 10, essPx: 12, essMb: 11,
   stgRad: 12, stgPy: 10, stgPx: 12, stgMb: 12,
   barH: 6,
   mintMb: 10,
   actGap: 6,
   btnPy: 9, btnPx: 4, btnRad: 10, btnFs: 10,
+  nftX: 8,
 };
 const IT_SECTIONS = [
   { label: 'Shell', items: [
@@ -3951,9 +4066,13 @@ const IT_SECTIONS = [
     { key:'heroH', label:'Height', unit:'px', step:2, min:120, max:240, cssVar:'--imx-hero-h', mode:'px' },
     { key:'heroPadB', label:'Pad bot', unit:'px', step:1, min:0, max:24, cssVar:'--imx-hero-pad-b', mode:'px' },
     { key:'sprSz', label:'Sprite', unit:'px', step:2, min:80, max:160, cssVar:'--imx-spr-sz', mode:'px' },
-    { key:'wmFs', label:'WM size', unit:'px', step:2, min:48, max:140, cssVar:'--imx-wm-fs', mode:'px' },
-    { key:'wmR', label:'WM R', unit:'px', step:1, min:-40, max:40, cssVar:'--imx-wm-r', mode:'px' },
-    { key:'wmB', label:'WM B', unit:'px', step:1, min:-60, max:40, cssVar:'--imx-wm-b', mode:'px' },
+  ]},
+  { label: 'Watermark', items: [
+    { key:'wmFs', label:'Size', unit:'px', step:2, min:48, max:200, cssVar:'--imx-wm-fs', mode:'px' },
+    { key:'wmX', label:'X pos', unit:'px', step:5, min:-200, max:100, cssVar:'--imx-wm-x', mode:'px' },
+    { key:'wmY', label:'Y pos', unit:'px', step:2, min:-80, max:60, cssVar:'--imx-wm-y', mode:'px' },
+    { key:'wmKern', label:'Kern', unit:'px', step:1, min:-20, max:20, cssVar:'--imx-wm-kern', mode:'px' },
+    { key:'wmA', label:'Opacity', unit:'%', step:1, min:2, max:40, cssVar:'--imx-wm-a', mode:'alphaPct' },
   ]},
   { label: 'Body', items: [
     { key:'bodyPy', label:'Pad Y', unit:'px', step:1, min:8, max:28, cssVar:'--imx-body-py', mode:'px' },
@@ -3989,6 +4108,9 @@ const IT_SECTIONS = [
     { key:'btnRad', label:'Btn rad', unit:'px', step:1, min:6, max:16, cssVar:'--imx-btn-rad', mode:'px' },
     { key:'btnFs', label:'Btn text', unit:'px', step:1, min:8, max:12, cssVar:'--imx-btn-fs', mode:'px' },
   ]},
+  { label: 'NFT tag (cards)', items: [
+    { key:'nftX', label:'X pos', unit:'px', step:1, min:-20, max:80, cssVar:'--inst-nft-x', mode:'px' },
+  ]},
 ];
 
 function _itFind(key) {
@@ -4010,8 +4132,15 @@ function _applyIT() {
       if (elInp) elInp.value = IT[r.key];
       return;
     }
-    const val = r.mode === 'scalePct' ? String(v / 100) : (v + 'px');
-    panel.style.setProperty(r.cssVar, val);
+    let val;
+    if (r.mode === 'scalePct') val = String(v / 100);
+    else if (r.mode === 'alphaPct') val = String(v / 100);
+    else val = v + 'px';
+    if (r.cssVar === '--inst-nft-x') {
+      document.documentElement.style.setProperty(r.cssVar, val);
+    } else {
+      panel.style.setProperty(r.cssVar, val);
+    }
     if (elInp) elInp.value = IT[r.key];
   }));
   if (ov) ov.style.setProperty('--imx-blur', IT.blur + 'px');
@@ -4020,12 +4149,14 @@ function _applyIT() {
     ro.style.whiteSpace = 'pre-line';
     ro.textContent = [
       `shell w${IT.w} r${IT.rad} blur${IT.blur} sc${IT.scale}%`,
-      `hero h${IT.heroH} padB${IT.heroPadB} spr${IT.sprSz} wm${IT.wmFs} R${IT.wmR} B${IT.wmB}`,
+      `hero h${IT.heroH} padB${IT.heroPadB} spr${IT.sprSz}`,
+      `wm sz${IT.wmFs} x${IT.wmX} y${IT.wmY} kern${IT.wmKern} α${IT.wmA}%`,
       `body py/px/pb ${IT.bodyPy}/${IT.bodyPx}/${IT.bodyPb} id${IT.idFs} name${IT.nameFs} gap${IT.nameMb}`,
       `tags gap${IT.tagGap} below${IT.tagMb} pill${IT.pillFs}`,
       `ess r${IT.essRad} py${IT.essPy} px${IT.essPx} below${IT.essMb}`,
       `stage r${IT.stgRad} py${IT.stgPy} px${IT.stgPx} below${IT.stgMb} bar${IT.barH}`,
       `mint+btns mintMb${IT.mintMb} gap${IT.actGap} btn py${IT.btnPy} px${IT.btnPx} r${IT.btnRad} fs${IT.btnFs}`,
+      `nft-tag x${IT.nftX}`,
     ].join('\n');
   }
   try { localStorage.setItem('mempool-imx-v2', JSON.stringify(IT)); } catch (e) {}
@@ -4130,6 +4261,113 @@ function _initDetailTuner() {
   _applyDT();
 }
 
+// ── 3D GRID TUNER (hero perspective grid)
+const G3D = {
+  persp: 189, rx: 58, botW: 300, h: 120, bot: -2,
+  gap: 45, lw: 2, lineA: 20,
+  fadeTop: 0, fadeMid: 40, midA: 50,
+};
+const G3D_SECTIONS = [
+  { label: 'Perspective', items: [
+    { key:'persp', label:'Depth', unit:'px', step:10, min:60, max:600, cssVar:'--g3d-persp', mode:'px' },
+    { key:'rx', label:'Rotate X', unit:'°', step:1, min:20, max:80, cssVar:'--g3d-rx', mode:'deg' },
+  ]},
+  { label: 'Dimensions', items: [
+    { key:'botW', label:'Bot width', unit:'%', step:5, min:100, max:500, cssVar:'--g3d-bot-w', mode:'pct' },
+    { key:'h', label:'Height', unit:'%', step:5, min:50, max:300, cssVar:'--g3d-h', mode:'pct' },
+    { key:'bot', label:'Bot offset', unit:'px', step:1, min:-40, max:40, cssVar:'--g3d-bot', mode:'px' },
+  ]},
+  { label: 'Grid lines', items: [
+    { key:'gap', label:'Spacing', unit:'px', step:1, min:8, max:60, cssVar:'--g3d-gap', mode:'px' },
+    { key:'lw', label:'Thickness', unit:'px', step:1, min:1, max:4, cssVar:'--g3d-lw', mode:'px' },
+    { key:'lineA', label:'Opacity', unit:'%', step:1, min:1, max:30, cssVar:'--g3d-line-a', mode:'alphaPct' },
+  ]},
+  { label: 'Fade gradient', items: [
+    { key:'fadeTop', label:'Top start', unit:'%', step:2, min:0, max:60, cssVar:'--g3d-fade-top', mode:'pct' },
+    { key:'fadeMid', label:'Mid point', unit:'%', step:2, min:10, max:90, cssVar:'--g3d-fade-mid', mode:'pct' },
+    { key:'midA', label:'Mid opacity', unit:'%', step:2, min:10, max:100, cssVar:'--g3d-mid-a', mode:'alphaPct' },
+  ]},
+];
+
+function _g3dFind(key) {
+  for (const s of G3D_SECTIONS) { const r = s.items.find(x => x.key === key); if (r) return r; }
+  return null;
+}
+function _applyG3D() {
+  const root = document.documentElement;
+  G3D_SECTIONS.forEach(s => s.items.forEach(r => {
+    const v = G3D[r.key];
+    const el = document.getElementById('g3d-' + r.key);
+    if (el) el.value = v;
+    if (r.mode === 'px') root.style.setProperty(r.cssVar, v + 'px');
+    else if (r.mode === 'deg') root.style.setProperty(r.cssVar, v + 'deg');
+    else if (r.mode === 'pct') root.style.setProperty(r.cssVar, v + '%');
+    else if (r.mode === 'alphaPct') root.style.setProperty(r.cssVar, String(v / 100));
+  }));
+  const ro = document.getElementById('g3d-readout');
+  if (ro) ro.textContent = [
+    `persp ${G3D.persp}px rotX ${G3D.rx}°`,
+    `dim botW${G3D.botW}% h${G3D.h}% bot${G3D.bot}px`,
+    `lines gap${G3D.gap} w${G3D.lw} α${G3D.lineA}%`,
+    `fade top${G3D.fadeTop}% mid${G3D.fadeMid}% midα${G3D.midA}%`,
+  ].join('\n');
+  try { localStorage.setItem('mempool-g3d-v1', JSON.stringify(G3D)); } catch(e) {}
+}
+function _g3dAdj(key, delta) {
+  const r = _g3dFind(key); if (!r) return;
+  let v = G3D[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  G3D[key] = v; _applyG3D();
+}
+function _g3dSet(key, val) {
+  const r = _g3dFind(key); if (!r) return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  G3D[key] = v; _applyG3D();
+}
+function copyGrid3dTuner() {
+  const ro = document.getElementById('g3d-readout');
+  if (ro) navigator.clipboard?.writeText(ro.textContent).catch(()=>{});
+}
+function _initGrid3dTuner() {
+  try {
+    const raw = localStorage.getItem('mempool-g3d-v1');
+    if (raw) {
+      const saved = JSON.parse(raw);
+      if (saved && typeof saved === 'object') {
+        for (const k of Object.keys(G3D)) {
+          if (saved[k] !== undefined && typeof saved[k] === 'number' && !Number.isNaN(saved[k])) G3D[k] = saved[k];
+        }
+      }
+    }
+  } catch(e) {}
+  const wrap = document.getElementById('g3d-rows'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const ROW = 'display:flex;align-items:center;gap:3px;margin-bottom:2px';
+  const BTN = 'padding:1px 5px;border-radius:4px;border:none;background:rgba(255,255,255,0.12);color:white;cursor:pointer;font-size:11px;line-height:1.4';
+  const INP = 'width:42px;text-align:center;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:white;font-size:10px;padding:1px 3px;font-family:monospace';
+  G3D_SECTIONS.forEach(sec => {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.38);letter-spacing:0.8px;margin-top:8px;margin-bottom:3px';
+    hdr.textContent = sec.label;
+    wrap.appendChild(hdr);
+    sec.items.forEach(r => {
+      const d = document.createElement('div');
+      d.style.cssText = ROW;
+      d.innerHTML =
+        `<span style="width:66px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
+        `<button onclick="_g3dAdj('${r.key}',-${r.step})" style="${BTN}">−</button>` +
+        `<input id="g3d-${r.key}" type="number" value="${G3D[r.key]}" onchange="_g3dSet('${r.key}',this.value)" style="${INP}">` +
+        `<button onclick="_g3dAdj('${r.key}',${r.step})" style="${BTN}">+</button>` +
+        `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
+      wrap.appendChild(d);
+    });
+  });
+  _applyG3D();
+}
+
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
@@ -4138,6 +4376,7 @@ _initGridTuner();
 _initCardTuner();
 _initDetailTuner();
 _initInstanceCardTuner();
+_initGrid3dTuner();
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════
 //  GRID EXPAND / COLLAPSE  (scroll-to-collapse or toggle button)
