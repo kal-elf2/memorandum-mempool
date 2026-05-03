@@ -110,8 +110,15 @@
   --gc-pt:   10px;
   --gc-pi:   20px;
   --gc-gap:  8px;
-  --tr-top:  -36px;
-  --tr-size: 308px;
+  --tr-top:  24px;
+  --tr-size: 472px;
+  --tr-right: -100px;
+  --tr-img-x: 32px;
+  --tr-img-y: 0px;
+  --tr-fade-top-a: 1;
+  --tr-fade-start: 30%;
+  --tr-fade-end: 38%;
+  --tr-fade-out: 47%;
   --hdr-pi:     24px;
   --eyebrow-sz: 11px;
   --title-sz:   26px;
@@ -352,13 +359,16 @@ body {
 .imx-id-row .imx-id { margin: 0; flex-shrink: 0; }
 .imx-bp-btn {
   flex-shrink: 0;
-  font-family: var(--font); font-size: 10px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.4px;
   padding: 5px 10px; border-radius: 999px; cursor: pointer;
   border: 1px solid var(--chip-border);
-  background: rgba(56,210,196,0.12); color: #188878;
+  background: rgba(56,210,196,0.12);
+  display: flex; align-items: center; justify-content: center;
 }
 .imx-bp-btn:hover { background: rgba(56,210,196,0.2); }
+.imx-bp-ico {
+  width: 16px; height: 16px; object-fit: contain;
+  filter: brightness(0) saturate(100%) invert(35%) sepia(60%) saturate(500%) hue-rotate(130deg);
+}
 
 .imx-concept-overlay {
   position: fixed; inset: 0; z-index: 8052;
@@ -575,19 +585,30 @@ body {
   transition: opacity 0.2s ease;
 }
 
-/* ── TRAINER — mask on wrap; longer soft fade so it reads over the blue (not a hard crop) */
+/* ── TRAINER — mask on wrap; tunable fade gradient */
 .grid-trainer-wrap {
   position: absolute;
   top: var(--tr-top, -36px);
-  right: 10px;
+  right: var(--tr-right, 10px);
   width: var(--tr-size, 308px);
   line-height: 0;
   pointer-events: none;
   z-index: 5;
   opacity: 1;
   transition: opacity 0.22s ease;
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, #000 22%, rgba(0,0,0,0.75) 48%, rgba(0,0,0,0.2) 72%, transparent 92%);
-  mask-image: linear-gradient(to bottom, #000 0%, #000 22%, rgba(0,0,0,0.75) 48%, rgba(0,0,0,0.2) 72%, transparent 92%);
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom,
+    rgba(0,0,0, var(--tr-fade-top-a, 1)) 0%,
+    rgba(0,0,0, 1) var(--tr-fade-start, 30%),
+    rgba(0,0,0, 1) var(--tr-fade-end, 60%),
+    transparent var(--tr-fade-out, 85%)
+  );
+  mask-image: linear-gradient(to bottom,
+    rgba(0,0,0, var(--tr-fade-top-a, 1)) 0%,
+    rgba(0,0,0, 1) var(--tr-fade-start, 30%),
+    rgba(0,0,0, 1) var(--tr-fade-end, 60%),
+    transparent var(--tr-fade-out, 85%)
+  );
   -webkit-mask-size: 100% 100%;
   mask-size: 100% 100%;
   -webkit-mask-repeat: no-repeat;
@@ -607,7 +628,7 @@ body {
   display: block;
   object-fit: contain;
   object-position: top center;
-  filter: drop-shadow(0 6px 16px rgba(0,0,50,0.22));
+  transform: translate(var(--tr-img-x, 0px), var(--tr-img-y, 0px));
 }
 
 /* ── 2. STAT PILLS ── */
@@ -644,7 +665,11 @@ body {
   border: 2px solid rgba(255,255,255,0.85);
   border-radius: 999px; padding: 0 12px; gap: 7px;
 }
-.grid-search-ico { font-size: 12px; color: rgba(30,70,110,0.55); }
+.grid-search-ico {
+  width: 14px; height: 14px; flex-shrink: 0;
+  opacity: 0.4;
+  filter: brightness(0) saturate(100%) invert(18%) sepia(30%) saturate(800%) hue-rotate(180deg);
+}
 .grid-search input {
   flex: 1; border: none; outline: none;
   font-family: var(--font); font-size: 12px;
@@ -659,14 +684,15 @@ body {
   padding: 4px var(--hdr-pi, 24px) 0;
   margin-top: var(--filters-mt, 7px);
   position: relative; z-index: 7;
+  opacity: var(--mode-tab-op, 1);
 }
 .mode-tab {
   flex: 1;
-  font-family: var(--font); font-size: 11px; font-weight: 700;
-  text-transform: uppercase; letter-spacing: 0.5px;
+  font-family: var(--font); font-size: 12px; font-weight: 700;
+  text-transform: capitalize; letter-spacing: 0.3px;
   padding: 7px 0; cursor: pointer;
-  border: none; background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.45);
+  border: none; background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.6);
   transition: all 0.15s;
 }
 .mode-tab:first-child { border-radius: 8px 0 0 8px; }
@@ -697,8 +723,12 @@ body {
   background: rgba(255,255,255,0.16); color: rgba(255,255,255,0.92);
   transition: all 0.12s; white-space: nowrap;
 }
-.ftab.active, .ftab:hover {
-  background: #20B8AA; color: white; border-color: #20B8AA;
+.ftab.active {
+  border-color: #20B8AA; color: white;
+  background: rgba(32,184,170,0.15);
+}
+.ftab:hover:not(.active) {
+  border-color: rgba(255,255,255,0.75); color: white;
 }
 
 /* ── 5. TYPE ICON ROW — all 10 equal-width buttons ── */
@@ -1075,18 +1105,22 @@ body {
 }
 
 .detail-back {
-  width: 32px; height: 32px;
-  background: rgba(255,255,255,0.9); border-radius: 50%; border: none;
+  width: var(--dt-back-sz, 28px); height: var(--dt-back-sz, 28px);
+  background: none; border-radius: 50%; border: none;
   cursor: pointer; display: flex; align-items: center; justify-content: center;
-  font-size: 17px; font-weight: 700; color: var(--text-dark);
   position: absolute;
   left: var(--dt-back-x);
   top: var(--dt-back-y);
   z-index: 15;
-  transition: transform 0.12s, background 0.12s;
-  line-height: 1; padding-bottom: 1px;
+  transition: opacity 0.12s, transform 0.12s;
+  padding: 0;
 }
-.detail-back:hover { transform: scale(1.1); background: white; }
+.detail-back:hover { transform: scale(1.08); opacity: 0.8; }
+.detail-back-img {
+  width: 100%; height: 100%; object-fit: contain;
+  filter: brightness(0) invert(1);
+  opacity: 0.85;
+}
 
 .hero-content {
   display: block;
@@ -1541,20 +1575,20 @@ body {
   width: var(--cg-close-sz, 38px);
   height: var(--cg-close-sz, 38px);
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,0.45);
-  background: rgba(0,0,0,0.35);
-  color: white;
-  font-size: 22px;
-  font-weight: 300;
-  line-height: 1;
+  border: none;
+  background: none;
   cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  padding: 0 0 2px 0;
-  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.congrats-close-img {
+  width: 100%; height: 100%;
+  object-fit: contain;
+  opacity: 0.9;
 }
 .congrats-close:hover {
-  background: rgba(255,255,255,0.18);
-  border-color: rgba(255,255,255,0.8);
+  opacity: 0.8; transform: scale(1.08);
 }
 .congrats-close:focus-visible {
   outline: 2px solid rgba(156,201,255,0.95);
@@ -1672,6 +1706,70 @@ body {
   box-shadow:
     0 0 0 1px rgba(255,255,255,0.28),
     0 1px 6px rgba(0,0,0,0.18);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+/* ── 5. ESSENCE / MEMCORE reward zone ── */
+.congrats-reward {
+  position: absolute;
+  right: var(--cg-rw-x, 50px);
+  top:   var(--cg-rw-y, 48%);
+  z-index: 4;
+  display: flex; flex-direction: column; align-items: flex-end; gap: 3px;
+  text-align: right;
+}
+.congrats-reward-ess {
+  font-family: var(--font); font-weight: 800;
+  font-size: var(--cg-ess-fs, 29px); color: white; line-height: 1;
+  text-shadow: 0 2px 12px rgba(0,0,0,0.35);
+  transform: translate(var(--cg-ess-dx, 0px), var(--cg-ess-dy, 0px));
+  text-align: right; white-space: nowrap;
+}
+.congrats-reward-ess .ess-val {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--cg-ess-num-fs, 29px);
+  color: inherit;
+  vertical-align: baseline;
+  margin-right: var(--cg-ess-gap, 5px);
+}
+.congrats-reward-ess .ess-word {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: inherit;
+  vertical-align: baseline;
+}
+.congrats-reward-mc {
+  font-family: var(--font); font-weight: 700;
+  font-size: var(--cg-mc-fs, 27px); color: rgba(255,255,255,0.7); line-height: 1.2;
+  letter-spacing: 0.02em;
+  transform: translate(var(--cg-mc-dx, 0px), var(--cg-mc-dy, 0px));
+}
+.congrats-reward-wow {
+  font-family: var(--font); font-weight: 800;
+  font-size: var(--cg-wow-fs, 20px); line-height: 1;
+  letter-spacing: 0.06em; text-transform: uppercase;
+  padding: 4px 10px; border-radius: 6px;
+  margin-top: 2px;
+  transform: translate(var(--cg-wow-dx, 0px), var(--cg-wow-dy, 0px));
+}
+.wow-nice {
+  color: #7DFFB3; background: rgba(125,255,179,0.14);
+  border: 1px solid rgba(125,255,179,0.35);
+  text-shadow: 0 0 10px rgba(125,255,179,0.4);
+}
+.wow-big {
+  color: #FFD866; background: rgba(255,216,102,0.16);
+  border: 1px solid rgba(255,216,102,0.40);
+  text-shadow: 0 0 12px rgba(255,216,102,0.5);
+}
+.wow-huge {
+  color: #FF6E6E; background: rgba(255,110,110,0.18);
+  border: 1px solid rgba(255,110,110,0.45);
+  text-shadow: 0 0 14px rgba(255,110,110,0.55);
+  animation: wow-pulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes wow-pulse {
+  0%   { transform: scale(1);    filter: brightness(1);   }
+  100% { transform: scale(1.06); filter: brightness(1.15); }
 }
 .congrats-btns {
   position: absolute;
@@ -1730,7 +1828,7 @@ body {
 }
 #cg-tuner-rows.cg-tuner-cols {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
   gap: 4px 8px;
   align-items: start;
 }
@@ -1741,11 +1839,22 @@ body {
   margin: 5px 0 2px;
 }
 .cg-tuner-col .cgt-sec:first-child { margin-top: 0; }
-.cg-tuner-readout {
+.cg-tuner-readout-wrap {
   margin-top: 5px; padding-top: 4px;
   border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; align-items: flex-start; gap: 6px;
+}
+.cg-tuner-readout {
+  flex: 1; min-width: 0;
   font-size: 8px; color: rgba(255,255,255,0.32); word-break: break-all; line-height: 1.25;
 }
+.cg-tuner-copy {
+  flex-shrink: 0; border: none; background: rgba(255,255,255,0.1);
+  border-radius: 4px; padding: 2px 5px; cursor: pointer;
+  font-size: 10px; line-height: 1; color: rgba(255,255,255,0.5);
+  transition: background 0.15s;
+}
+.cg-tuner-copy:hover { background: rgba(255,255,255,0.22); }
 
 /* In-overlay tuner row */
 .cgt-row { display:flex; align-items:center; gap:2px; margin-bottom:1px; }
@@ -1816,7 +1925,7 @@ body {
   <div class="imx-body">
     <div class="imx-id-row">
       <span class="imx-id" id="imx-id"></span>
-      <button type="button" class="imx-bp-btn" id="imx-bp-btn" onclick="openImxConceptArt()">Blueprint</button>
+      <button type="button" class="imx-bp-btn" id="imx-bp-btn" onclick="openImxConceptArt()"><img src="assets/icons/blueprint.png" alt="Blueprint" class="imx-bp-ico"></button>
     </div>
     <div class="imx-name" id="imx-name"></div>
     <div class="imx-tags" id="imx-tags"></div>
@@ -1857,7 +1966,7 @@ body {
 
 <!-- CONGRATULATIONS OVERLAY (full-page, first-time encounter) -->
 <div id="congrats-overlay">
-  <button type="button" class="congrats-close" onclick="closeCongrats('dismiss')" aria-label="Close">×</button>
+  <button type="button" class="congrats-close" onclick="closeCongrats('dismiss')" aria-label="Close"><img src="assets/icons/back-square.png" alt="Back" class="congrats-close-img"></button>
   <!-- 1. Background strip (independent Y) -->
   <div class="congrats-strip"><img src="assets/figma-ref/congrats_gradient.png" alt=""></div>
   <!-- 2. Creature image (independent Y) + watermark name behind sprite -->
@@ -1875,6 +1984,8 @@ body {
       <div class="congrats-subtitle" id="congrats-subtitle"></div>
     </div>
   </div>
+  <!-- 5. Essence / memcore reward (right-aligned alongside title) -->
+  <div class="congrats-reward" id="congrats-reward"></div>
   <div class="congrats-btns">
     <button type="button" class="congrats-btn-primary" onclick="closeCongrats('detail')">View in Mempool</button>
   </div>
@@ -1882,7 +1993,10 @@ body {
   <div id="cg-tuner-panel" class="cg-tuner-panel">
     <div class="cg-tuner-head">🌊 Layout Tune</div>
     <div id="cg-tuner-rows" class="cg-tuner-cols"></div>
-    <div id="cg-tuner-readout" class="cg-tuner-readout">—</div>
+    <div class="cg-tuner-readout-wrap">
+      <div id="cg-tuner-readout" class="cg-tuner-readout">—</div>
+      <button class="cg-tuner-copy" onclick="copyTunerReadout()" title="Copy readout">📋</button>
+    </div>
   </div>
 </div>
 
@@ -1927,7 +2041,7 @@ body {
       <!-- 2. Search + filters + types stay visible when scrolled -->
       <div class="grid-search-wrap">
         <div class="grid-search">
-          <span class="grid-search-ico">🔍</span>
+          <img class="grid-search-ico" src="assets/icons/search.png" alt="" aria-hidden="true">
           <input id="grid-q" type="text" placeholder="Search by Name or Dex ID" oninput="renderGrid()">
         </div>
       </div>
@@ -1964,7 +2078,7 @@ body {
     <div id="screen-detail" class="screen">
 
       <div class="detail-hero" id="detail-hero">
-        <button class="detail-back" onclick="showScreen('grid')">‹</button>
+        <button class="detail-back" onclick="showScreen('grid')"><img src="assets/icons/x.png" alt="Back" class="detail-back-img"></button>
         <div class="hero-wm" id="hero-wm"></div>
         <div class="hero-img-layer" aria-hidden="true">
           <div class="hero-img-wrap" id="hero-img-wrap"></div>
@@ -2050,7 +2164,10 @@ body {
     <button onclick="copyGridTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
   </div>
   <div style="display:flex;flex-direction:column" id="gt-rows"></div>
-  <div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
+  <div style="margin-top:6px;display:flex;align-items:flex-start;gap:6px">
+    <div style="flex:1;min-width:0;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
+    <button class="cg-tuner-copy" onclick="copyReadout('gt-readout')" title="Copy">📋</button>
+  </div>
 </div>
 
 <div id="card-tuner" style="position:fixed;right:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
@@ -2069,7 +2186,10 @@ body {
   </div>
   <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Top inset + pad X reserve space above / beside hero content. <strong style="color:rgba(255,255,255,0.5)">Back X/Y</strong> = ‹ button.</div>
   <div id="dt-rows"></div>
-  <div class="dt-readout" id="dt-readout">—</div>
+  <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
+    <div class="dt-readout" id="dt-readout" style="margin-top:0">—</div>
+    <button class="cg-tuner-copy" onclick="copyReadout('dt-readout')" title="Copy">📋</button>
+  </div>
 </div>
 
 <div id="instance-card-tuner">
@@ -2079,7 +2199,10 @@ body {
   </div>
   <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Opens when you tap a memory on Collection. Vars apply to the instance modal only.</div>
   <div id="it-rows"></div>
-  <div class="it-readout" id="it-readout">—</div>
+  <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
+    <div class="it-readout" id="it-readout" style="margin-top:0">—</div>
+    <button class="cg-tuner-copy" onclick="copyReadout('it-readout')" title="Copy">📋</button>
+  </div>
 </div>
 
 <div id="grid3d-tuner" style="display:none;position:fixed;right:10px;top:20px;width:230px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8891;backdrop-filter:blur(8px)">
@@ -2117,8 +2240,8 @@ const PT = {
   cgCreatureSz:  368,
   cgTagsTop:     48,
   cgTxtTop:      48,
-  cgCloseL:      40,
-  cgCloseT:      120,
+  cgCloseL:      38,
+  cgCloseT:      122,
   cgCloseSz:     38,
   cgBtnR:        68,
   cgBtnT:        622,
@@ -2133,6 +2256,19 @@ const PT = {
   cgWmX:         0,
   cgWmY:         26,
   cgWmOp:        8,
+  cgRwX:         50,
+  cgRwY:         47,
+  cgEssFs:       29,
+  cgEssNumFs:    29,
+  cgEssGap:      5,
+  cgEssDx:       0,
+  cgEssDy:       0,
+  cgMcFs:        27,
+  cgMcDx:        0,
+  cgMcDy:        0,
+  cgWowFs:       20,
+  cgWowDx:       0,
+  cgWowDy:       0,
 };
 
 const PT_CG = [
@@ -2158,6 +2294,19 @@ const PT_CG = [
   { col:6, key:'cgBtnMinW', label:'Min wide', unit:'px', step:4, min:80, max:320, cssVar:'--cg-btn-minw', cssSuffix:'px' },
   { col:6, key:'cgBtnW', label:'Wide 0=auto', unit:'px', step:4, min:0, max:360, cssVar:'__skip', cssSuffix:'px' },
   { col:6, key:'cgBtnH', label:'High 0=auto', unit:'px', step:2, min:0, max:80, cssVar:'__skip', cssSuffix:'px' },
+  { col:7, sec:'Reward zone', key:'cgRwX', label:'Right', unit:'px', step:2, min:0, max:200, cssVar:'--cg-rw-x', cssSuffix:'px' },
+  { col:7, key:'cgRwY', label:'Y', unit:'%', step:1, min:0, max:90, cssVar:'--cg-rw-y', cssSuffix:'%' },
+  { col:7, sec:'Essence', key:'cgEssFs', label:'Word sz', unit:'px', step:1, min:10, max:60, cssVar:'--cg-ess-fs', cssSuffix:'px' },
+  { col:7, key:'cgEssNumFs', label:'Num sz', unit:'px', step:1, min:10, max:80, cssVar:'--cg-ess-num-fs', cssSuffix:'px' },
+  { col:7, key:'cgEssGap', label:'Gap', unit:'px', step:1, min:0, max:30, cssVar:'--cg-ess-gap', cssSuffix:'px' },
+  { col:7, key:'cgEssDx', label:'X', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-ess-dx', cssSuffix:'px' },
+  { col:7, key:'cgEssDy', label:'Y', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-ess-dy', cssSuffix:'px' },
+  { col:8, sec:'Memcore +◆', key:'cgMcFs', label:'Size', unit:'px', step:1, min:8, max:40, cssVar:'--cg-mc-fs', cssSuffix:'px' },
+  { col:8, key:'cgMcDx', label:'X', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-mc-dx', cssSuffix:'px' },
+  { col:8, key:'cgMcDy', label:'Y', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-mc-dy', cssSuffix:'px' },
+  { col:8, sec:'Wow pill', key:'cgWowFs', label:'Size', unit:'px', step:1, min:8, max:30, cssVar:'--cg-wow-fs', cssSuffix:'px' },
+  { col:8, key:'cgWowDx', label:'X', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-wow-dx', cssSuffix:'px' },
+  { col:8, key:'cgWowDy', label:'Y', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-wow-dy', cssSuffix:'px' },
 ];
 
 function _applyPT() {
@@ -2190,8 +2339,19 @@ function _applyPT() {
       `tags ${PT.cgTagsTop}% · text ${PT.cgTxtTop}%`,
       `× ${PT.cgCloseL},${PT.cgCloseT} (${PT.cgCloseSz}px)`,
       `btn R${PT.cgBtnR} T${PT.cgBtnT} pad${PT.cgBtnPx}×${PT.cgBtnPy} ${PT.cgBtnFs}px`,
+      `rw R${PT.cgRwX} Y${PT.cgRwY}% · ess${PT.cgEssFs}px · mc${PT.cgMcFs}px · wow${PT.cgWowFs}px`,
     ].join('  ·  ');
   }
+}
+
+function copyTunerReadout() { copyReadout('cg-tuner-readout'); }
+function copyReadout(id) {
+  const ro = document.getElementById(id);
+  if (!ro) return;
+  navigator.clipboard.writeText(ro.textContent).then(() => {
+    const btn = ro.parentElement?.querySelector('.cg-tuner-copy');
+    if (btn) { btn.textContent = '✓'; setTimeout(() => btn.textContent = '📋', 1200); }
+  });
 }
 
 function _ptAdj(key, delta) {
@@ -2227,14 +2387,17 @@ function _initTuner() {
   const wrap = document.getElementById('cg-tuner-rows');
   if (wrap) {
     wrap.innerHTML = '';
-    const cols = [1, 2, 3, 4, 5, 6].map(i => {
+    const maxCol = PT_CG.reduce((m, r) => Math.max(m, r.col || 1), 1);
+    const cols = [];
+    const lastSec = {};
+    for (let i = 1; i <= maxCol; i++) {
       const c = document.createElement('div');
       c.className = 'cg-tuner-col';
       c.dataset.col = String(i);
       wrap.appendChild(c);
-      return c;
-    });
-    const lastSec = { 1: null, 2: null, 3: null, 4: null, 5: null, 6: null };
+      cols.push(c);
+      lastSec[i] = null;
+    }
     PT_CG.forEach(r => {
       const ci = r.col || 1;
       const colEl = cols[ci - 1];
@@ -2823,7 +2986,7 @@ function rollEncounter(biomeType) {
 
   // Wow label
   let wowLabel = '';
-  if (wow >= 2.50) wowLabel = '🔥 HOLY SHIT';
+  if (wow >= 2.50) wowLabel = '🔥 HUGE HIT';
   else if (wow >= 1.75) wowLabel = '⚡ BIG HIT';
   else if (wow >= 1.25) wowLabel = '✨ NICE HIT';
 
@@ -2939,15 +3102,38 @@ function showCongrats(instance, opts) {
   const _badge = (bg, fg, border, text) =>
     `<span class="congrats-badge" style="--cg-b-bg:${bg};--cg-b-fg:${fg};--cg-b-br:${border}">${text}</span>`;
   let badgesHtml = '';
-  if (instance.is_shiny) badgesHtml += _badge('rgba(255,215,0,0.16)','#FFD700','rgba(255,215,0,0.38)','★ Akronite');
-  badgesHtml += _badge(`${rc(instance.rarity)}16`, rc(instance.rarity), `${rc(instance.rarity)}44`, capR);
-  badgesHtml += _badge(`${persCol}14`, 'white', 'rgba(255,255,255,0.36)', instance.personality);
+  if (instance.is_shiny) badgesHtml += _badge('rgba(255,215,0,0.38)','#FFD700','rgba(255,215,0,0.55)','★ Akronite');
+  badgesHtml += _badge(`${rc(instance.rarity)}50`, 'white', `${rc(instance.rarity)}80`, capR);
+  badgesHtml += _badge(`${persCol}45`, 'white', `${persCol}70`, instance.personality);
   document.getElementById('congrats-badges').innerHTML = badgesHtml;
 
   document.getElementById('congrats-mem-name').textContent = instance.name + (instance.is_shiny ? ' ★' : '');
 
   document.getElementById('congrats-subtitle').textContent =
     'Memory has been saved to your Mempool';
+
+  // Essence + memcore reward display (only for captures, not evolutions)
+  const rewardEl = document.getElementById('congrats-reward');
+  if (instance.revealed_essence != null && instance.origin_state === 'saved') {
+    const mem2 = MEMORIES[instance.dex_id];
+    const mcGain = mem2 ? (mem2.yield || 0) : 0;
+    const ess = instance.revealed_essence || 0;
+    const wl  = instance.wow_label || '';
+    let rewardHtml = '';
+    rewardHtml += `<div class="congrats-reward-mc">+${mcGain} ◆</div>`;
+    rewardHtml += `<div class="congrats-reward-ess"><span class="ess-val">${ess}</span><span class="ess-word">Essence</span></div>`;
+    if (wl) {
+      let wowCls = 'wow-nice';
+      if (wl.includes('HUGE'))     wowCls = 'wow-huge';
+      else if (wl.includes('BIG')) wowCls = 'wow-big';
+      rewardHtml += `<div class="congrats-reward-wow ${wowCls}">${wl}</div>`;
+    }
+    rewardEl.innerHTML = rewardHtml;
+    rewardEl.style.display = '';
+  } else {
+    rewardEl.innerHTML = '';
+    rewardEl.style.display = 'none';
+  }
 
   document.getElementById('congrats-overlay').classList.add('show');
 
@@ -3779,8 +3965,16 @@ const GT = {
   typeFirstMt: 0,
   gcPi:       20,
   gcGap:      8,
-  trTop:      -36,
-  trSize:     308,
+  trTop:      24,
+  trSize:     472,
+  trRight:    -100,
+  trImgX:     32,
+  trImgY:     0,
+  trFadeTopA: 100,
+  trFadeStart: 30,
+  trFadeEnd:  38,
+  trFadeOut:  47,
+  modeTabOp:  100,
   hdrPi:      24,
   eyebrowSz:  11,
   titleSz:    26,
@@ -3813,6 +4007,7 @@ const GT_SECTIONS = [
   { label: 'Filter Tabs', items: [
     { key:'filtersMt', label:'Filters Y', unit:'px', step:2, min:-10, max:80,  cssVar:'--filters-mt', sf:'px' },
     { key:'fcGap',     label:'Tabs→cards', unit:'px', step:2, min:-40, max:80,  cssVar:'--fc-gap',     sf:'px' },
+    { key:'modeTabOp', label:'Mode α',    unit:'%', step:5, min:0,   max:100, cssVar:'--mode-tab-op', sf:'', mode:'opPct' },
   ]},
   { label: 'Card Grid', items: [
     { key:'cellsMt',    label:'Cards Y',    unit:'px', step:2, min:-10, max:80,  cssVar:'--cells-mt',    sf:'px' },
@@ -3822,8 +4017,17 @@ const GT_SECTIONS = [
     { key:'gcGap',      label:'Card gap',   unit:'px', step:1, min:4,   max:24,  cssVar:'--gc-gap',      sf:'px' },
   ]},
   { label: 'Trainer', items: [
-    { key:'trTop',  label:'Top',   unit:'px', step:2, min:-120, max:160, cssVar:'--tr-top',  sf:'px' },
-    { key:'trSize', label:'Width', unit:'px', step:4, min:60,   max:480, cssVar:'--tr-size', sf:'px' },
+    { key:'trTop',   label:'Top',    unit:'px', step:2, min:-200, max:200, cssVar:'--tr-top',   sf:'px' },
+    { key:'trSize',  label:'Width',  unit:'px', step:4, min:60,   max:600, cssVar:'--tr-size',  sf:'px' },
+    { key:'trRight', label:'Right',  unit:'px', step:2, min:-100, max:120, cssVar:'--tr-right', sf:'px' },
+    { key:'trImgX',  label:'Img X',  unit:'px', step:2, min:-200, max:200, cssVar:'--tr-img-x', sf:'px' },
+    { key:'trImgY',  label:'Img Y',  unit:'px', step:2, min:-400, max:200, cssVar:'--tr-img-y', sf:'px' },
+  ]},
+  { label: 'Trainer Fade', items: [
+    { key:'trFadeTopA',  label:'Top α',     unit:'%', step:5,  min:0,  max:100, cssVar:'--tr-fade-top-a', sf:'', mode:'opPct' },
+    { key:'trFadeStart', label:'Opaque at', unit:'%', step:2,  min:0,  max:100, cssVar:'--tr-fade-start', sf:'%' },
+    { key:'trFadeEnd',   label:'Fade at',   unit:'%', step:2,  min:0,  max:100, cssVar:'--tr-fade-end',   sf:'%' },
+    { key:'trFadeOut',   label:'Gone at',   unit:'%', step:2,  min:0,  max:100, cssVar:'--tr-fade-out',   sf:'%' },
   ]},
   { label: 'BG Logo', items: [
     { key:'bgLogoSz',    label:'Size',    unit:'px', step:4, min:80,  max:560, cssVar:'--bg-logo-sz',    sf:'px' },
@@ -3872,7 +4076,8 @@ function _applyGT() {
     `pills:${GT.pillsMt}px gap:${GT.pillsGap}px`,
     `search:${GT.searchMt}px filters:${GT.filtersMt}px fc:${GT.fcGap}px`,
     `cards:${GT.cellsMt}px typePt:${GT.typeSectPt}px`,
-    `tr:${GT.trTop}px/${GT.trSize}px gcPi:${GT.gcPi}px gap:${GT.gcGap}px`,
+    `tr:${GT.trTop}px/${GT.trSize}px r:${GT.trRight}px img:${GT.trImgX},${GT.trImgY} gcPi:${GT.gcPi}px gap:${GT.gcGap}px`,
+    `fade:topA${GT.trFadeTopA}% opq${GT.trFadeStart}% fade${GT.trFadeEnd}% gone${GT.trFadeOut}%`,
     `typBtn:${GT.typeIconSz}px gap:${GT.typeBtnGap}px pi:${GT.typeRowPi}px`,
     `bg:${GT.bgLogoSz}px y:${GT.bgLogoTop} x:${GT.bgLogoX} ${GT.bgLogoOp}%`,
   ].join('  ·  ');
@@ -4052,7 +4257,7 @@ function _initCardTuner() {
 
 // ── MEMORY DETAIL / COLLECTION TUNER (CSS vars on #screen-detail only)
 const DT = {
-  topH: 57, topPadX: 10, backX: 23, backY: 15,
+  topH: 57, topPadX: 10, backX: 23, backY: 15, backSz: 28,
   heroPadT: 5, heroPadX: 24, heroPadB: 0, heroMinH: 80,
   spriteSz: 152, spriteX: 1, spriteY: 0,
   dexX: 0, dexY: -2, nameX: -6, nameY: -9,
@@ -4074,6 +4279,7 @@ const DT_SECTIONS = [
     { key:'topPadX', label:'Pad X', unit:'px', step:1, min:0, max:24, cssVar:'--dt-top-pad-x', mode:'px' },
     { key:'backX', label:'Back X', unit:'px', step:1, min:-8, max:48, cssVar:'--dt-back-x', mode:'px' },
     { key:'backY', label:'Back Y', unit:'px', step:1, min:0, max:48, cssVar:'--dt-back-y', mode:'px' },
+    { key:'backSz', label:'Back Sz', unit:'px', step:2, min:16, max:56, cssVar:'--dt-back-sz', mode:'px' },
   ]},
   { label: 'Hero', items: [
     { key:'heroPadT', label:'Pad T', unit:'px', step:1, min:0, max:32, cssVar:'--dt-hero-pad-t', mode:'px' },
