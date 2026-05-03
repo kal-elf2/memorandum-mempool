@@ -1118,8 +1118,8 @@ body {
 .detail-back:hover { transform: scale(1.08); opacity: 0.8; }
 .detail-back-img {
   width: 100%; height: 100%; object-fit: contain;
-  filter: brightness(0) invert(1);
-  opacity: 0.85;
+  opacity: 0.9;
+  border-radius: 6px;
 }
 
 .hero-content {
@@ -2158,7 +2158,7 @@ body {
     <div id="screen-detail" class="screen">
 
       <div class="detail-hero" id="detail-hero">
-        <button class="detail-back" onclick="showScreen('grid')"><img src="assets/icons/x.png" alt="Back" class="detail-back-img"></button>
+        <button class="detail-back" onclick="showScreen('grid')"><img src="assets/icons/back-square.png" alt="Back" class="detail-back-img"></button>
         <div class="hero-wm" id="hero-wm"></div>
         <div class="hero-img-layer" aria-hidden="true">
           <div class="hero-img-wrap" id="hero-img-wrap"></div>
@@ -2324,7 +2324,7 @@ const PT = {
   cgCloseT:      144,
   cgCloseSz:     38,
   cgBtnR:        66,
-  cgBtnT:        606,
+  cgBtnT:        608,
   cgBtnPx:       46,
   cgBtnPy:       14,
   cgBtnFs:       14,
@@ -2348,7 +2348,7 @@ const PT = {
   cgMcDy:        0,
   cgWowFs:       20,
   cgWowDx:       0,
-  cgWowDy:       0,
+  cgWowDy:       6,
   cgBandOp:      63,
   cgBandFadeS:   28,
   cgBandFadeE:   100,
@@ -2445,12 +2445,16 @@ function _applyPT() {
   if (ro) {
     ro.textContent = [
       `band ${PT.cgStripTop}-${PT.cgStripBot}% α${PT.cgBandOp}% fade${PT.cgBandFadeS}-${PT.cgBandFadeE}%`,
+      `glow h${PT.cgGlowSz} α${PT.cgGlowOp}% solid${PT.cgGlowSolid}% gone${PT.cgGlowGone}%`,
       `sprite ${PT.cgCreatureTop}% ${PT.cgCreatureSz}px`,
       `wm ${PT.cgWmFs}px ×${PT.cgWmScale}% xy${PT.cgWmX},${PT.cgWmY} α${PT.cgWmOp}%`,
       `tags ${PT.cgTagsTop}% · text ${PT.cgTxtTop}%`,
       `× ${PT.cgCloseL},${PT.cgCloseT} (${PT.cgCloseSz}px)`,
-      `btn R${PT.cgBtnR} T${PT.cgBtnT} pad${PT.cgBtnPx}×${PT.cgBtnPy} ${PT.cgBtnFs}px`,
-      `rw R${PT.cgRwX} Y${PT.cgRwY}% · ess${PT.cgEssFs}px · mc${PT.cgMcFs}px · wow${PT.cgWowFs}px`,
+      `btn R${PT.cgBtnR} T${PT.cgBtnT} pad${PT.cgBtnPx}×${PT.cgBtnPy} ${PT.cgBtnFs}px minW${PT.cgBtnMinW}${PT.cgBtnW?` w${PT.cgBtnW}`:''}${PT.cgBtnH?` h${PT.cgBtnH}`:''}`,
+      `rw R${PT.cgRwX} Y${PT.cgRwY}%`,
+      `ess ws${PT.cgEssFs} ns${PT.cgEssNumFs} gap${PT.cgEssGap} xy${PT.cgEssDx},${PT.cgEssDy}`,
+      `mc ${PT.cgMcFs}px xy${PT.cgMcDx},${PT.cgMcDy}`,
+      `wow ${PT.cgWowFs}px xy${PT.cgWowDx},${PT.cgWowDy}`,
     ].join('  ·  ');
   }
 }
@@ -2900,7 +2904,9 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   document.getElementById('imx-ess').textContent = displayEss;
   document.getElementById('imx-mc-bank').textContent = bank;
 
-  const pct = Math.min(100, (progress / maxMC) * 100);
+  const stageFloor = maxMC - mem.mc_needed;
+  const stageProg  = Math.max(0, progress - stageFloor);
+  const pct = Math.min(100, (stageProg / mem.mc_needed) * 100);
   document.getElementById('imx-mc-frac').textContent =
     `${progress} / ${maxMC} ◆ · stage ${inst.current_stage ?? mem.stage}`;
   const fill = document.getElementById('imx-fill');
@@ -3822,7 +3828,8 @@ function renderCollection(id, mem, insts, activeInst) {
     const isActive = activeInst && ins.instanceId === activeInst.instanceId;
     const spent    = instanceMcSpent(ins, base);
     const maxMC    = mem.max_mc;
-    const lvlPct   = Math.min(100, Math.round((spent / maxMC) * 100));
+    const stgFloor = maxMC - mem.mc_needed;
+    const lvlPct   = Math.min(100, Math.round(((spent - stgFloor) / mem.mc_needed) * 100));
     const persCol  = PERSONALITY_COLORS[ins.personality] || '#888';
     const persU    = (ins.personality || '').charAt(0).toUpperCase() + (ins.personality || '').slice(1);
     return `<div class="inst-card${isActive?' active-inst':''}${ins.is_shiny?' akronite-inst':''}" onclick="selectInstance(${i})">
@@ -4198,12 +4205,14 @@ function _applyGT() {
   const ro = document.getElementById('gt-readout');
   if (ro) ro.textContent = [
     `hdr:${GT.hdrMt}px logo:${GT.logoSz}px pad:${GT.hdrPi}px`,
-    `pills:${GT.pillsMt}px gap:${GT.pillsGap}px`,
+    `pills:${GT.pillsMt}px gap:${GT.pillsGap}px pill:${GT.pillSz}px`,
     `search:${GT.searchMt}px filters:${GT.filtersMt}px fc:${GT.fcGap}px`,
-    `cards:${GT.cellsMt}px typePt:${GT.typeSectPt}px`,
+    `cards:${GT.cellsMt}px typePt:${GT.typeSectPt}px typeFirst:${GT.typeFirstMt}px`,
     `tr:${GT.trTop}px/${GT.trSize}px r:${GT.trRight}px img:${GT.trImgX},${GT.trImgY} gcPi:${GT.gcPi}px gap:${GT.gcGap}px`,
     `fade:topA${GT.trFadeTopA}% opq${GT.trFadeStart}% fade${GT.trFadeEnd}% gone${GT.trFadeOut}%`,
-    `typBtn:${GT.typeIconSz}px gap:${GT.typeBtnGap}px pi:${GT.typeRowPi}px`,
+    `modeOp:${GT.modeTabOp}%`,
+    `eye:${GT.eyebrowSz}px title:${GT.titleSz}px player:${GT.playerSz}px`,
+    `typBtn:${GT.typeIconSz}px gap:${GT.typeBtnGap}px pi:${GT.typeRowPi}px pt:${GT.typeRowPt} pb:${GT.typeRowPb}`,
     `bg:${GT.bgLogoSz}px y:${GT.bgLogoTop} x:${GT.bgLogoX} ${GT.bgLogoOp}%`,
   ].join('  ·  ');
 }
@@ -4508,13 +4517,14 @@ function _applyDT() {
   if (ro) {
     ro.style.whiteSpace = 'pre-line';
     ro.textContent = [
-      `top ${DT.topH}/${DT.topPadX} · back ${DT.backX},${DT.backY}`,
+      `top ${DT.topH}/${DT.topPadX} · back ${DT.backX},${DT.backY} sz${DT.backSz}`,
       `hero ${DT.heroPadT}/${DT.heroPadX}/${DT.heroPadB} · minH ${DT.heroMinH} · spr ${DT.spriteSz}@${DT.spriteX},${DT.spriteY}`,
-      `dex ${DT.dexX},${DT.dexY} · name ${DT.nameX},${DT.nameY} · wm ${DT.wmFs}@${DT.wmX},${DT.wmY} α${DT.wmOp} · badges gap ${DT.badgeGap} sc${DT.badgeSc}%`,
-      `tabs ${DT.tabH}/${DT.tabFs}/${DT.tabPadX} · body T/side ${DT.bodyTopPad}/${DT.bodyPad} · sec ${DT.secMt}/${DT.secMb} · desc ${DT.descFs}`,
-      `chip ${DT.chipPx}/${DT.chipPy}/${DT.chipGap}/r${DT.chipRad} · evo y${DT.evoY} sc${DT.evoSc}% img${DT.evoImgSz} gap ${DT.evoGap} pb${DT.evoPadB}`,
-      `inst minH ${DT.instRowMinH} img ${DT.instImgSz}@${DT.instImgX},${DT.instImgY} txt ${DT.instTx},${DT.instTy} gap ${DT.instGap}/${DT.instMb}`,
-      `act py${DT.actPy} px${DT.actPx} gap ${DT.actGap} minH ${DT.actMinH}`,
+      `dex ${DT.dexX},${DT.dexY} · name ${DT.nameX},${DT.nameY} · wm ${DT.wmFs}@${DT.wmX},${DT.wmY} α${DT.wmOp} · badges gap${DT.badgeGap} sc${DT.badgeSc}%`,
+      `tabs ${DT.tabH}/${DT.tabFs}/${DT.tabPadX} innerPx${DT.tabInnerPx} · mc sz${DT.mcFs} y${DT.mcY}`,
+      `body T/side ${DT.bodyTopPad}/${DT.bodyPad} · sec ${DT.secMt}/${DT.secMb} · desc ${DT.descFs}`,
+      `chip ${DT.chipPx}/${DT.chipPy}/${DT.chipGap}/r${DT.chipRad} · evo y${DT.evoY} sc${DT.evoSc}% img${DT.evoImgSz} gap${DT.evoGap} pb${DT.evoPadB}`,
+      `inst minH${DT.instRowMinH} img${DT.instImgSz}@${DT.instImgX},${DT.instImgY} txt${DT.instTx},${DT.instTy} gap${DT.instGap}/${DT.instMb}`,
+      `act py${DT.actPy} px${DT.actPx} gap${DT.actGap} minH${DT.actMinH}`,
     ].join('\n');
   }
   try { localStorage.setItem('mempool-detail-dt-v5', JSON.stringify(DT)); } catch (e) {}
