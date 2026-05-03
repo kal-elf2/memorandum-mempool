@@ -1595,16 +1595,89 @@ body {
   outline-offset: 2px;
 }
 
-/* ── 1. STRIP: background gradient band ── */
+/* ── 1. STRIP: dynamic type-colored banner ── */
 .congrats-strip {
   position: absolute; left: 0; right: 0;
-  top:    var(--cg-strip-top, 15%);
-  bottom: var(--cg-strip-bot, 32%);
-  z-index: 1; overflow: hidden;
+  top:    var(--cg-strip-top, 22%);
+  bottom: var(--cg-strip-bot, 38%);
+  z-index: 1; overflow: visible;
+  --cg-c1: #2699D2;
+  --cg-c2: #85D5F7;
 }
-.congrats-strip img {
-  width: 100%; height: 100%;
-  object-fit: cover; object-position: left top; display: block;
+/* Layer 1: main wash — atmospheric color from left, fading right */
+.cg-banner-main {
+  position: absolute; inset: 0;
+  background: linear-gradient(to top right, var(--cg-c1), var(--cg-c2));
+  mask-image: linear-gradient(to right,
+    rgba(0,0,0,0.45) 0%,
+    rgba(0,0,0,0.35) 15%,
+    rgba(0,0,0,0.22) 35%,
+    rgba(0,0,0,0.10) 55%,
+    rgba(0,0,0,0.03) 75%,
+    transparent 90%
+  );
+  -webkit-mask-image: linear-gradient(to right,
+    rgba(0,0,0,0.45) 0%,
+    rgba(0,0,0,0.35) 15%,
+    rgba(0,0,0,0.22) 35%,
+    rgba(0,0,0,0.10) 55%,
+    rgba(0,0,0,0.03) 75%,
+    transparent 90%
+  );
+}
+/* Layer 2: top edge line — thin bright rule */
+.cg-banner-top-line {
+  position: absolute; left: 0; right: 0; top: 0; height: 1.5px;
+  background: linear-gradient(to right,
+    var(--cg-c2) 0%, var(--cg-c2) 25%,
+    transparent 70%
+  );
+  opacity: 0.7;
+}
+/* Layer 3: top outer glow — blooms ABOVE the banner only */
+.cg-banner-top-glow {
+  position: absolute; left: 0; right: 0;
+  bottom: 100%;
+  height: var(--cg-glow-sz, 30px);
+  background: linear-gradient(to top,
+    var(--cg-c2) 0%,
+    var(--cg-c2) var(--cg-glow-solid, 10%),
+    transparent var(--cg-glow-gone, 100%)
+  );
+  opacity: var(--cg-glow-op, 0.5);
+  pointer-events: none;
+}
+/* Layer 4: bottom edge line */
+.cg-banner-bot-line {
+  position: absolute; left: 0; right: 0; bottom: 0; height: 1.5px;
+  background: linear-gradient(to right,
+    var(--cg-c2) 0%, var(--cg-c2) 25%,
+    transparent 70%
+  );
+  opacity: 0.55;
+}
+/* Layer 5: bottom outer glow — blooms BELOW the banner only */
+.cg-banner-bot-glow {
+  position: absolute; left: 0; right: 0;
+  top: 100%;
+  height: var(--cg-glow-sz, 30px);
+  background: linear-gradient(to bottom,
+    var(--cg-c2) 0%,
+    var(--cg-c2) var(--cg-glow-solid, 10%),
+    transparent var(--cg-glow-gone, 100%)
+  );
+  opacity: var(--cg-glow-op, 0.5);
+  pointer-events: none;
+}
+/* Layer 6: center-left haze for depth */
+.cg-banner-haze {
+  position: absolute;
+  left: 5%; top: 15%; bottom: 15%; width: 40%;
+  background: radial-gradient(ellipse at 30% 50%,
+    var(--cg-c1) 0%, transparent 70%
+  );
+  opacity: 0.12;
+  filter: blur(20px);
 }
 
 /* ── 2. CREATURE: independent Y, no connection to anything else ── */
@@ -1683,7 +1756,7 @@ body {
   margin-top: 14px;
   padding-top: 14px;
   width: 100%;
-  border-top: 1px solid rgba(255,255,255,0.22);
+  border-top: none;
   text-align: center;
   box-sizing: border-box;
 }
@@ -1967,8 +2040,15 @@ body {
 <!-- CONGRATULATIONS OVERLAY (full-page, first-time encounter) -->
 <div id="congrats-overlay">
   <button type="button" class="congrats-close" onclick="closeCongrats('dismiss')" aria-label="Close"><img src="assets/icons/back-square.png" alt="Back" class="congrats-close-img"></button>
-  <!-- 1. Background strip (independent Y) -->
-  <div class="congrats-strip"><img src="assets/figma-ref/congrats_gradient.png" alt=""></div>
+  <!-- 1. Background strip — dynamic type-colored banner (independent Y) -->
+  <div class="congrats-strip" id="congrats-strip">
+    <div class="cg-banner-main"></div>
+    <div class="cg-banner-haze"></div>
+    <div class="cg-banner-top-line"></div>
+    <div class="cg-banner-top-glow"></div>
+    <div class="cg-banner-bot-line"></div>
+    <div class="cg-banner-bot-glow"></div>
+  </div>
   <!-- 2. Creature image (independent Y) + watermark name behind sprite -->
   <div class="congrats-creature-zone">
     <div class="congrats-name-wm" id="congrats-name-wm" aria-hidden="true"></div>
@@ -2234,27 +2314,27 @@ body {
 //  CONGRATS LAYOUT TUNER  (screen-area values baked into CSS)
 // ══════════════════════════════════════════════════════════════
 const PT = {
-  cgStripTop:    15,
-  cgStripBot:    32,
+  cgStripTop:    24,
+  cgStripBot:    38,
   cgCreatureTop: 13,
   cgCreatureSz:  368,
   cgTagsTop:     48,
   cgTxtTop:      48,
-  cgCloseL:      38,
-  cgCloseT:      122,
+  cgCloseL:      32,
+  cgCloseT:      144,
   cgCloseSz:     38,
-  cgBtnR:        68,
-  cgBtnT:        622,
+  cgBtnR:        66,
+  cgBtnT:        606,
   cgBtnPx:       46,
   cgBtnPy:       14,
   cgBtnFs:       14,
   cgBtnMinW:     197,
   cgBtnW:        0,
   cgBtnH:        0,
-  cgWmFs:        166,
+  cgWmFs:        168,
   cgWmScale:     130,
   cgWmX:         0,
-  cgWmY:         26,
+  cgWmY:         32,
   cgWmOp:        8,
   cgRwX:         50,
   cgRwY:         47,
@@ -2269,11 +2349,25 @@ const PT = {
   cgWowFs:       20,
   cgWowDx:       0,
   cgWowDy:       0,
+  cgBandOp:      63,
+  cgBandFadeS:   28,
+  cgBandFadeE:   100,
+  cgGlowSz:      30,
+  cgGlowOp:      50,
+  cgGlowSolid:   10,
+  cgGlowGone:    100,
 };
 
 const PT_CG = [
   { col:1, sec:'Gradient band', key:'cgStripTop',    label:'Top',    unit:'%', step:1, min:0, max:90, cssVar:'--cg-strip-top',    cssSuffix:'%' },
   { col:1, key:'cgStripBot',    label:'Bottom', unit:'%', step:1, min:0, max:90, cssVar:'--cg-strip-bot',    cssSuffix:'%' },
+  { col:1, key:'cgBandOp',      label:'Band α', unit:'%', step:2, min:5, max:100, cssVar:'__skip', cssSuffix:'%' },
+  { col:1, key:'cgBandFadeS',   label:'Fade start', unit:'%', step:2, min:0, max:100, cssVar:'__skip', cssSuffix:'%' },
+  { col:1, key:'cgBandFadeE',   label:'Fade end', unit:'%', step:2, min:0, max:100, cssVar:'__skip', cssSuffix:'%' },
+  { col:1, sec:'Edge glow', key:'cgGlowSz', label:'Height', unit:'px', step:2, min:4, max:100, cssVar:'--cg-glow-sz', cssSuffix:'px' },
+  { col:1, key:'cgGlowOp',     label:'Bright', unit:'%', step:2, min:5, max:100, cssVar:'__skip', cssSuffix:'%' },
+  { col:1, key:'cgGlowSolid',  label:'Solid %', unit:'%', step:2, min:0, max:80, cssVar:'--cg-glow-solid', cssSuffix:'%' },
+  { col:1, key:'cgGlowGone',   label:'Gone %', unit:'%', step:2, min:20, max:100, cssVar:'--cg-glow-gone', cssSuffix:'%' },
   { col:2, sec:'Creature art', key:'cgCreatureTop', label:'Y', unit:'%', step:1, min:0, max:85, cssVar:'--cg-creature-top', cssSuffix:'%' },
   { col:2, key:'cgCreatureSz',  label:'Size', unit:'px', step:4, min:120, max:480, cssVar:'--cg-creature-sz', cssSuffix:'px' },
   { col:3, sec:'Name WM', key:'cgWmFs', label:'WM px', unit:'px', step:2, min:20, max:280, cssVar:'--cg-wm-fs', cssSuffix:'px' },
@@ -2330,10 +2424,27 @@ function _applyPT() {
   root.style.setProperty('--cg-wm-sc', String(PT.cgWmScale / 100));
   root.style.setProperty('--cg-wm-op', String(PT.cgWmOp / 100));
 
+  // Banner mask from tuner knobs
+  const bOp = PT.cgBandOp / 100;
+  const bS  = PT.cgBandFadeS;
+  const bE  = PT.cgBandFadeE;
+  const maskVal = `linear-gradient(to right, rgba(0,0,0,${bOp}) 0%, rgba(0,0,0,${bOp}) ${bS}%, transparent ${bE}%)`;
+  const bannerMain = document.querySelector('.cg-banner-main');
+  if (bannerMain) {
+    bannerMain.style.maskImage = maskVal;
+    bannerMain.style.webkitMaskImage = maskVal;
+  }
+
+  // Edge glow tuner
+  const gOp = PT.cgGlowOp / 100;
+  document.querySelectorAll('.cg-banner-top-glow, .cg-banner-bot-glow').forEach(el => {
+    el.style.opacity = gOp;
+  });
+
   const ro = document.getElementById('cg-tuner-readout');
   if (ro) {
     ro.textContent = [
-      `band ${PT.cgStripTop}-${PT.cgStripBot}%`,
+      `band ${PT.cgStripTop}-${PT.cgStripBot}% α${PT.cgBandOp}% fade${PT.cgBandFadeS}-${PT.cgBandFadeE}%`,
       `sprite ${PT.cgCreatureTop}% ${PT.cgCreatureSz}px`,
       `wm ${PT.cgWmFs}px ×${PT.cgWmScale}% xy${PT.cgWmX},${PT.cgWmY} α${PT.cgWmOp}%`,
       `tags ${PT.cgTagsTop}% · text ${PT.cgTxtTop}%`,
@@ -2605,6 +2716,12 @@ const TYPE_COLORS = {
 const TYPE_EMOJI = { EARTH:'🌿',MIND:'🔮',FIRE:'🔥',WATER:'💧',WIND:'💨',ELECTRIC:'⚡',SOUL:'✨',AETHER:'🌀',VOID:'🌑',ASTRAL:'⭐' };
 const RARITY_COLORS = { common:'#A0A0A8', uncommon:'#38A838', rare:'#2860D8', epic:'#8030C8', legendary:'#C88010' };
 
+const CONGRATS_GRADIENTS = {
+  AETHER:['#5969AF','#A9BABC'], ASTRAL:['#400CA2','#7746D3'], EARTH:['#B36B34','#C9AC73'],
+  ELECTRIC:['#EDC33F','#F9E99E'], FIRE:['#EA4D00','#F78B32'], MIND:['#FFA2E7','#AE68C1'],
+  SOUL:['#CC58AB','#FFA2E7'], VOID:['#2F1945','#3B376D'], WATER:['#2699D2','#85D5F7'],
+  WIND:['#8EEDDB','#D3FCF9'],
+};
 const HERO_GRADIENTS = {
   EARTH:['#C49A38','#E8C870'], MIND:['#7040BC','#A068E8'], FIRE:['#D03810','#F06040'],
   WATER:['#1878C8','#48A8E8'], WIND:['#38D2C4','#68F2E6'], ELECTRIC:['#C8A000','#F0D030'],
@@ -3098,6 +3215,14 @@ function showCongrats(instance, opts) {
   document.getElementById('congrats-img').src = src || '';
   document.getElementById('congrats-name-wm').textContent =
     instance.name + (instance.is_shiny ? ' ★' : '');
+
+  // Dynamic banner color from primary type
+  const cgMem = MEMORIES[instance.dex_id];
+  const pType = (cgMem && cgMem.type && cgMem.type[0]) || 'WATER';
+  const cg = CONGRATS_GRADIENTS[pType] || CONGRATS_GRADIENTS.WATER;
+  const strip = document.getElementById('congrats-strip');
+  strip.style.setProperty('--cg-c1', cg[0]);
+  strip.style.setProperty('--cg-c2', cg[1]);
 
   const _badge = (bg, fg, border, text) =>
     `<span class="congrats-badge" style="--cg-b-bg:${bg};--cg-b-fg:${fg};--cg-b-br:${border}">${text}</span>`;
