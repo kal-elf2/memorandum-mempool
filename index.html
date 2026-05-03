@@ -652,11 +652,39 @@ body {
 }
 .grid-search input::placeholder { color: rgba(30,70,110,0.4); }
 
+/* ── 3b. MODE TABS (Memories / Bonded) ── */
+.grid-mode-wrap {
+  flex-shrink: 0;
+  display: flex; gap: 0;
+  padding: 4px var(--hdr-pi, 24px) 0;
+  margin-top: var(--filters-mt, 7px);
+  position: relative; z-index: 7;
+}
+.mode-tab {
+  flex: 1;
+  font-family: var(--font); font-size: 11px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.5px;
+  padding: 7px 0; cursor: pointer;
+  border: none; background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.45);
+  transition: all 0.15s;
+}
+.mode-tab:first-child { border-radius: 8px 0 0 8px; }
+.mode-tab:last-child  { border-radius: 0 8px 8px 0; }
+.mode-tab.active {
+  background: rgba(255,255,255,0.18); color: white;
+  box-shadow: inset 0 -2px 0 #20B8AA;
+}
+.mode-tab:hover:not(.active) { background: rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); }
+.mode-tab[data-mode="bonded"].active {
+  box-shadow: inset 0 -2px 0 #38D2C4;
+}
+
 /* ── 4. FILTER BUTTONS ── */
 .grid-filters-wrap {
   flex-shrink: 0;
   padding: 5px var(--hdr-pi, 24px) 7px;
-  margin-top: var(--filters-mt, 7px);
+  margin-top: 4px;
   border-bottom: 1px solid rgba(255,255,255,0.22);
   position: relative;
   z-index: 6;
@@ -734,15 +762,18 @@ body {
 }
 
 /* ── 6. GRID CELLS ── */
+.grid-cells-wrap {
+  flex: 1; min-height: 0; position: relative; z-index: 4;
+  margin-top: calc(var(--cells-mt, 0px) + var(--fc-gap, 0px));
+  overflow: hidden;
+}
 .grid-cells {
   padding: var(--gc-pt, 10px) var(--gc-pi, 20px) 20px;
   display: grid; grid-template-columns: repeat(3, 1fr);
-  gap: var(--gc-gap, 8px); overflow-y: auto; flex: 1;
-  min-height: 0; /* flex child: allow shrink so internal scroll measures correctly */
-  align-content: start;   /* prevents rows from stretching to fill container height */
-  margin-top: calc(var(--cells-mt, 0px) + var(--fc-gap, 0px));
+  gap: var(--gc-gap, 8px); overflow-y: auto;
+  height: 100%;
+  align-content: start;
   position: relative;
-  z-index: 4;
 }
 /* Type view: sections stack vertically (must override display:grid + 3 cols on .grid-cells) */
 .grid-cells.type-mode {
@@ -753,6 +784,41 @@ body {
 }
 .grid-cells.type-mode > .type-section:first-of-type {
   margin-top: var(--type-first-mt, 0px);
+}
+
+/* ── 6b. BACK-TO-TOP BAR ── */
+.grid-top-bar {
+  display: none; align-items: center; justify-content: center;
+  gap: 6px; padding: 9px 0;
+  font-family: var(--font); font-size: 10px; font-weight: 600;
+  color: rgba(30,80,120,0.5); cursor: pointer;
+  transition: all 0.15s; flex-shrink: 0;
+  border-bottom: 1px solid rgba(30,80,120,0.1);
+  letter-spacing: 0.3px;
+  position: relative; z-index: 8;
+  background: inherit;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.grid-top-bar:hover { color: rgba(30,80,120,0.9); background: rgba(30,80,120,0.06); }
+.grid-top-bar:active { background: rgba(30,80,120,0.1); }
+.grid-top-chevron { font-size: 9px; }
+#screen-grid.grid-expanded .grid-top-bar { display: flex; }
+
+/* ── 6c. SCROLL TRACK INDICATOR ── */
+.grid-scroll-track {
+  position: absolute; right: 3px; top: 8px; bottom: 8px;
+  width: 4px; z-index: 12; pointer-events: none;
+  border-radius: 4px;
+  background: rgba(30,80,120,0.08);
+  display: none;
+}
+#screen-grid.grid-expanded .grid-scroll-track { display: block; }
+.grid-scroll-thumb {
+  position: absolute; top: 0; width: 100%;
+  min-height: 24px; border-radius: 4px;
+  background: rgba(30,80,120,0.3);
+  transition: top 0.08s linear;
 }
 
 /* TYPE SECTIONS (inside .grid-cells.type-mode) */
@@ -895,7 +961,13 @@ body {
   padding: 1px 5px;
   line-height: 1.25;
   pointer-events: none;
+  display: flex; align-items: center; gap: 2px;
 }
+.gc-chain {
+  font-size: 9px; line-height: 1;
+}
+.gc-chain.active { color: #A0E8FF; }
+.gc-chain.history { color: rgba(255,255,255,0.45); }
 
 /* Empty slot */
 .gc-placeholder { width: var(--gc-img-sz, 84px); height: var(--gc-img-sz, 84px); }
@@ -1105,7 +1177,6 @@ body {
 
 /* First block in tab body: pull type row up slightly under curved body */
 .detail-body .tab-pane > .detail-type-row:first-child { margin-top: 0; }
-.detail-body .tab-pane > .coll-type-mc-row:first-child { margin-top: 0; }
 
 /* INSTANCE SELECTOR (multiple instances of same dex) */
 .instance-bar {
@@ -1132,7 +1203,7 @@ body {
 .dtab {
   font-family: var(--font); font-size: var(--dt-tab-fs); font-weight: 500;
   color: rgba(255,255,255,0.55);
-  padding: 0 12px; margin-right: 6px;
+  padding: 0 var(--dt-tab-inner-px, 12px); margin-right: 6px;
   background: none; border: none;
   border-bottom: 3px solid transparent;
   border-radius: 8px 8px 0 0;
@@ -1147,6 +1218,15 @@ body {
   background: rgba(255,255,255,0.15);
   border-bottom-color: white;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+}
+.dtab-mc {
+  margin-left: auto;
+  font-family: var(--font); font-size: var(--dt-mc-fs, 10px); font-weight: 700;
+  color: rgba(255,255,255,0.75);
+  background: rgba(255,255,255,0.12);
+  border-radius: 999px; padding: 3px 10px;
+  align-self: center; white-space: nowrap;
+  transform: translateY(var(--dt-mc-y, 0px));
 }
 
 /* BODY */
@@ -1191,17 +1271,7 @@ body {
 .stat-val { font-size: 15px; font-weight: 700; color: var(--text-dark); }
 .stat-lbl { font-size: 10px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.4px; }
 
-/* COLLECTION TYPE + MEMCORE ROW */
-.coll-type-mc-row {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 8px; margin-bottom: 10px;
-}
-.mc-inline {
-  font-size: 11px; font-weight: 700; color: var(--text-dark);
-  background: var(--chip-bg); border: 1px solid var(--chip-border);
-  border-radius: 999px; padding: 4px 10px; white-space: nowrap;
-  flex-shrink: 0;
-}
+/* (memcore moved to tab row — .dtab-mc) */
 
 /* PROGRESSION */
 .memcore-box {
@@ -1243,6 +1313,15 @@ body {
 .mb-mintable  { background: rgba(200,128,16,0.08); color: #C88010; border-color: rgba(200,128,16,0.3); }
 .mb-minted    { background: rgba(56,210,196,0.1); color: #20A090; border-color: rgba(56,210,196,0.35); }
 .mb-locked    { background: rgba(160,160,168,0.08); color: #909098; border-color: rgba(160,160,168,0.25); }
+.mint-pills-row {
+  display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;
+}
+.mint-pill {
+  font-size: 9px; font-weight: 700; letter-spacing: 0.3px;
+  padding: 3px 10px; border-radius: 999px;
+  background: rgba(30,80,120,0.06); color: rgba(30,80,120,0.6);
+  border: 1px solid rgba(30,80,120,0.12);
+}
 
 /* EVOLUTION LINE */
 .evo-line {
@@ -1852,19 +1931,31 @@ body {
           <input id="grid-q" type="text" placeholder="Search by Name or Dex ID" oninput="renderGrid()">
         </div>
       </div>
+      <div class="grid-mode-wrap">
+        <button class="mode-tab active" data-mode="memories" onclick="setMode(this)">Memories</button>
+        <button class="mode-tab"        data-mode="bonded"   onclick="setMode(this)">Bonded</button>
+      </div>
       <div class="grid-filters-wrap">
         <div class="grid-filters">
           <button class="ftab active" data-f="all"      onclick="setFilter(this)">All</button>
           <button class="ftab"        data-f="type"     onclick="setFilter(this)">Type</button>
           <button class="ftab"        data-f="saved"    onclick="setFilter(this)">Saved</button>
           <button class="ftab"        data-f="akronite" onclick="setFilter(this)">Akronite</button>
-          <button class="ftab"        data-f="nfts"     onclick="setFilter(this)">Bonded</button>
         </div>
       </div>
       <!-- 5. Type icon row (conditional) -->
       <div class="type-icon-row" id="type-icon-row"></div>
+      <!-- 5b. Back-to-top bar (visible in expanded/full-screen mode) -->
+      <div class="grid-top-bar" id="grid-top-bar" onclick="scrollGridToTop()" onmousedown="event.stopPropagation()" ontouchstart="event.stopPropagation()">
+        <span class="grid-top-chevron">▲</span> Scroll to Top
+      </div>
       <!-- 6. Grid cells (Y: --cells-mt, top padding: --gc-pt / --type-sect-pt in type mode) -->
-      <div class="grid-cells" id="grid-cells"></div>
+      <div class="grid-cells-wrap">
+        <div class="grid-cells" id="grid-cells"></div>
+        <div class="grid-scroll-track" id="grid-scroll-track">
+          <div class="grid-scroll-thumb" id="grid-scroll-thumb"></div>
+        </div>
+      </div>
     </div>
 
     <!-- ════════════════════════
@@ -1890,6 +1981,7 @@ body {
       <div class="detail-tabs" id="detail-tabs">
         <button class="dtab active" data-tab="details"    onclick="switchTab(this)">Details</button>
         <button class="dtab"        data-tab="collection" onclick="switchTab(this)">Collection</button>
+        <span class="dtab-mc" id="dtab-mc">0 ◆</span>
       </div>
 
       <div class="detail-body">
@@ -1907,10 +1999,7 @@ body {
 
         <!-- COLLECTION TAB: per-instance actions -->
         <div class="tab-pane" id="tab-collection">
-          <div class="coll-type-mc-row">
-            <div class="detail-type-row" id="detail-type-collection" style="margin-bottom:0"></div>
-            <span class="mc-inline" id="mc-avail">0 ◆</span>
-          </div>
+          <div class="detail-type-row" id="detail-type-collection"></div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
           <div class="coll-sort-row" id="coll-sort-row"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
@@ -2228,9 +2317,11 @@ const S = {
   selectedInstanceIdx: 0,       // index in instancesFor(selectedId)
   seen:                {},       // dex_id → true
   owned:               {},       // dex_id → true (permanent — once owned, always shown as known)
+  bondedLog:           {},       // dex_id → true (permanent — this dex was bonded/NFT at some point)
   bank:                {},       // base_memory → unspent memcore available
   progress:            {},       // base_memory → memcore spent on current stage progress
   instances:           [],       // all Memory instances (each encounter creates one)
+  mode:                "memories", // "memories" | "bonded"
   filter:              "all",
   collSort:            "akronite",
   instanceCardOpen:    false,
@@ -2317,11 +2408,21 @@ function switchTab(btn) {
   renderDetail();
 }
 
+function setMode(btn) {
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  S.mode = btn.dataset.mode;
+  S.filter = 'all';
+  document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
+  const typeRow = document.getElementById('type-icon-row');
+  if (typeRow) typeRow.classList.remove('visible');
+  renderGrid();
+}
+
 function setFilter(btn) {
   document.querySelectorAll('.ftab').forEach(t => t.classList.remove('active'));
   btn.classList.add('active');
   S.filter = btn.dataset.f;
-  // Show/hide type icon row
   const typeRow = document.getElementById('type-icon-row');
   if (typeRow) {
     typeRow.classList.toggle('visible', S.filter === 'type');
@@ -2376,31 +2477,57 @@ function personalityBadgeHtml(p) {
 
 function buildMintStatusInnerHtml(mem, inst, base, atMax) {
   const isMinted = inst?.is_nft || false;
-  const mintedCount = S.instances.filter(i => {
-    const m = MEMORIES[i.dex_id]; return m && m.base_memory === base && i.is_nft;
-  }).length;
-  const maxMints   = mem.max_mints;
-  const mintedStr  = maxMints !== null ? `${mintedCount} / ${maxMints.toLocaleString()} MINTED` : `${mintedCount} minted (∞ supply)`;
+  const dexId    = mem.id;
+  const directMintCount = S.instances.filter(i =>
+    i.dex_id === dexId && i.is_nft && i.nft_minted_at_stage === mem.stage
+  ).length;
+  const onChainAtDex = S.instances.filter(i => i.dex_id === dexId && i.is_nft).length;
+  const maxMints = mem.max_mints;
+  const canDirectMint = mem.mintable && inst && inst.origin_state === 'saved';
+
+  let supplyParts = [];
+  if (canDirectMint && maxMints !== null) {
+    supplyParts.push(`${directMintCount} / ${maxMints.toLocaleString()} minted`);
+  }
+  if (onChainAtDex > 0 && onChainAtDex !== directMintCount) {
+    supplyParts.push(`${onChainAtDex} on-chain total`);
+  } else if (onChainAtDex > 0 && !canDirectMint) {
+    supplyParts.push(`${onChainAtDex} on-chain`);
+  }
+  const supplyStr = supplyParts.join(' · ');
 
   if (!inst) {
     return `<span class="mint-badge mb-locked">No instance owned</span>`;
   }
   if (isMinted) {
+    const pills = [];
+    if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
+    if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
+    else if (onChainAtDex > 0 && !canDirectMint) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
     return `<span class="mint-badge mb-minted">✓ Bonded · Essence: ${inst.nft_essence}</span>
-      <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
+      ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}`;
   }
   if (!mem.mintable) {
-    return `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why non-mintable?">i</summary><div class="mint-lore-txt"><strong>Mint at Stage 1 only.</strong> After evolution, the bond runs too hot to anchor on-chain — too strong once evolved. Eternal companionship has to be sworn <em>before</em> the next form wakes; walk Collection, max your ◆, then seal the oath.</div></details>`;
+    return `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why?">i</summary><div class="mint-lore-txt">Only the original captured form can be bonded on-chain. Once evolved, the soul runs too wild to anchor — that vow must be sworn before transformation.</div></details>`;
   }
   if (inst.origin_state === 'evolved') {
-    return `<span class="mint-badge mb-locked" title="You can only seal an on-chain bond on the form you first caught. This evolution has grown too powerful — that vow window has passed.">Grown past the bond window — not mintable from this form</span>`;
+    return `<span class="mint-badge mb-locked" title="The bond oath must be sealed at the stage this Memory was first saved. Evolved forms have grown beyond the bonding threshold.">Soul too wild to bond — must seal at captured stage</span>
+      ${onChainAtDex > 0 ? `<div class="mint-pills-row"><span class="mint-pill">${onChainAtDex} on-chain</span></div>` : ''}`;
   }
   if (!atMax) {
-    return `<span class="mint-badge mb-locked">MAX LVL REQUIRED TO MINT · ${mintedStr}</span>`;
+    const pills = [];
+    if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
+    if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
+    else if (onChainAtDex > 0 && !canDirectMint) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
+    return `<span class="mint-badge mb-locked">Max level required to mint</span>
+      ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}`;
   }
   const projectedEss = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
+  const pills = [];
+  if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
+  if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
   return `<span class="mint-badge mb-mintable">★ Ready to Mint · Bonded Essence: ${projectedEss}</span>
-    <span class="mint-badge mb-locked" style="font-size:9px">${mintedStr}</span>`;
+    ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}`;
 }
 
 let _instCardKeydownHandler = null;
@@ -2717,7 +2844,7 @@ function rollEncounter(biomeType) {
     is_nft:         false,
     nft_minted_at_stage: null,
     nft_essence:    null,
-    mc_spent:       0,
+    mc_spent:       mem.stage > 1 ? (mem.max_mc - mem.mc_needed) : 0,
     acquired_at:    Date.now(),
   };
 
@@ -2906,12 +3033,38 @@ function triggerEncounter(biomeType) {
 const TYPE_ORDER = ['EARTH','FIRE','WIND','WATER','ELECTRIC','SOUL','AETHER','VOID','MIND','ASTRAL'];
 
 function renderCard(id, ownedIds) {
-  const cat      = CATALOG[id];
-  const owned    = ownedIds.includes(id);
+  const cat       = CATALOG[id];
+  const insts     = instancesFor(id);
+  const hasShiny  = insts.some(i => i.is_shiny);
+  const bonded    = S.mode === 'bonded';
+
+  if (bonded) {
+    const everBonded   = !!S.bondedLog[id];
+    const activeBonded = insts.some(i => i.is_nft);
+    if (everBonded && cat) {
+      const src = (insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id]) || IMAGE_MAP[id];
+      const img = src
+        ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
+        : `<div class="gc-placeholder"></div>`;
+      const chainCls = activeBonded ? 'active' : 'history';
+      const nftCount = insts.filter(i => i.is_nft).length;
+      const badge = `<span class="gc-count"><span class="gc-chain ${chainCls}">⬡</span>${nftCount > 0 ? nftCount : ''}</span>`;
+      return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+        <span class="gc-num">${id}</span>
+        ${img}
+        <span class="gc-name">${cat.name}</span>
+        ${badge}
+      </div>`;
+    }
+    return `<div class="grid-cell">
+      <span class="gc-num-unk">${id}</span>
+    </div>`;
+  }
+
+  // Memories mode
+  const owned     = ownedIds.includes(id);
   const everOwned = !!S.owned[id];
-  const seen     = !!S.seen[id];
-  const insts    = instancesFor(id);
-  const hasShiny = insts.some(i => i.is_shiny);
+  const seen      = !!S.seen[id];
 
   if ((owned || everOwned) && cat) {
     const src = (insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id]) || IMAGE_MAP[id];
@@ -3022,10 +3175,10 @@ function renderTypeView(q, ownedIds) {
              onerror="this.style.display='none'">
         <div class="type-sec-info">
           <span class="type-sec-name" style="color:${color}">${type}</span>
-          <span class="type-sec-progress">${savedCount} / ${totalCount} Saved</span>
+          <span class="type-sec-progress">${savedCount} / ${totalCount} ${S.mode === 'bonded' ? 'Bonded' : 'Saved'}</span>
         </div>
         <div class="type-sec-bar-zone">
-          <span class="type-sec-bar-label">Save Progress</span>
+          <span class="type-sec-bar-label">${S.mode === 'bonded' ? 'Bond Progress' : 'Save Progress'}</span>
           <div class="type-sec-bar-wrap">
             <div class="type-sec-bar" style="width:${pct}%;background:${color}"></div>
           </div>
@@ -3063,50 +3216,56 @@ window.addEventListener('resize', syncCardRows);
 function renderGrid() {
   const q        = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();
   const f        = S.filter;
+  const bonded   = S.mode === 'bonded';
   const ownedIds = [...new Set([...S.instances.map(i => i.dex_id), ...Object.keys(S.owned)])];
-  const nftIds   = [...new Set(S.instances.filter(i => i.is_nft).map(i => i.dex_id))];
+  const bondedLogIds  = Object.keys(S.bondedLog);
+  const activeBondIds = [...new Set(S.instances.filter(i => i.is_nft).map(i => i.dex_id))];
 
   const seenCount   = Object.keys(S.seen).length;
   const savedCount  = ownedIds.length;
-  const bondedCount = S.instances.filter(i => i.is_nft).length;
+  const bondedCount = bondedLogIds.length;
   document.getElementById('grid-pill-disc').textContent   = `${seenCount} Discovered`;
   document.getElementById('grid-pill-inst').textContent   = `${savedCount} Saved`;
   document.getElementById('grid-pill-bonded').textContent = `${bondedCount} Bonded`;
+
+  const effectiveOwned = bonded ? bondedLogIds : ownedIds;
 
   const cellsEl = document.getElementById('grid-cells');
   cellsEl.classList.toggle('type-mode', f === 'type');
 
   if (f === 'type') {
-    cellsEl.innerHTML = renderTypeView(q, ownedIds);
+    cellsEl.innerHTML = renderTypeView(q, effectiveOwned);
     syncCardRows();
     return;
   }
 
-  const akroniteIds = [...new Set(S.instances.filter(i => i.is_shiny).map(i => i.dex_id))];
+  const akroniteIds = bonded
+    ? [...new Set(S.instances.filter(i => i.is_nft && i.is_shiny).map(i => i.dex_id))]
+    : [...new Set(S.instances.filter(i => i.is_shiny).map(i => i.dex_id))];
 
   const all = Array.from({length:144}, (_,i) => String(i+1).padStart(3,'0'));
   const ids = all.filter(id => {
     const cat  = CATALOG[id];
     const name = (cat?.name || '').toLowerCase();
     if (q && !id.includes(q) && !name.includes(q)) return false;
-    if (f === 'saved'    && !ownedIds.includes(id))    return false;
-    if (f === 'nfts'     && !nftIds.includes(id))      return false;
-    if (f === 'akronite' && !akroniteIds.includes(id)) return false;
+    if (f === 'saved'    && !effectiveOwned.includes(id)) return false;
+    if (f === 'akronite' && !akroniteIds.includes(id))    return false;
     return true;
   });
 
-  if (!ids.length && (f === 'nfts' || f === 'akronite')) {
-    const label = f === 'nfts' ? 'Bonded' : 'Akronite';
+  if (!ids.length && (f === 'saved' || f === 'akronite')) {
+    const label = f === 'akronite' ? 'Akronite' : (bonded ? 'Bonded' : 'Saved');
     cellsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text-muted);font-size:13px;line-height:1.6">
-      <div style="font-size:22px;margin-bottom:8px;opacity:0.4">${f === 'nfts' ? '⬡' : '★'}</div>
+      <div style="font-size:22px;margin-bottom:8px;opacity:0.4">${f === 'akronite' ? '★' : '⬡'}</div>
       No ${label} memories yet
     </div>`;
     syncCardRows();
     return;
   }
 
-  cellsEl.innerHTML = ids.map(id => renderCard(id, ownedIds)).join('');
+  cellsEl.innerHTML = ids.map(id => renderCard(id, effectiveOwned)).join('');
   syncCardRows();
+  if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -3190,7 +3349,8 @@ function renderDetail() {
       <span class="stat-lbl">Weight</span>
     </div>`;
 
-  document.getElementById('mc-avail').textContent = `${bank} ◆`;
+  const dtabMc = document.getElementById('dtab-mc');
+  if (dtabMc) dtabMc.textContent = `${bank} ◆`;
   const mcDbg = document.getElementById('mc-dbg');
   if (mcDbg) mcDbg.textContent = `${base} · ${bank} avail · selected instance ${progress}/${maxMC}`;
 
@@ -3396,9 +3556,9 @@ function updateButtons(mem, bank, progress, maxMC, inst) {
   const canMint = !!inst && mem.mintable && atMax && inst.origin_state === 'saved' && !inst.is_nft;
   mintBtn.disabled  = !canMint;
   mintBtn.textContent = inst?.is_nft ? '✓ Minted' : 'Mint NFT';
-  mintBtn.title = !mem.mintable ? 'Non-mintable' : !inst ? 'No instance' : inst.origin_state === 'evolved'
-    ? 'Bonds are sealed only on your first-caught form. This evolution can no longer be minted.'
-    : !atMax ? 'Reach max level first' : inst.is_nft ? 'Already minted' : '';
+  mintBtn.title = !mem.mintable ? 'Only the original captured form can be bonded on-chain' : !inst ? 'No instance' : inst.origin_state === 'evolved'
+    ? 'Soul too wild to bond — must seal at captured stage'
+    : !atMax ? 'Reach max level first' : inst.is_nft ? 'Already bonded' : '';
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -3456,6 +3616,12 @@ function doEvolve() {
   S.owned[id]       = true;
   S.owned[targetId] = true;
   S.seen[targetId]  = true;
+
+  // If NFT, log both stages in bonded history
+  if (inst.is_nft) {
+    S.bondedLog[id]       = true;
+    S.bondedLog[targetId] = true;
+  }
   S.selectedId      = targetId;
   S.selectedInstanceIdx = 0;
 
@@ -3477,6 +3643,7 @@ function doMint() {
   inst.is_nft              = true;
   inst.nft_minted_at_stage = inst.current_stage;
   inst.nft_essence         = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
+  S.bondedLog[S.selectedId] = true;
   renderDetail();
 }
 
@@ -3503,7 +3670,7 @@ function addDebugInstances(ids) {
       is_nft:          false,
       nft_minted_at_stage: null,
       nft_essence:     null,
-      mc_spent:        0,
+      mc_spent:        mem.stage > 1 ? (mem.max_mc - mem.mc_needed) : 0,
       acquired_at:     Date.now(),
     };
     S.seen[id] = true;
@@ -3552,7 +3719,7 @@ function debugMC(amount) {
 }
 
 function resetAll() {
-  S.seen = {}; S.owned = {}; S.bank = {}; S.progress = {}; S.instances = []; S.filter = 'all';
+  S.seen = {}; S.owned = {}; S.bondedLog = {}; S.bank = {}; S.progress = {}; S.instances = []; S.mode = 'memories'; S.filter = 'all';
   S.collSort = 'akronite';
   S.instanceCardOpen = false;
   document.getElementById('imx-overlay')?.classList.remove('show');
@@ -3579,6 +3746,7 @@ function resetAll() {
     _congratsKeydownHandler = null;
   }
   document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
+  document.querySelectorAll('.mode-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === 'memories'));
   document.getElementById('type-icon-row')?.classList.remove('visible');
   document.getElementById('grid-q').value = '';
   const csr = document.getElementById('coll-sort-row');
@@ -3890,7 +4058,7 @@ const DT = {
   dexX: 0, dexY: -2, nameX: -6, nameY: -9,
   wmFs: 66, wmX: -30, wmY: -35, wmOp: 9,
   badgeGap: 7, badgeSc: 100,
-  tabH: 41, tabFs: 14, tabPadX: 24,
+  tabH: 41, tabFs: 14, tabPadX: 24, tabInnerPx: 12, mcFs: 10, mcY: 0,
   bodyPad: 24, bodyTopPad: 9,
   secMt: 9, secMb: 6,
   chipPx: 12, chipPy: 9, chipGap: 6, chipRad: 9,
@@ -3938,6 +4106,9 @@ const DT_SECTIONS = [
     { key:'tabH', label:'Height', unit:'px', step:1, min:32, max:64, cssVar:'--dt-tab-h', mode:'px' },
     { key:'tabFs', label:'Text', unit:'px', step:1, min:10, max:17, cssVar:'--dt-tab-fs', mode:'px' },
     { key:'tabPadX', label:'Pad X', unit:'px', step:1, min:4, max:32, cssVar:'--dt-tab-pad-x', mode:'px' },
+    { key:'tabInnerPx', label:'Tab W', unit:'px', step:1, min:6, max:32, cssVar:'--dt-tab-inner-px', mode:'px' },
+    { key:'mcFs', label:'MC sz', unit:'px', step:1, min:8, max:14, cssVar:'--dt-mc-fs', mode:'px' },
+    { key:'mcY', label:'MC Y', unit:'px', step:1, min:-12, max:12, cssVar:'--dt-mc-y', mode:'px' },
   ]},
   { label: 'Body', items: [
     { key:'bodyTopPad', label:'Pad T', unit:'px', step:1, min:4, max:32, cssVar:'--dt-body-top-pad', mode:'px' },
@@ -4453,7 +4624,49 @@ function toggleGridExpand(headerCollapsed) {
     }
   }, { passive: true });
   cells.addEventListener('touchend', function() { touchY0 = null; }, { passive: true });
+
+  // Scroll position indicator
+  const track = document.getElementById('grid-scroll-track');
+  const thumb = document.getElementById('grid-scroll-thumb');
+  function updateScrollThumb() {
+    if (!track || !thumb) return;
+    const sh = cells.scrollHeight;
+    const ch = cells.clientHeight;
+    if (sh <= ch) { track.style.visibility = 'hidden'; return; }
+    track.style.visibility = '';
+    const trackH = track.clientHeight;
+    const ratio = ch / sh;
+    const thumbH = Math.max(24, Math.round(trackH * ratio));
+    const scrollPct = cells.scrollTop / (sh - ch);
+    const maxTop = trackH - thumbH;
+    thumb.style.height = thumbH + 'px';
+    thumb.style.top = Math.round(scrollPct * maxTop) + 'px';
+  }
+  cells.addEventListener('scroll', updateScrollThumb, { passive: true });
+  // Also update on grid render
+  const origRenderGrid = window.renderGrid;
+  if (origRenderGrid) {
+    window._updateScrollThumb = updateScrollThumb;
+  }
+  setTimeout(updateScrollThumb, 300);
 })();
+
+function scrollGridToTop() {
+  const cells = document.getElementById('grid-cells');
+  if (!cells) return;
+  window._gridTypeScrollSuppressUntil = Date.now() + 1500;
+  cells.scrollTo({ top: 0, behavior: 'smooth' });
+  let frames = 0;
+  function check() {
+    frames++;
+    if (cells.scrollTop <= 2 || frames > 60) {
+      toggleGridExpand(false);
+      return;
+    }
+    requestAnimationFrame(check);
+  }
+  requestAnimationFrame(check);
+}
 
 loadData();
 </script>
