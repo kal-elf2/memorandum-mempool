@@ -4,16 +4,14 @@
 //  INIT
 // ══════════════════════════════════════════════════════════════
 const _DEV_MODE = location.search.includes('dev');
-if (_DEV_MODE) {
-  _initTuner();
-  _initGridTuner();
-  _initCardTuner();
-  _initDetailTuner();
-  _initInstanceCardTuner();
-  _initGrid3dTuner();
-  _initTovTuner();
-  document.querySelectorAll('.dev-only').forEach(el => el.style.display = '');
-} else {
+_initTuner();
+_initGridTuner();
+_initCardTuner();
+_initDetailTuner();
+_initInstanceCardTuner();
+_initGrid3dTuner();
+_initTovTuner();
+if (!_DEV_MODE) {
   document.querySelectorAll('[id$="-tuner"], #dev-memcore-bar').forEach(el => el.style.display = 'none');
 }
 buildTypeIconRow();

@@ -146,7 +146,7 @@ Six tuner panels are available during development for fine-tuning layout values:
 | 3D Grid | G3D | 3D perspective grid on instance cards |
 | Type Overview | TOV | Type overview screen layout |
 
-Each panel includes a readout with a copy button for sharing current values. All panels are collapsible. These are for development only — hide or remove them for production by deleting the tuner HTML blocks from `index.html` or adding a feature flag.
+Each panel includes a readout with a copy button for sharing current values. All panels are collapsible. Tuners are **hidden by default** — append `?dev` to the URL to enable them (e.g., `https://your-app.vercel.app/?dev`).
 
 ## Deployment (Vercel)
 
