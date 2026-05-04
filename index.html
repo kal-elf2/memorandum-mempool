@@ -918,17 +918,17 @@ body {
   display: none; align-items: center; justify-content: center;
   gap: 6px; padding: 9px 0;
   font-family: var(--font); font-size: 10px; font-weight: 600;
-  color: rgba(30,80,120,0.5); cursor: pointer;
+  color: rgba(255,255,255,0.7); cursor: pointer;
   transition: all 0.15s; flex-shrink: 0;
-  border-bottom: 1px solid rgba(30,80,120,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.1);
   letter-spacing: 0.3px;
   position: relative; z-index: 8;
   background: inherit;
   -webkit-tap-highlight-color: transparent;
   user-select: none;
 }
-.grid-top-bar:hover { color: rgba(30,80,120,0.9); background: rgba(30,80,120,0.06); }
-.grid-top-bar:active { background: rgba(30,80,120,0.1); }
+.grid-top-bar:hover { color: rgba(255,255,255,0.95); background: rgba(255,255,255,0.05); }
+.grid-top-bar:active { background: rgba(255,255,255,0.08); }
 .grid-top-chevron { font-size: 9px; }
 #screen-grid.grid-expanded .grid-top-bar { display: flex; }
 
@@ -2466,6 +2466,14 @@ body {
 </div>
 
 <script>
+const _clickSfx = new Audio('assets/sfx/menu_click.wav');
+_clickSfx.volume = 0.6;
+function playClick() { _clickSfx.currentTime = 0; _clickSfx.play().catch(()=>{}); }
+document.addEventListener('click', e => {
+  const t = e.target.closest('button, .mode-tab, .ftab, .detail-tab, .gc-card, .tov-row, .bg-swatch, .congrats-btn-primary, .imx-nav-btn, [onclick]');
+  if (t && t.closest('#screen-area')) playClick();
+});
+
 // ══════════════════════════════════════════════════════════════
 //  POSITION TUNER
 // ══════════════════════════════════════════════════════════════
