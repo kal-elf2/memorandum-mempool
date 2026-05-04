@@ -8,6 +8,26 @@ function openNftArt() {
   // Placeholder — will eventually navigate to on-chain NFT art viewer
 }
 
+let _imxConfirmCb = null;
+function showImxConfirm(msg, onConfirm, pType) {
+  document.getElementById('imx-confirm-msg').innerHTML = msg;
+  _imxConfirmCb = onConfirm;
+  const yesBtn = document.getElementById('imx-confirm-yes');
+  const cg = CONGRATS_GRADIENTS[pType] || ['#38D2C4','#20B8AA'];
+  yesBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
+  yesBtn.onclick = () => {
+    const cb = _imxConfirmCb;
+    _imxConfirmCb = null;
+    document.getElementById('imx-confirm-overlay').classList.remove('show');
+    if (cb) cb();
+  };
+  document.getElementById('imx-confirm-overlay').classList.add('show');
+}
+function closeImxConfirm() {
+  document.getElementById('imx-confirm-overlay').classList.remove('show');
+  _imxConfirmCb = null;
+}
+
 function doTearMaxLevel() {
   const mem = MEMORIES[S.selectedId]; if (!mem) return;
   const base = mem.base_memory;
@@ -15,8 +35,12 @@ function doTearMaxLevel() {
   const maxMC = mem.max_mc;
   const spent = instanceMcSpent(inst, base);
   if (spent >= maxMC) return;
-  inst.mc_spent = maxMC;
-  renderDetail();
+  const pType = mem.type[0] || 'WIND';
+  showImxConfirm(
+    `Use <strong>Tear of the Goddess</strong> on <strong>${mem.name}</strong> to bring it to max level?`,
+    () => { inst.mc_spent = maxMC; renderDetail(); },
+    pType
+  );
 }
 
 function doLevelUp() {
@@ -39,8 +63,23 @@ function doEvolve() {
   const inst = currentInstance(); if (!inst) return;
   const base  = mem.base_memory;
   const spent = instanceMcSpent(inst, base);
-  if (spent < mem.max_mc) return; // must be max level
+  if (spent < mem.max_mc) return;
+  const target = MEMORIES[mem.evolves_to]; if (!target) return;
 
+  if (!inst.is_nft) {
+    const pType = mem.type[0] || 'WIND';
+    showImxConfirm(
+      `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
+      () => _executeEvolve(id, mem, inst),
+      pType
+    );
+  } else {
+    _executeEvolve(id, mem, inst);
+  }
+}
+
+function _executeEvolve(id, mem, inst) {
+  const base  = mem.base_memory;
   const targetId = mem.evolves_to;
   const target   = MEMORIES[targetId]; if (!target) return;
 
@@ -48,7 +87,6 @@ function doEvolve() {
   const carryPersonality = inst.personality;
   const carryShiny       = inst.is_shiny;
 
-  // Evolve the instance (personality + Akronite carry the same soul forward)
   inst.dex_id        = targetId;
   inst.name          = target.name;
   inst.rarity        = target.rarity;
@@ -57,7 +95,6 @@ function doEvolve() {
   inst.personality   = carryPersonality;
   inst.is_shiny      = carryShiny;
 
-  // Essence grows on evolution (1.25x per stage)
   inst.revealed_essence = Math.max(1, Math.round(inst.revealed_essence * 1.25));
   if (inst.is_nft) {
     inst.nft_essence = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));

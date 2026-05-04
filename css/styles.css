@@ -360,6 +360,37 @@ body {
   filter: brightness(0) saturate(100%) invert(35%) sepia(60%) saturate(500%) hue-rotate(130deg);
 }
 
+.imx-confirm-overlay {
+  position: fixed; inset: 0; z-index: 8060;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s;
+}
+.imx-confirm-overlay.show { opacity: 1; pointer-events: all; }
+.imx-confirm-card {
+  background: #fff; border-radius: 16px; padding: 24px 22px 18px;
+  max-width: 280px; width: 90vw; text-align: center;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+}
+.imx-confirm-msg {
+  font-family: var(--font); font-size: 14px; font-weight: 600;
+  color: #2a2a32; line-height: 1.45; margin-bottom: 18px;
+}
+.imx-confirm-btns { display: flex; gap: 10px; }
+.imx-confirm-btn {
+  flex: 1; padding: 10px 8px; border-radius: 10px; border: none;
+  font-family: var(--font); font-size: 12px; font-weight: 700;
+  text-transform: uppercase; letter-spacing: 0.4px; cursor: pointer;
+  transition: opacity 0.12s;
+}
+.imx-confirm-btn:hover { opacity: 0.85; }
+.imx-confirm-yes {
+  background: linear-gradient(135deg, #38D2C4, #20B8AA); color: #fff; border: none;
+}
+.imx-confirm-no {
+  background: var(--chip-bg, #f0f0f2); color: #666; border: 1px solid #ddd;
+}
+
 .imx-concept-overlay {
   position: fixed; inset: 0; z-index: 8052;
   background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);

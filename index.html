@@ -113,6 +113,16 @@
   </div>
 </div>
 
+<div id="imx-confirm-overlay" class="imx-confirm-overlay" onclick="closeImxConfirm()">
+  <div class="imx-confirm-card" onclick="event.stopPropagation()">
+    <div class="imx-confirm-msg" id="imx-confirm-msg"></div>
+    <div class="imx-confirm-btns">
+      <button type="button" class="imx-confirm-btn imx-confirm-yes" id="imx-confirm-yes">Confirm</button>
+      <button type="button" class="imx-confirm-btn imx-confirm-no" onclick="closeImxConfirm()">Cancel</button>
+    </div>
+  </div>
+</div>
+
 <div id="imx-concept-overlay" class="imx-concept-overlay" onclick="closeImxConceptArt()" aria-hidden="true">
   <div class="imx-concept-panel" onclick="event.stopPropagation()">
     <button type="button" class="imx-concept-close" onclick="closeImxConceptArt()" aria-label="Close blueprint">×</button>
