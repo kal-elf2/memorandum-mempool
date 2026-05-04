@@ -12,7 +12,9 @@ _initInstanceCardTuner();
 _initGrid3dTuner();
 _initTovTuner();
 if (!_DEV_MODE) {
-  document.querySelectorAll('[id$="-tuner"], #dev-memcore-bar').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('#grid-tuner, #card-tuner, #detail-tuner, #instance-card-tuner, #grid3d-tuner, #tov-tuner, #cg-tuner-panel, #dev-memcore-bar').forEach(el => {
+    el.style.setProperty('display', 'none', 'important');
+  });
 }
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════
