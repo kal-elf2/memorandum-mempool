@@ -396,8 +396,28 @@ body {
 .imx-hero-img {
   width: var(--imx-spr-sz, 124px); height: var(--imx-spr-sz, 124px);
   object-fit: contain;
-  filter: drop-shadow(0 6px 20px rgba(0,0,0,0.28));
   position: relative; z-index: 2;
+  animation: creature-float var(--imx-float-dur, 2s) ease-in-out alternate infinite;
+}
+@keyframes creature-float {
+  0%   { transform: translateY(0); }
+  100% { transform: translateY(calc(-1 * var(--imx-float-h, 2.5%))); }
+}
+.imx-creature-shadow {
+  position: absolute; z-index: 1;
+  width: var(--imx-shad-w, 32%);
+  height: var(--imx-shad-h, 9%);
+  border-radius: 100%;
+  left: 50%; top: var(--imx-shad-y, 80%);
+  transform: translateX(-50%);
+  background-color: var(--imx-shad-color, #000);
+  opacity: var(--imx-shad-op, 0.25);
+  animation: shadow-sync var(--imx-float-dur, 2s) ease-in-out alternate infinite;
+  pointer-events: none;
+}
+@keyframes shadow-sync {
+  0%   { filter: blur(var(--imx-shad-blur-far, 30px)); transform: translateX(-50%) scaleX(0.6); }
+  100% { filter: blur(var(--imx-shad-blur-near, 7px)); transform: translateX(-50%) scaleX(1); }
 }
 .imx-wm {
   position: absolute;
@@ -477,6 +497,13 @@ body {
   border-radius: 14px; padding: 10px 12px; font-family: monospace; z-index: 8890;
   backdrop-filter: blur(8px);
 }
+.tuner-collapse-btn {
+  font-size: 9px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
+  border-radius: 6px; padding: 2px 8px; color: rgba(255,255,255,0.6); cursor: pointer;
+  font-family: monospace; margin-left: 4px;
+}
+.tuner-collapse-btn:hover { background: rgba(255,255,255,0.2); }
+.tuner-body-hidden { display: none !important; }
 #instance-card-tuner .it-head {
   font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
   color: rgba(255,255,255,0.35); margin-bottom: 6px;
@@ -522,11 +549,81 @@ body {
 .screen { display: none; width: 100%; height: 100%; }
 .screen.active { display: flex; flex-direction: column; }
 
+/* ── LOGO IDLE ANIMATION (driven by JS, no CSS keyframes needed) ── */
+.grid-logo { cursor: pointer; }
+
+/* ── TYPE OVERVIEW SCREEN ── */
+#screen-type-overview {
+  background: var(--grid-bg, linear-gradient(180deg, #A2CDFF 0%, #A2CDFF 65%, #9CC7F2 100%));
+  height: 100%; overflow: hidden; position: relative;
+  padding: var(--tov-pad, 10px) var(--tov-px, 12px);
+}
+#screen-type-overview.active { display: flex; flex-direction: column; }
+.tov-header {
+  display: flex; align-items: center; gap: var(--tov-back-gap, 5px);
+  margin-bottom: var(--tov-hdr-mb, 6px); flex-shrink: 0;
+  padding-left: var(--tov-back-x, 0px);
+}
+.tov-back {
+  display: flex; align-items: center;
+  cursor: pointer; background: none; border: none; padding: 0;
+}
+.tov-back img { width: var(--tov-back-sz, 22px); height: var(--tov-back-sz, 22px); border-radius: 5px; }
+.tov-header-title {
+  font-size: var(--tov-title-fs, 16px); font-weight: 800; color: white;
+  text-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  font-family: var(--font);
+}
+.tov-rows-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.tov-row {
+  display: flex; align-items: center; gap: var(--tov-row-gap, 8px);
+  background: rgba(255,255,255, var(--tov-row-alpha, 0.12)); border-radius: var(--tov-row-rad, 10px);
+  padding: var(--tov-row-py, 6px) var(--tov-row-px, 10px);
+  margin-bottom: var(--tov-row-mb, 4px);
+}
+.tov-icon { width: var(--tov-ico-sz, 28px); height: var(--tov-ico-sz, 28px); object-fit: contain; flex-shrink: 0; }
+.tov-info { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--tov-info-gap, 3px); }
+.tov-type-name { font-size: var(--tov-name-fs, 12px); font-weight: 700; letter-spacing: 0.3px; }
+.tov-count { font-size: var(--tov-count-fs, 10px); color: rgba(255,255,255,0.75); font-weight: 500; }
+.tov-bar-wrap {
+  height: var(--tov-bar-h, 6px); border-radius: 4px; background: rgba(0,0,0,0.2);
+  overflow: hidden; width: 100%;
+}
+.tov-bar {
+  height: 100%; border-radius: 4px; transition: width 0.4s ease;
+  min-width: 0;
+}
+
+/* ── BG COLOR SWATCHES ── */
+.bg-swatch-row {
+  display: flex; align-items: center; justify-content: center;
+  gap: var(--tov-swatch-gap, 6px); flex-shrink: 0;
+  margin-top: var(--tov-swatch-mt, 6px);
+  padding: var(--tov-swatch-py, 5px) 0;
+}
+.bg-swatch {
+  width: var(--tov-swatch-sz, 24px); height: var(--tov-swatch-sz, 24px);
+  border-radius: 50%; cursor: pointer; border: 2px solid transparent;
+  transition: border-color 0.15s, transform 0.15s;
+  flex-shrink: 0; padding: 0; position: relative;
+}
+.bg-swatch:hover { transform: scale(1.12); }
+.bg-swatch.active { border-color: white; box-shadow: 0 0 0 1px rgba(255,255,255,0.5); }
+.bg-swatch-custom {
+  background: #666 !important;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700; color: white;
+}
+.bg-swatch-custom-input {
+  position: absolute; opacity: 0; width: 100%; height: 100%;
+  cursor: pointer; top: 0; left: 0; border-radius: 50%;
+}
+
 /* ══════════════════════════════════════════════════════════
    GRID SCREEN  — #A2CDFF light blue theme
 ══════════════════════════════════════════════════════════ */
 #screen-grid {
-  background: linear-gradient(180deg, #A2CDFF 0%, #A2CDFF 65%, #9CC7F2 100%);
+  background: var(--grid-bg, linear-gradient(180deg, #A2CDFF 0%, #A2CDFF 65%, #9CC7F2 100%));
   height: 100%; overflow: hidden;
   position: relative;
   /* display/flex-direction come from .screen.active — do NOT set here or grid never hides */
@@ -1861,15 +1958,13 @@ body {
   width: var(--cg-btn-w, auto);
   min-height: var(--cg-btn-h, auto);
   min-width: var(--cg-btn-minw, 197px);
-  border-radius: 20px;
-  /* Figma: fill #9CC9FF, stroke #9CC9FF 24% / 6px outside */
+  border-radius: 14px;
   background: #9CC9FF;
-  border: 6px solid rgba(156, 201, 255, 0.28);
+  border: 2px solid #9CC9FF;
   color: white;
   cursor: pointer; transition: all 0.15s;
   text-transform: uppercase; letter-spacing: 0.6px;
-  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-  box-shadow: 0 4px 24px rgba(80,160,255,0.35);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
   min-width: 193px; text-align: center;
 }
 .congrats-btn-primary:hover {
@@ -1993,6 +2088,7 @@ body {
     <div class="imx-hero-types" id="imx-hero-types"></div>
     <div class="imx-hero-nft-ribbon" id="imx-hero-nft-ribbon" hidden>BONDED</div>
     <img class="imx-hero-img" id="imx-img" src="" alt="">
+    <span class="imx-creature-shadow"></span>
     <div class="imx-wm" id="imx-wm"></div>
   </div>
   <div class="imx-body">
@@ -2071,11 +2167,18 @@ body {
   </div>
   <!-- In-overlay position tuner (bottom bar, 6 cols — compact; keeps primary button visible) -->
   <div id="cg-tuner-panel" class="cg-tuner-panel">
-    <div class="cg-tuner-head">🌊 Layout Tune</div>
-    <div id="cg-tuner-rows" class="cg-tuner-cols"></div>
-    <div class="cg-tuner-readout-wrap">
-      <div id="cg-tuner-readout" class="cg-tuner-readout">—</div>
-      <button class="cg-tuner-copy" onclick="copyTunerReadout()" title="Copy readout">📋</button>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="cg-tuner-head" style="margin-bottom:0">🌊 Layout Tune</div>
+      <div style="display:flex;gap:4px">
+        <button class="tuner-collapse-btn" onclick="toggleTunerBody('cg-tuner-panel','cg-body')">▼</button>
+        <button class="cg-tuner-copy" onclick="copyTunerReadout()" title="Copy readout">📋</button>
+      </div>
+    </div>
+    <div id="cg-body">
+      <div id="cg-tuner-rows" class="cg-tuner-cols" style="margin-top:4px"></div>
+      <div class="cg-tuner-readout-wrap">
+        <div id="cg-tuner-readout" class="cg-tuner-readout">—</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2103,7 +2206,8 @@ body {
             <div class="grid-welcome-row">
               <div class="grid-welcome-left">
                 <div class="grid-welcome-eyebrow">
-                  <img class="grid-logo" src="assets/logo/MiniMetamon Logo_Logomark White.png" alt="">
+                  <img class="grid-logo" id="grid-logo" src="assets/logo/MiniMetamon Logo_Logomark White.png" alt=""
+                       onclick="showTypeOverview()">
                   Welcome To Your
                 </div>
                 <div class="grid-title">Mempool</div>
@@ -2206,6 +2310,20 @@ body {
 
     </div><!-- /screen-detail -->
 
+    <!-- ════════════════════════
+         SCREEN 3: TYPE OVERVIEW
+    ════════════════════════ -->
+    <div id="screen-type-overview" class="screen">
+      <div class="tov-header">
+        <button class="tov-back" onclick="showScreen('grid')">
+          <img src="assets/icons/back-square.png" alt="Back">
+        </button>
+        <span class="tov-header-title">Collection Progress</span>
+      </div>
+      <div class="tov-rows-wrap" id="tov-rows"></div>
+      <div class="bg-swatch-row" id="bg-swatch-row"></div>
+    </div>
+
   </div><!-- /screen-area -->
 </div><!-- /device-frame -->
 
@@ -2240,58 +2358,99 @@ body {
 <!-- GRID LAYOUT DEV TUNER (dev-only, remove before shipping) -->
 <div id="grid-tuner" style="position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
-    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🎛 Grid Layout Tuner</span>
-    <button onclick="copyGridTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🎛 Grid Tuner</span>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('grid-tuner','gt-body')">▼</button>
+      <button onclick="copyGridTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
+    </div>
   </div>
-  <div style="display:flex;flex-direction:column" id="gt-rows"></div>
-  <div style="margin-top:6px;display:flex;align-items:flex-start;gap:6px">
-    <div style="flex:1;min-width:0;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
-    <button class="cg-tuner-copy" onclick="copyReadout('gt-readout')" title="Copy">📋</button>
+  <div id="gt-body">
+    <div style="display:flex;flex-direction:column" id="gt-rows"></div>
+    <div style="margin-top:6px;display:flex;align-items:flex-start;gap:6px">
+      <div style="flex:1;min-width:0;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
+      <button class="cg-tuner-copy" onclick="copyReadout('gt-readout')" title="Copy">📋</button>
+    </div>
   </div>
 </div>
 
 <div id="card-tuner" style="position:fixed;right:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🃏 Card Tuner</span>
-    <button onclick="copyCardTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('card-tuner','ct-body')">▼</button>
+      <button onclick="copyCardTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
+    </div>
   </div>
-  <div style="display:flex;flex-direction:column" id="ct-rows"></div>
-  <div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="ct-readout">—</div>
+  <div id="ct-body">
+    <div style="display:flex;flex-direction:column" id="ct-rows"></div>
+    <div style="margin-top:6px;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="ct-readout">—</div>
+  </div>
 </div>
 
 <div id="detail-tuner">
   <div class="dt-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <span>🧬 Memory Detail Tuner</span>
-    <button type="button" class="dbg" onclick="copyDetailTuner()" style="font-size:9px;padding:2px 8px">📋 Copy</button>
+    <span>🧬 Detail Tuner</span>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('detail-tuner','dt-body')">▼</button>
+      <button type="button" class="dbg" onclick="copyDetailTuner()" style="font-size:9px;padding:2px 8px">📋</button>
+    </div>
   </div>
-  <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Top inset + pad X reserve space above / beside hero content. <strong style="color:rgba(255,255,255,0.5)">Back X/Y</strong> = ‹ button.</div>
-  <div id="dt-rows"></div>
-  <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
-    <div class="dt-readout" id="dt-readout" style="margin-top:0">—</div>
-    <button class="cg-tuner-copy" onclick="copyReadout('dt-readout')" title="Copy">📋</button>
+  <div id="dt-body">
+    <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Top inset + pad X reserve space above / beside hero content. <strong style="color:rgba(255,255,255,0.5)">Back X/Y</strong> = ‹ button.</div>
+    <div id="dt-rows"></div>
+    <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
+      <div class="dt-readout" id="dt-readout" style="margin-top:0">—</div>
+      <button class="cg-tuner-copy" onclick="copyReadout('dt-readout')" title="Copy">📋</button>
+    </div>
   </div>
 </div>
 
 <div id="instance-card-tuner">
   <div class="it-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
-    <span>🪪 Instance Card Tuner</span>
-    <button type="button" class="dbg" onclick="copyInstanceCardTuner()" style="font-size:9px;padding:2px 8px">📋 Copy</button>
+    <span>🪪 Instance Tuner</span>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('instance-card-tuner','it-body')">▼</button>
+      <button type="button" class="dbg" onclick="copyInstanceCardTuner()" style="font-size:9px;padding:2px 8px">📋</button>
+    </div>
   </div>
-  <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Opens when you tap a memory on Collection. Vars apply to the instance modal only.</div>
-  <div id="it-rows"></div>
-  <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
-    <div class="it-readout" id="it-readout" style="margin-top:0">—</div>
-    <button class="cg-tuner-copy" onclick="copyReadout('it-readout')" title="Copy">📋</button>
+  <div id="it-body">
+    <div style="font-size:8px;color:rgba(255,255,255,0.3);line-height:1.4;margin:-2px 0 8px">Opens when you tap a memory on Collection. Vars apply to the instance modal only.</div>
+    <div id="it-rows"></div>
+    <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
+      <div class="it-readout" id="it-readout" style="margin-top:0">—</div>
+      <button class="cg-tuner-copy" onclick="copyReadout('it-readout')" title="Copy">📋</button>
+    </div>
   </div>
 </div>
 
 <div id="grid3d-tuner" style="display:none;position:fixed;right:10px;top:20px;width:230px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8891;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🔲 3D Grid Tuner</span>
-    <button onclick="copyGrid3dTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋 Copy</button>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('grid3d-tuner','g3d-body')">▼</button>
+      <button onclick="copyGrid3dTuner()" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
+    </div>
   </div>
-  <div id="g3d-rows"></div>
-  <div style="margin-top:6px;font-size:8px;color:rgba(255,255,255,0.28);word-break:break-all;line-height:1.35;max-height:80px;overflow-y:auto;white-space:pre-line" id="g3d-readout">—</div>
+  <div id="g3d-body">
+    <div id="g3d-rows"></div>
+    <div style="margin-top:6px;font-size:8px;color:rgba(255,255,255,0.28);word-break:break-all;line-height:1.35;max-height:80px;overflow-y:auto;white-space:pre-line" id="g3d-readout">—</div>
+  </div>
+</div>
+
+<div id="tov-tuner" style="display:none;position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8892;backdrop-filter:blur(8px)">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
+    <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🗂 Overview Tuner</span>
+    <div style="display:flex;gap:4px">
+      <button class="tuner-collapse-btn" onclick="toggleTunerBody('tov-tuner','tov-tuner-body')">▼</button>
+      <button onclick="copyReadout('tov-readout')" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
+    </div>
+  </div>
+  <div id="tov-tuner-body">
+    <div id="tov-tuner-rows"></div>
+    <div style="margin-top:6px;display:flex;align-items:flex-start;gap:6px">
+      <div style="flex:1;min-width:0;font-size:8px;color:rgba(255,255,255,0.28);word-break:break-all;line-height:1.35;white-space:pre-line" id="tov-readout">—</div>
+    </div>
+  </div>
 </div>
 
 <!-- TEST CONTROLS (outside device) -->
@@ -2467,6 +2626,309 @@ function copyReadout(id) {
     const btn = ro.parentElement?.querySelector('.cg-tuner-copy');
     if (btn) { btn.textContent = '✓'; setTimeout(() => btn.textContent = '📋', 1200); }
   });
+}
+
+// ── TUNER COLLAPSE ──
+function toggleTunerBody(panelId, bodyId) {
+  const body = document.getElementById(bodyId);
+  if (!body) return;
+  const btn = document.querySelector(`#${panelId} .tuner-collapse-btn`);
+  body.classList.toggle('tuner-body-hidden');
+  if (btn) btn.textContent = body.classList.contains('tuner-body-hidden') ? '▶' : '▼';
+}
+
+// ── LOGO IDLE ANIMATION ──
+const LA = {
+  expandScale: 1.20, expandDur: 400, contractDur: 400,
+  ccwDeg: 5, ccwDur: 300,
+  spinDur: 800, pauseDur: 3000,
+  overshootDeg: 10, overshootDur: 200, settleDur: 150,
+};
+let _logoTimer = null;
+let _logoPhase = 0;
+
+function startLogoAnim() {
+  const logo = document.getElementById('grid-logo');
+  if (!logo || _logoTimer) return;
+  _logoPhase = 0;
+  _runLogoStep(logo);
+}
+function _runLogoStep(logo) {
+  const ccw = LA.ccwDeg;
+  const os = LA.overshootDeg;
+  const phases = [
+    { transform: `scale(${LA.expandScale})`, dur: LA.expandDur },
+    { transform: 'scale(1)', dur: LA.contractDur },
+    { transform: `scale(1) rotate(-${ccw}deg)`, dur: LA.ccwDur },
+    { transform: `scale(1) rotate(${360 + os}deg)`, dur: LA.spinDur },
+    { transform: `scale(1) rotate(${360}deg)`, dur: LA.settleDur },
+  ];
+  if (_logoPhase < phases.length) {
+    const p = phases[_logoPhase];
+    logo.style.transition = `transform ${p.dur}ms ease`;
+    logo.style.transform = p.transform;
+    const wait = p.dur || 50;
+    _logoTimer = setTimeout(() => { _logoPhase++; _runLogoStep(logo); }, wait);
+  } else {
+    logo.style.transition = 'none';
+    logo.style.transform = 'scale(1) rotate(0deg)';
+    _logoTimer = setTimeout(() => { _logoPhase = 0; _runLogoStep(logo); }, LA.pauseDur);
+  }
+}
+function stopLogoAnim() {
+  if (_logoTimer) { clearTimeout(_logoTimer); _logoTimer = null; }
+  const logo = document.getElementById('grid-logo');
+  if (logo) { logo.style.transition = 'none'; logo.style.transform = ''; }
+}
+
+// ── LOGO ANIM TUNER ──
+const LA_KNOBS = [
+  { key:'expandScale', label:'Expand %', unit:'×', step:0.05, min:1, max:2 },
+  { key:'expandDur',   label:'Expand ms', unit:'ms', step:50, min:100, max:2000 },
+  { key:'contractDur', label:'Contract ms', unit:'ms', step:50, min:100, max:2000 },
+  { key:'ccwDeg',      label:'CCW deg', unit:'°', step:1, min:1, max:30 },
+  { key:'ccwDur',      label:'CCW ms', unit:'ms', step:50, min:100, max:1500 },
+  { key:'spinDur',     label:'Spin ms', unit:'ms', step:50, min:200, max:3000 },
+  { key:'pauseDur',    label:'Pause ms', unit:'ms', step:250, min:500, max:10000 },
+  { key:'overshootDeg',label:'OS deg',   unit:'°',  step:1,   min:0,   max:30 },
+  { key:'overshootDur',label:'OS ms',    unit:'ms', step:25,  min:50,  max:500 },
+  { key:'settleDur',   label:'Settle ms',unit:'ms', step:25,  min:50,  max:500 },
+];
+
+// ── TYPE OVERVIEW SCREEN ──
+function showTypeOverview() {
+  const rows = document.getElementById('tov-rows');
+  if (!rows) return;
+  let html = '';
+  TYPE_ORDER.forEach(type => {
+    const typeIds = Object.entries(CATALOG)
+      .filter(([, cat]) => cat.primary === type)
+      .map(([id]) => id);
+    const total = typeIds.length;
+    const saved = typeIds.filter(id => S.owned[id]).length;
+    const pct = total > 0 ? Math.round((saved / total) * 100) : 0;
+    const icon = TYPE_ICON_MAP[type];
+    const cg = CONGRATS_GRADIENTS[type] || ['#888','#aaa'];
+    const pColor = typePrimary(type);
+    html += `<div class="tov-row">
+      <img class="tov-icon" src="assets/icons/${icon}.png" alt="${type}" onerror="this.style.display='none'">
+      <div class="tov-info">
+        <div style="display:flex;align-items:baseline;gap:6px">
+          <span class="tov-type-name" style="color:${pColor}">${type}</span>
+          <span class="tov-count">${saved} / ${total} Saved</span>
+        </div>
+        <div class="tov-bar-wrap">
+          <div class="tov-bar" style="width:${pct}%;background:linear-gradient(to right,${cg[0]},${cg[1]})"></div>
+        </div>
+      </div>
+    </div>`;
+  });
+  rows.innerHTML = html;
+  buildBgSwatches();
+  showScreen('type-overview');
+}
+
+// ── BG COLOR SWATCHES ──
+const BG_SWATCHES = ['#A2CDFF','#323339','#a4dcb7','#7882b5','#c77978','#b2aeff'];
+let _gridBgColor = '#A2CDFF';
+
+function applyGridBg(hex) {
+  if (!/^#[0-9a-fA-F]{6}$/.test(hex)) return;
+  _gridBgColor = hex;
+  const bg = `linear-gradient(180deg, ${hex} 0%, ${hex} 65%, ${hex}ee 100%)`;
+  document.documentElement.style.setProperty('--grid-bg', bg);
+  document.querySelectorAll('.bg-swatch').forEach(s => {
+    s.classList.toggle('active', s.dataset.color === hex.toLowerCase());
+  });
+  _applyTOV();
+}
+
+function buildBgSwatches() {
+  const row = document.getElementById('bg-swatch-row');
+  if (!row) return;
+  let html = '';
+  BG_SWATCHES.forEach(c => {
+    html += `<button class="bg-swatch${c === _gridBgColor ? ' active' : ''}"
+      style="background:${c}" data-color="${c.toLowerCase()}"
+      onclick="applyGridBg('${c}')"></button>`;
+  });
+  html += `<button class="bg-swatch bg-swatch-custom" data-color="custom" title="Custom color">
+    ?<input type="color" class="bg-swatch-custom-input" value="${_gridBgColor}"
+            oninput="applyGridBg(this.value)">
+  </button>`;
+  row.innerHTML = html;
+}
+
+// ── TYPE OVERVIEW TUNER ──
+const TOV = {
+  pad: 18, px: 24,
+  backX: 3, backSz: 22, backGap: 8, hdrMb: 10,
+  titleFs: 17,
+  rowGap: 9, rowPy: 6, rowPx: 10, rowMb: 4, rowRad: 9, rowAlpha: 40,
+  icoSz: 29, nameFs: 12, countFs: 10, infoGap: 4, barH: 6,
+  swatchSz: 24, swatchGap: 7, swatchMt: 6, swatchPy: 5,
+};
+const TOV_SECTIONS = [
+  { label: 'Screen', items: [
+    { key:'pad',    label:'Pad Y',     unit:'px', step:1, min:0,  max:24 },
+    { key:'px',     label:'Pad X',     unit:'px', step:1, min:4,  max:24 },
+  ]},
+  { label: 'Header', items: [
+    { key:'backX',  label:'Back X',    unit:'px', step:1, min:-10, max:40 },
+    { key:'backSz', label:'Icon sz',   unit:'px', step:1, min:14, max:36 },
+    { key:'titleFs',label:'Title sz',  unit:'px', step:1, min:10, max:24 },
+    { key:'backGap',label:'Gap',       unit:'px', step:1, min:0,  max:16 },
+    { key:'hdrMb',  label:'Below',     unit:'px', step:1, min:0,  max:20 },
+  ]},
+  { label: 'Type Rows', items: [
+    { key:'rowGap', label:'Inner gap',  unit:'px', step:1, min:2,  max:16 },
+    { key:'rowPy',  label:'Pad Y',      unit:'px', step:1, min:2,  max:16 },
+    { key:'rowPx',  label:'Pad X',      unit:'px', step:1, min:4,  max:20 },
+    { key:'rowMb',  label:'Row gap',    unit:'px', step:1, min:0,  max:16 },
+    { key:'rowRad', label:'Radius',     unit:'px', step:1, min:4,  max:20 },
+    { key:'rowAlpha',label:'BG α',      unit:'%', step:1, min:0,  max:40 },
+  ]},
+  { label: 'Row Content', items: [
+    { key:'icoSz',  label:'Icon sz',    unit:'px', step:1, min:16, max:48 },
+    { key:'nameFs', label:'Name sz',    unit:'px', step:1, min:9,  max:18 },
+    { key:'countFs',label:'Count sz',   unit:'px', step:1, min:8,  max:14 },
+    { key:'infoGap',label:'Info gap',   unit:'px', step:1, min:0,  max:10 },
+    { key:'barH',   label:'Bar H',      unit:'px', step:1, min:3,  max:14 },
+  ]},
+  { label: 'Swatches', items: [
+    { key:'swatchSz', label:'Size',     unit:'px', step:1, min:16, max:36 },
+    { key:'swatchGap',label:'Gap',      unit:'px', step:1, min:2,  max:14 },
+    { key:'swatchMt', label:'Top gap',  unit:'px', step:1, min:0,  max:20 },
+    { key:'swatchPy', label:'Pad Y',    unit:'px', step:1, min:0,  max:14 },
+  ]},
+];
+
+function _applyTOV() {
+  const root = document.documentElement;
+  root.style.setProperty('--tov-pad', TOV.pad + 'px');
+  root.style.setProperty('--tov-px', TOV.px + 'px');
+  root.style.setProperty('--tov-back-x', TOV.backX + 'px');
+  root.style.setProperty('--tov-back-sz', TOV.backSz + 'px');
+  root.style.setProperty('--tov-back-gap', TOV.backGap + 'px');
+  root.style.setProperty('--tov-hdr-mb', TOV.hdrMb + 'px');
+  root.style.setProperty('--tov-title-fs', TOV.titleFs + 'px');
+  root.style.setProperty('--tov-row-gap', TOV.rowGap + 'px');
+  root.style.setProperty('--tov-row-py', TOV.rowPy + 'px');
+  root.style.setProperty('--tov-row-px', TOV.rowPx + 'px');
+  root.style.setProperty('--tov-row-mb', TOV.rowMb + 'px');
+  root.style.setProperty('--tov-row-rad', TOV.rowRad + 'px');
+  root.style.setProperty('--tov-row-alpha', String(TOV.rowAlpha / 100));
+  root.style.setProperty('--tov-ico-sz', TOV.icoSz + 'px');
+  root.style.setProperty('--tov-name-fs', TOV.nameFs + 'px');
+  root.style.setProperty('--tov-count-fs', TOV.countFs + 'px');
+  root.style.setProperty('--tov-info-gap', TOV.infoGap + 'px');
+  root.style.setProperty('--tov-bar-h', TOV.barH + 'px');
+  root.style.setProperty('--tov-swatch-sz', TOV.swatchSz + 'px');
+  root.style.setProperty('--tov-swatch-gap', TOV.swatchGap + 'px');
+  root.style.setProperty('--tov-swatch-mt', TOV.swatchMt + 'px');
+  root.style.setProperty('--tov-swatch-py', TOV.swatchPy + 'px');
+
+  const ro = document.getElementById('tov-readout');
+  if (ro) {
+    ro.textContent = [
+      `pad ${TOV.pad}/${TOV.px}`,
+      `hdr x${TOV.backX} ico${TOV.backSz} title${TOV.titleFs} gap${TOV.backGap} mb${TOV.hdrMb}`,
+      `row gap${TOV.rowGap} py${TOV.rowPy} px${TOV.rowPx} mb${TOV.rowMb} r${TOV.rowRad} α${TOV.rowAlpha}%`,
+      `ico${TOV.icoSz} name${TOV.nameFs} count${TOV.countFs} iGap${TOV.infoGap} bar${TOV.barH}`,
+      `sw sz${TOV.swatchSz} gap${TOV.swatchGap} mt${TOV.swatchMt} py${TOV.swatchPy}`,
+      `bg:${_gridBgColor}`,
+      `logoAnim: exp${LA.expandScale}× ${LA.expandDur}ms con${LA.contractDur}ms ccw${LA.ccwDeg}°/${LA.ccwDur}ms spin${LA.spinDur}ms os${LA.overshootDeg}°/${LA.overshootDur}ms settle${LA.settleDur}ms pause${LA.pauseDur}ms`,
+    ].join('\n');
+  }
+}
+
+function _tovAdj(key, delta) {
+  const r = TOV_SECTIONS.flatMap(s => s.items).find(x => x.key === key);
+  if (!r) return;
+  let v = TOV[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  TOV[key] = v; _applyTOV();
+  const el = document.getElementById('tov-' + key);
+  if (el) el.value = v;
+}
+function _tovSet(key, val) {
+  const r = TOV_SECTIONS.flatMap(s => s.items).find(x => x.key === key);
+  if (!r) return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  TOV[key] = v; _applyTOV();
+}
+
+function _initTovTuner() {
+  const wrap = document.getElementById('tov-tuner-rows'); if (!wrap) return;
+  wrap.innerHTML = '';
+  const ROW = 'display:flex;align-items:center;gap:3px;margin-bottom:2px';
+  const BTN = 'padding:1px 5px;border-radius:4px;border:none;background:rgba(255,255,255,0.12);color:white;cursor:pointer;font-size:11px;line-height:1.4';
+  const INP = 'width:40px;text-align:center;background:rgba(0,0,0,0.35);border:1px solid rgba(255,255,255,0.18);border-radius:4px;color:white;font-size:10px;padding:1px 3px;font-family:monospace';
+
+  TOV_SECTIONS.forEach(sec => {
+    const hdr = document.createElement('div');
+    hdr.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.38);letter-spacing:0.8px;margin-top:8px;margin-bottom:3px';
+    hdr.textContent = sec.label;
+    wrap.appendChild(hdr);
+    sec.items.forEach(r => {
+      const d = document.createElement('div');
+      d.style.cssText = ROW;
+      d.innerHTML =
+        `<span style="width:68px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
+        `<button onclick="_tovAdj('${r.key}',-${r.step})" style="${BTN}">−</button>` +
+        `<input id="tov-${r.key}" type="number" value="${TOV[r.key]}" step="${r.step}" onchange="_tovSet('${r.key}',this.value)" style="${INP}">` +
+        `<button onclick="_tovAdj('${r.key}',${r.step})" style="${BTN}">+</button>` +
+        `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
+      wrap.appendChild(d);
+    });
+  });
+
+  // Logo anim section
+  const laHdr = document.createElement('div');
+  laHdr.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.38);letter-spacing:0.8px;margin-top:8px;margin-bottom:3px';
+  laHdr.textContent = 'Logo Anim';
+  wrap.appendChild(laHdr);
+  LA_KNOBS.forEach(r => {
+    const d = document.createElement('div');
+    d.style.cssText = ROW;
+    d.innerHTML =
+      `<span style="width:68px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
+      `<button onclick="_laAdj('${r.key}',-${r.step})" style="${BTN}">−</button>` +
+      `<input id="tov-la-${r.key}" type="number" value="${LA[r.key]}" step="${r.step}" onchange="_laSet('${r.key}',this.value)" style="${INP}">` +
+      `<button onclick="_laAdj('${r.key}',${r.step})" style="${BTN}">+</button>` +
+      `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
+    wrap.appendChild(d);
+  });
+
+  _applyTOV();
+}
+
+function _syncLaInputs(key, v) {
+  ['tov-la-','gt-la-'].forEach(pfx => {
+    const el = document.getElementById(pfx + key);
+    if (el) el.value = v;
+  });
+}
+function _laAdj(key, delta) {
+  const r = LA_KNOBS.find(x => x.key === key); if (!r) return;
+  let v = LA[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  LA[key] = v; stopLogoAnim(); startLogoAnim();
+  _syncLaInputs(key, v);
+  _applyTOV();
+}
+function _laSet(key, val) {
+  const r = LA_KNOBS.find(x => x.key === key); if (!r) return;
+  let v = parseFloat(val); if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  LA[key] = v; stopLogoAnim(); startLogoAnim();
+  _syncLaInputs(key, v);
+  _applyTOV();
 }
 
 function _ptAdj(key, delta) {
@@ -2659,6 +3121,7 @@ async function loadData() {
     buildEncounterButtons();
     renderGrid();
     syncDevPanelVisibility('grid');
+    startLogoAnim();
   } catch(e) {
     document.getElementById('error-msg').textContent = 'Error: ' + e.message + '\n\nRun via: npx serve .';
     document.querySelector('.spinner').style.display = 'none';
@@ -2674,6 +3137,7 @@ function showScreen(name) {
   document.getElementById('screen-' + name).classList.add('active');
   syncDevPanelVisibility(name);
   if (name === 'detail') renderDetail();
+  if (name === 'grid') startLogoAnim(); else stopLogoAnim();
 }
 
 function switchTab(btn) {
@@ -2726,11 +3190,18 @@ const CONGRATS_GRADIENTS = {
   SOUL:['#CC58AB','#FFA2E7'], VOID:['#2F1945','#3B376D'], WATER:['#2699D2','#85D5F7'],
   WIND:['#8EEDDB','#D3FCF9'],
 };
+const TYPE_PRIMARY = {
+  EARTH:'#bf8f57', FIRE:'#ef6614', WIND:'#96eede', WATER:'#51b4e3',
+  ELECTRIC:'#f3d66e', SOUL:'#e379c6', AETHER:'#8394b6', VOID:'#393165',
+  MIND:'#925aae', ASTRAL:'#5a28b9',
+};
+function typePrimary(t) { return TYPE_PRIMARY[t] || '#888'; }
+
 const HERO_GRADIENTS = {
-  EARTH:['#C49A38','#E8C870'], MIND:['#7040BC','#A068E8'], FIRE:['#D03810','#F06040'],
-  WATER:['#1878C8','#48A8E8'], WIND:['#38D2C4','#68F2E6'], ELECTRIC:['#C8A000','#F0D030'],
-  SOUL:['#C040A0','#E870C8'], AETHER:['#3098D8','#60C8F0'], VOID:['#2A0850','#500880'],
-  ASTRAL:['#1A0868','#4028A0'],
+  EARTH:['#bf8f57','#C9AC73'], MIND:['#925aae','#FFA2E7'], FIRE:['#ef6614','#F78B32'],
+  WATER:['#51b4e3','#85D5F7'], WIND:['#96eede','#D3FCF9'], ELECTRIC:['#f3d66e','#F9E99E'],
+  SOUL:['#e379c6','#FFA2E7'], AETHER:['#8394b6','#A9BABC'], VOID:['#393165','#3B376D'],
+  ASTRAL:['#5a28b9','#7746D3'],
 };
 
 function heroGrad(type) {
@@ -2749,7 +3220,8 @@ function typeIconEl(t) {
 }
 
 function typeBadgeHtml(t) {
-  return `<span class="type-badge" style="background:${tc(t)}1A;color:${tc(t)};border-color:${tc(t)}44">
+  const pc = typePrimary(t);
+  return `<span class="type-badge" style="background:${pc}1A;color:${pc};border-color:${pc}44">
     ${typeIconEl(t)} ${t}
   </span>`;
 }
@@ -2862,6 +3334,9 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   const grad = heroGrad(pType);
   const hero = document.getElementById('imx-hero');
   if (hero) hero.style.background = grad;
+  const cg = CONGRATS_GRADIENTS[pType] || ['#38D2C4','#20B8AA'];
+  const lvlBtn = document.getElementById('ic-btn-lvl');
+  if (lvlBtn) lvlBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
 
   const hTypes = document.getElementById('imx-hero-types');
   if (hTypes) {
@@ -3034,24 +3509,29 @@ function setCollSort(k) {
 function syncDevPanelVisibility(screenName) {
   const icOpen = S.instanceCardOpen;
   const det = screenName === 'detail';
+  const isGrid = screenName === 'grid';
+  const isTov = screenName === 'type-overview';
   const gt = document.getElementById('grid-tuner');
   const ct = document.getElementById('card-tuner');
   const dtt = document.getElementById('detail-tuner');
   const it = document.getElementById('instance-card-tuner');
   const g3d = document.getElementById('grid3d-tuner');
   const mb = document.getElementById('dev-memcore-bar');
+  const tovT = document.getElementById('tov-tuner');
   if (icOpen) {
     if (gt) gt.style.display = 'none';
     if (ct) ct.style.display = 'none';
     if (dtt) dtt.style.display = 'none';
     if (it) it.style.display = 'block';
     if (g3d) g3d.style.display = 'block';
+    if (tovT) tovT.style.display = 'none';
   } else {
-    if (gt) gt.style.display = det ? 'none' : '';
-    if (ct) ct.style.display = det ? 'none' : '';
+    if (gt) gt.style.display = isGrid ? '' : 'none';
+    if (ct) ct.style.display = isGrid ? '' : 'none';
     if (dtt) dtt.style.display = det ? 'block' : 'none';
     if (it) it.style.display = 'none';
     if (g3d) g3d.style.display = 'none';
+    if (tovT) tovT.style.display = isTov ? 'block' : 'none';
   }
   if (mb) mb.style.display = det ? 'flex' : 'none';
 }
@@ -3264,6 +3744,14 @@ function showCongrats(instance, opts) {
   } else {
     rewardEl.innerHTML = '';
     rewardEl.style.display = 'none';
+  }
+
+  const cgBtn = document.querySelector('.congrats-btn-primary');
+  if (cgBtn) {
+    const pc = typePrimary(pType);
+    cgBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
+    cgBtn.style.borderColor = pc;
+    cgBtn.style.boxShadow = `0 2px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.15)`;
   }
 
   document.getElementById('congrats-overlay').classList.add('show');
@@ -3481,7 +3969,8 @@ function renderTypeView(q, ownedIds) {
     const savedCount = filtered.filter(id => ownedIds.includes(id)).length;
     const totalCount = filtered.length;
     const pct = totalCount > 0 ? Math.round((savedCount / totalCount) * 100) : 0;
-    const color = tc(type);
+    const pColor = typePrimary(type);
+    const cg = CONGRATS_GRADIENTS[type] || ['#888','#aaa'];
     const icon = TYPE_ICON_MAP[type];
 
     const cards = filtered.map(id => renderCard(id, ownedIds)).join('');
@@ -3491,13 +3980,13 @@ function renderTypeView(q, ownedIds) {
         <img class="type-sec-icon" src="assets/icons/${icon}.png" alt="${type}"
              onerror="this.style.display='none'">
         <div class="type-sec-info">
-          <span class="type-sec-name" style="color:${color}">${type}</span>
+          <span class="type-sec-name" style="color:${pColor}">${type}</span>
           <span class="type-sec-progress">${savedCount} / ${totalCount} ${S.mode === 'bonded' ? 'Bonded' : 'Saved'}</span>
         </div>
         <div class="type-sec-bar-zone">
           <span class="type-sec-bar-label">${S.mode === 'bonded' ? 'Bond Progress' : 'Save Progress'}</span>
           <div class="type-sec-bar-wrap">
-            <div class="type-sec-bar" style="width:${pct}%;background:${color}"></div>
+            <div class="type-sec-bar" style="width:${pct}%;background:linear-gradient(to right,${cg[0]},${cg[1]})"></div>
           </div>
         </div>
       </div>
@@ -4214,6 +4703,7 @@ function _applyGT() {
     `eye:${GT.eyebrowSz}px title:${GT.titleSz}px player:${GT.playerSz}px`,
     `typBtn:${GT.typeIconSz}px gap:${GT.typeBtnGap}px pi:${GT.typeRowPi}px pt:${GT.typeRowPt} pb:${GT.typeRowPb}`,
     `bg:${GT.bgLogoSz}px y:${GT.bgLogoTop} x:${GT.bgLogoX} ${GT.bgLogoOp}%`,
+    `logoAnim: exp${LA.expandScale}× ${LA.expandDur}ms con${LA.contractDur}ms ccw${LA.ccwDeg}°/${LA.ccwDur}ms spin${LA.spinDur}ms os${LA.overshootDeg}°/${LA.overshootDur}ms settle${LA.settleDur}ms pause${LA.pauseDur}ms`,
   ].join('  ·  ');
 }
 function _gtAdj(key, delta) {
@@ -4251,11 +4741,27 @@ function _initGridTuner() {
       d.innerHTML =
         `<span style="width:76px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
         `<button onclick="_gtAdj('${r.key}',-${r.step})" style="${BTN}">−</button>` +
-        `<input id="gt-${r.key}" type="number" value="${GT[r.key]}" onchange="_gtSet('${r.key}',this.value)" style="${INP}">` +
+        `<input id="gt-${r.key}" type="number" value="${GT[r.key]}" step="${r.step}" onchange="_gtSet('${r.key}',this.value)" style="${INP}">` +
         `<button onclick="_gtAdj('${r.key}',${r.step})" style="${BTN}">+</button>` +
         `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
       wrap.appendChild(d);
     });
+  });
+  // Logo Anim knobs (visible on grid screen where logo animates)
+  const laHdr = document.createElement('div');
+  laHdr.style.cssText = 'font-size:9px;font-weight:700;text-transform:uppercase;color:rgba(255,255,255,0.38);letter-spacing:0.8px;margin-top:8px;margin-bottom:3px';
+  laHdr.textContent = 'Logo Anim';
+  wrap.appendChild(laHdr);
+  LA_KNOBS.forEach(r => {
+    const d = document.createElement('div');
+    d.style.cssText = ROW;
+    d.innerHTML =
+      `<span style="width:76px;font-size:9px;color:rgba(255,255,255,0.45)">${r.label}</span>` +
+      `<button onclick="_laAdj('${r.key}',-${r.step})" style="${BTN}">−</button>` +
+      `<input id="gt-la-${r.key}" type="number" value="${LA[r.key]}" step="${r.step}" onchange="_laSet('${r.key}',this.value)" style="${INP}">` +
+      `<button onclick="_laAdj('${r.key}',${r.step})" style="${BTN}">+</button>` +
+      `<span style="font-size:9px;color:rgba(255,255,255,0.28);width:14px">${r.unit}</span>`;
+    wrap.appendChild(d);
   });
   _applyGT();
 }
@@ -4555,7 +5061,7 @@ function copyDetailTuner() {
 const IT = {
   w: 304, rad: 20, blur: 6, scale: 98,
   heroH: 188, heroPadB: 10, sprSz: 142,
-  wmFs: 108, wmX: -100, wmY: -18, wmKern: -4, wmA: 14,
+  wmFs: 108, wmX: -116, wmY: -26, wmKern: 20, wmA: 14,
   bodyPy: 14, bodyPx: 17, bodyPb: 18,
   idFs: 13, nameFs: 22, nameMb: 10,
   tagGap: 7, tagMb: 10, pillFs: 7,
@@ -4565,7 +5071,10 @@ const IT = {
   mintMb: 10,
   actGap: 6,
   btnPy: 9, btnPx: 4, btnRad: 10, btnFs: 10,
-  nftX: 8,
+  nftX: 7,
+  floatH: 7, floatDur: 2.0,
+  shadW: 24, shadH: 6, shadY: 82, shadOp: 60,
+  shadBlurFar: 24, shadBlurNear: 10,
 };
 const IT_SECTIONS = [
   { label: 'Shell', items: [
@@ -4623,6 +5132,18 @@ const IT_SECTIONS = [
   { label: 'NFT tag (cards)', items: [
     { key:'nftX', label:'X pos', unit:'px', step:1, min:-20, max:80, cssVar:'--inst-nft-x', mode:'px' },
   ]},
+  { label: 'Float', items: [
+    { key:'floatH',   label:'Height',   unit:'%',  step:0.5, min:0, max:10, cssVar:'--imx-float-h', mode:'pct' },
+    { key:'floatDur',  label:'Speed',    unit:'s',  step:0.1, min:0.5, max:5, cssVar:'--imx-float-dur', mode:'sec' },
+  ]},
+  { label: 'Shadow', items: [
+    { key:'shadW',       label:'Width',     unit:'%',  step:2, min:10, max:60, cssVar:'--imx-shad-w', mode:'pct' },
+    { key:'shadH',       label:'Height',    unit:'%',  step:1, min:2,  max:20, cssVar:'--imx-shad-h', mode:'pct' },
+    { key:'shadY',       label:'Y pos',     unit:'%',  step:2, min:50, max:100, cssVar:'--imx-shad-y', mode:'pct' },
+    { key:'shadOp',      label:'Opacity',   unit:'%',  step:2, min:0,  max:60,  cssVar:'--imx-shad-op', mode:'alphaPct' },
+    { key:'shadBlurFar', label:'Blur far',  unit:'px', step:2, min:0,  max:60,  cssVar:'--imx-shad-blur-far', mode:'px' },
+    { key:'shadBlurNear',label:'Blur near', unit:'px', step:1, min:0,  max:30,  cssVar:'--imx-shad-blur-near', mode:'px' },
+  ]},
 ];
 
 function _itFind(key) {
@@ -4647,6 +5168,8 @@ function _applyIT() {
     let val;
     if (r.mode === 'scalePct') val = String(v / 100);
     else if (r.mode === 'alphaPct') val = String(v / 100);
+    else if (r.mode === 'pct') val = v + '%';
+    else if (r.mode === 'sec') val = v + 's';
     else val = v + 'px';
     if (r.cssVar === '--inst-nft-x') {
       document.documentElement.style.setProperty(r.cssVar, val);
@@ -4669,6 +5192,8 @@ function _applyIT() {
       `stage r${IT.stgRad} py${IT.stgPy} px${IT.stgPx} below${IT.stgMb} bar${IT.barH}`,
       `mint+btns mintMb${IT.mintMb} gap${IT.actGap} btn py${IT.btnPy} px${IT.btnPx} r${IT.btnRad} fs${IT.btnFs}`,
       `nft-tag x${IT.nftX}`,
+      `float h${IT.floatH}% dur${IT.floatDur}s`,
+      `shadow w${IT.shadW}% h${IT.shadH}% y${IT.shadY}% α${IT.shadOp}% blurF${IT.shadBlurFar} blurN${IT.shadBlurNear}`,
     ].join('\n');
   }
   try { localStorage.setItem('mempool-imx-v2', JSON.stringify(IT)); } catch (e) {}
@@ -4777,7 +5302,7 @@ function _initDetailTuner() {
 const G3D = {
   persp: 189, rx: 58, botW: 300, h: 120, bot: -2,
   gap: 45, lw: 2, lineA: 20,
-  fadeTop: 0, fadeMid: 40, midA: 50,
+  fadeTop: 2, fadeMid: 40, midA: 62,
 };
 const G3D_SECTIONS = [
   { label: 'Perspective', items: [
@@ -4889,6 +5414,7 @@ _initCardTuner();
 _initDetailTuner();
 _initInstanceCardTuner();
 _initGrid3dTuner();
+_initTovTuner();
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════
 //  GRID EXPAND / COLLAPSE  (scroll-to-collapse or toggle button)
