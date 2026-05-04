@@ -1,0 +1,243 @@
+// RENDER — grid rendering, card generation, type views
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER GRID
+// ══════════════════════════════════════════════════════════════
+const TYPE_ORDER = ['EARTH','FIRE','WIND','WATER','ELECTRIC','SOUL','AETHER','VOID','MIND','ASTRAL'];
+
+function renderCard(id, ownedIds) {
+  const cat       = CATALOG[id];
+  const insts     = instancesFor(id);
+  const hasShiny  = insts.some(i => i.is_shiny);
+  const bonded    = S.mode === 'bonded';
+
+  if (bonded) {
+    const everBonded   = !!S.bondedLog[id];
+    const activeBonded = insts.some(i => i.is_nft);
+    if (everBonded && cat) {
+      const src = (insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id]) || IMAGE_MAP[id];
+      const img = src
+        ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
+        : `<div class="gc-placeholder"></div>`;
+      const chainCls = activeBonded ? 'active' : 'history';
+      const nftCount = insts.filter(i => i.is_nft).length;
+      const badge = `<span class="gc-count"><span class="gc-chain ${chainCls}">⬡</span>${nftCount > 0 ? nftCount : ''}</span>`;
+      return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+        <span class="gc-num">${id}</span>
+        ${img}
+        <span class="gc-name">${cat.name}</span>
+        ${badge}
+      </div>`;
+    }
+    return `<div class="grid-cell">
+      <span class="gc-num-unk">${id}</span>
+    </div>`;
+  }
+
+  // Memories mode
+  const owned     = ownedIds.includes(id);
+  const everOwned = !!S.owned[id];
+  const seen      = !!S.seen[id];
+
+  if ((owned || everOwned) && cat) {
+    const src = (insts[0]?.is_shiny ? SHINY_MAP[id] : IMAGE_MAP[id]) || IMAGE_MAP[id];
+    const img = src
+      ? `<img class="gc-img" src="${src}" alt="${cat.name}" loading="lazy">`
+      : `<div class="gc-placeholder"></div>`;
+    const countBadge = insts.length > 0
+      ? `<span class="gc-count">${insts.length}</span>`
+      : '';
+    return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+      <span class="gc-num">${id}</span>
+      ${img}
+      <span class="gc-name">${cat.name}</span>
+      ${countBadge}
+    </div>`;
+  } else if (seen && cat) {
+    const src = IMAGE_MAP[id];
+    const imgEl = src
+      ? `<div class="gc-img-discovered-wrap"><img class="gc-img-discovered" src="${src}" alt="" loading="lazy"></div>`
+      : `<div class="gc-placeholder"></div>`;
+    return `<div class="grid-cell seen">
+      <span class="gc-num">${id}</span>
+      ${imgEl}
+      <span class="gc-seen-placeholder">???</span>
+    </div>`;
+  } else {
+    return `<div class="grid-cell">
+      <span class="gc-num-unk">${id}</span>
+    </div>`;
+  }
+}
+
+function buildTypeIconRow() {
+  const row = document.getElementById('type-icon-row');
+  if (!row) return;
+  row.innerHTML = TYPE_ORDER.map(t => {
+    const icon = TYPE_ICON_MAP[t];
+    return `<button class="type-icon-btn" id="type-btn-${t.toLowerCase()}"
+        onclick="scrollToType('${t}')" title="${t}">
+      <img src="assets/icons/${icon}.png" alt="${t}"
+           onerror="this.style.display='none'">
+    </button>`;
+  }).join('');
+}
+
+function scrollToType(type) {
+  document.querySelectorAll('.type-icon-btn').forEach(b => b.classList.remove('active-type'));
+  const iconBtn = document.getElementById(`type-btn-${type.toLowerCase()}`);
+  if (iconBtn) iconBtn.classList.add('active-type');
+
+  const section = document.getElementById(`type-section-${type.toLowerCase()}`);
+  const cells = document.getElementById('grid-cells');
+  const sg = document.getElementById('screen-grid');
+  if (!section || !cells || !sg) return;
+
+  const headRow = section.querySelector('.type-section-header');
+  const anchor = headRow || section;
+
+  const pad = 10;
+  const runScroll = () => {
+    const cRect = cells.getBoundingClientRect();
+    const aRect = anchor.getBoundingClientRect();
+    const nextTop = aRect.top - cRect.top + cells.scrollTop - pad;
+    cells.scrollTo({ top: Math.max(0, nextTop), behavior: 'auto' });
+    syncCardRows();
+    requestAnimationFrame(() => syncCardRows());
+  };
+
+  window._gridTypeScrollSuppressUntil = Date.now() + 900;
+
+  const alreadyCollapsed = sg.classList.contains('grid-expanded');
+  if (!alreadyCollapsed) {
+    toggleGridExpand(true);
+    setTimeout(runScroll, 560);
+  } else {
+    runScroll();
+  }
+}
+
+function renderTypeView(q, ownedIds) {
+  return TYPE_ORDER.map(type => {
+    const typeIds = Object.entries(CATALOG)
+      .filter(([id, cat]) => cat.primary === type)
+      .map(([id]) => id)
+      .sort((a, b) => parseInt(a) - parseInt(b));
+
+    let filtered = typeIds;
+    if (q) {
+      filtered = typeIds.filter(id => {
+        const cat = CATALOG[id];
+        const name = (cat?.name || '').toLowerCase();
+        return id.includes(q) || name.includes(q);
+      });
+    }
+    if (!filtered.length) return '';
+
+    const savedCount = filtered.filter(id => ownedIds.includes(id)).length;
+    const totalCount = filtered.length;
+    const pct = totalCount > 0 ? Math.round((savedCount / totalCount) * 100) : 0;
+    const pColor = typePrimary(type);
+    const cg = CONGRATS_GRADIENTS[type] || ['#888','#aaa'];
+    const icon = TYPE_ICON_MAP[type];
+
+    const cards = filtered.map(id => renderCard(id, ownedIds)).join('');
+
+    return `<div class="type-section" id="type-section-${type.toLowerCase()}">
+      <div class="type-section-header">
+        <img class="type-sec-icon" src="assets/icons/${icon}.png" alt="${type}"
+             onerror="this.style.display='none'">
+        <div class="type-sec-info">
+          <span class="type-sec-name" style="color:${pColor}">${type}</span>
+          <span class="type-sec-progress">${savedCount} / ${totalCount} ${S.mode === 'bonded' ? 'Bonded' : 'Saved'}</span>
+        </div>
+        <div class="type-sec-bar-zone">
+          <span class="type-sec-bar-label">${S.mode === 'bonded' ? 'Bond Progress' : 'Save Progress'}</span>
+          <div class="type-sec-bar-wrap">
+            <div class="type-sec-bar" style="width:${pct}%;background:linear-gradient(to right,${cg[0]},${cg[1]})"></div>
+          </div>
+        </div>
+      </div>
+      <div class="type-section-grid">${cards}</div>
+    </div>`;
+  }).join('');
+}
+
+// Measures actual column width after layout; row height = width × (rowPct/100).
+function syncCardRows() {
+  requestAnimationFrame(() => {
+    const grid = document.getElementById('grid-cells');
+    if (!grid) return;
+    const firstCard = grid.querySelector('.grid-cell');
+    if (!firstCard) return;
+    const w = Math.round(firstCard.getBoundingClientRect().width);
+    if (w > 0) {
+      const mul = (typeof CT !== 'undefined' && CT.rowPct != null) ? CT.rowPct / 100 : 1;
+      const h = Math.max(36, Math.round(w * mul));
+      grid.style.gridAutoRows = h + 'px';
+      document.querySelectorAll('.type-section-grid').forEach(tg => {
+        const tc = tg.querySelector('.grid-cell');
+        if (tc) {
+          const tw = Math.round(tc.getBoundingClientRect().width);
+          if (tw > 0) tg.style.gridAutoRows = Math.max(36, Math.round(tw * mul)) + 'px';
+        }
+      });
+    }
+  });
+}
+window.addEventListener('resize', syncCardRows);
+
+function renderGrid() {
+  const q        = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();
+  const f        = S.filter;
+  const bonded   = S.mode === 'bonded';
+  const ownedIds = [...new Set([...S.instances.map(i => i.dex_id), ...Object.keys(S.owned)])];
+  const bondedLogIds  = Object.keys(S.bondedLog);
+  const activeBondIds = [...new Set(S.instances.filter(i => i.is_nft).map(i => i.dex_id))];
+
+  const seenCount   = Object.keys(S.seen).length;
+  const savedCount  = ownedIds.length;
+  const bondedCount = bondedLogIds.length;
+  document.getElementById('grid-pill-disc').textContent   = `${seenCount} Discovered`;
+  document.getElementById('grid-pill-inst').textContent   = `${savedCount} Saved`;
+  document.getElementById('grid-pill-bonded').textContent = `${bondedCount} Bonded`;
+
+  const effectiveOwned = bonded ? bondedLogIds : ownedIds;
+
+  const cellsEl = document.getElementById('grid-cells');
+  cellsEl.classList.toggle('type-mode', f === 'type');
+
+  if (f === 'type') {
+    cellsEl.innerHTML = renderTypeView(q, effectiveOwned);
+    syncCardRows();
+    return;
+  }
+
+  const akroniteIds = bonded
+    ? [...new Set(S.instances.filter(i => i.is_nft && i.is_shiny).map(i => i.dex_id))]
+    : [...new Set(S.instances.filter(i => i.is_shiny).map(i => i.dex_id))];
+
+  const all = Array.from({length:144}, (_,i) => String(i+1).padStart(3,'0'));
+  const ids = all.filter(id => {
+    const cat  = CATALOG[id];
+    const name = (cat?.name || '').toLowerCase();
+    if (q && !id.includes(q) && !name.includes(q)) return false;
+    if (f === 'saved'    && !effectiveOwned.includes(id)) return false;
+    if (f === 'akronite' && !akroniteIds.includes(id))    return false;
+    return true;
+  });
+
+  if (!ids.length && (f === 'saved' || f === 'akronite')) {
+    const label = f === 'akronite' ? 'Akronite' : (bonded ? 'Bonded' : 'Saved');
+    cellsEl.innerHTML = `<div style="text-align:center;padding:48px 20px;color:var(--text-muted);font-size:13px;line-height:1.6">
+      <div style="font-size:22px;margin-bottom:8px;opacity:0.4">${f === 'akronite' ? '★' : '⬡'}</div>
+      No ${label} memories yet
+    </div>`;
+    syncCardRows();
+    return;
+  }
+
+  cellsEl.innerHTML = ids.map(id => renderCard(id, effectiveOwned)).join('');
+  syncCardRows();
+  if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
+}

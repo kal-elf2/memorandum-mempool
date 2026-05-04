@@ -1,0 +1,12 @@
+{
+  "name": "memorandum-mempool",
+  "version": "1.0.0",
+  "description": "Memorandum — Mempool: creature collection prototype with NFT bonding mechanics",
+  "private": true,
+  "scripts": {
+    "dev": "npx serve . -l 3000",
+    "start": "npx serve . -l 3000"
+  },
+  "keywords": ["mempool", "nft", "game", "collection"],
+  "license": "UNLICENSED"
+}

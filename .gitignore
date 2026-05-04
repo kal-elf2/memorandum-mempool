@@ -8,3 +8,6 @@ Thumbs.db
 
 # Logs / temp
 *.log
+
+# Backup of original monolith (not needed in repo)
+index_monolith_backup.html
