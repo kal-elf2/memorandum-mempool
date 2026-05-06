@@ -4,27 +4,20 @@ function playEvolutionAnimation(config) {
   const {
     currentMemory, nextMemory, instance,
     spiritRequired, spiritAsset,
-    primaryType, secondaryType,
+    primaryType,
     onMidpointApplyEvolution, onComplete
   } = config;
 
+  /* Primary type only — dual typings use first type’s gradient pair (no secondary blend). */
   const starterPT = currentMemory.type[0] || 'WIND';
-  const starterSec = currentMemory.type[1] || null;
   const sGrad = CONGRATS_GRADIENTS[starterPT] || ['#38D2C4','#20B8AA'];
   const starterColor1 = sGrad[0];
-  let starterColor2 = sGrad[1];
-  if (starterSec && CONGRATS_GRADIENTS[starterSec]) {
-    const g = CONGRATS_GRADIENTS[starterSec];
-    starterColor2 = g[1] || g[0];
-  }
+  const starterColor2 = sGrad[1];
 
-  const rGrad = CONGRATS_GRADIENTS[primaryType] || ['#38D2C4','#20B8AA'];
-  let revealColor1 = rGrad[0];
-  let revealColor2 = rGrad[1];
-  if (secondaryType && CONGRATS_GRADIENTS[secondaryType]) {
-    const g2 = CONGRATS_GRADIENTS[secondaryType];
-    revealColor2 = g2[1] || g2[0];
-  }
+  const revealPT = primaryType || nextMemory.type[0] || 'WIND';
+  const rGrad = CONGRATS_GRADIENTS[revealPT] || ['#38D2C4','#20B8AA'];
+  const revealColor1 = rGrad[0];
+  const revealColor2 = rGrad[1];
 
   let spiritHighlight1 = starterColor1;
   let spiritHighlight2 = starterColor2;

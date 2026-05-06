@@ -13,9 +13,11 @@ function showImxConfirm(msg, onConfirm, _pType) {
   document.getElementById('imx-confirm-msg').innerHTML = msg;
   _imxConfirmCb = onConfirm;
   const yesBtn = document.getElementById('imx-confirm-yes');
-  const cg = CONGRATS_GRADIENTS[_pType] || ['#b8dcff','#92bef0'];
+  const p = _pType || 'WIND';
+  const cg = CONGRATS_GRADIENTS[p] || ['#b8dcff','#92bef0'];
   yesBtn.style.background = `linear-gradient(135deg, ${cg[0]}, color-mix(in srgb, ${cg[0]} 55%, ${cg[1]}) 45%, ${cg[1]})`;
   yesBtn.style.border = `1px solid color-mix(in srgb, ${cg[1]} 55%, rgba(0,0,0,0.2))`;
+  yesBtn.style.color = tf(p);
   yesBtn.onclick = () => {
     const cb = _imxConfirmCb;
     _imxConfirmCb = null;
@@ -140,12 +142,12 @@ function confirmEvoBranch(targetId, spiritKey) {
   const target = MEMORIES[targetId];
   if (!target) return;
   closeEvoBranchPicker();
-  const pType = target.type[0] || 'WIND';
+  const confirmThemeType = mem.type[0] || 'WIND';
   if (!inst.is_nft) {
     showImxConfirm(
       `Evolve <strong>${mem.name}</strong> with the <strong>${spiritKey}</strong> spirit?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
       () => _launchEvolveAnimation(id, mem, inst, target, spiritKey),
-      pType
+      confirmThemeType
     );
   } else {
     _launchEvolveAnimation(id, mem, inst, target, spiritKey);
@@ -170,12 +172,12 @@ function doEvolve() {
   if (!mem.evolves_to) return;
   const target = MEMORIES[mem.evolves_to]; if (!target) return;
 
-  const targetPType = target.type[0] || 'WIND';
+  const confirmThemeType = mem.type[0] || 'WIND';
   if (!inst.is_nft) {
     showImxConfirm(
       `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
       () => _launchEvolveAnimation(id, mem, inst, target),
-      targetPType
+      confirmThemeType
     );
   } else {
     _launchEvolveAnimation(id, mem, inst, target);
@@ -188,7 +190,6 @@ function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
     : (mem.spirit_req || null);
   const spiritAsset   = spiritReq ? (SPIRIT_MAP[spiritReq] || null) : null;
   const primaryType   = target.type[0] || 'WIND';
-  const secondaryType = target.type[1] || null;
 
   // Close instance modal so the animation is unobstructed
   closeInstanceModal();
@@ -199,8 +200,7 @@ function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
     instance: inst,
     spiritRequired: spiritReq,
     spiritAsset: spiritAsset,
-    primaryType: primaryType,
-    secondaryType: secondaryType,
+    primaryType,
     onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst, target.id),
     onComplete: () => {
       if (S._evoCongratsShown) {
