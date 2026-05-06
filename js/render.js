@@ -276,9 +276,8 @@ function renderGrid() {
 }
 
 /**
- * Memories / All, expanded grid scroll; empty pill vs full card flash on target dex.
- * Waits for header collapse (grid-template-rows transition) before scrolling so row heights
- * and scroll targets stay stable; avoids syncCardRows during smooth scroll (was causing stick).
+ * Memories / All, expanded grid scroll; blank pill → double-flash card in/out/in (hold),
+ * then one diagonal sheen. Waits for header collapse before scrolling for stable layout.
  */
 function navigateGridAfterCongratsReveal(dexId) {
   const nid = dexId != null && /^\d+$/.test(String(dexId))
@@ -344,6 +343,8 @@ function navigateGridAfterCongratsReveal(dexId) {
 
           if (!cell.classList.contains('known')) return;
 
+          if (reduced) return;
+
           cell.classList.add('gc-dex-reveal-mode');
 
           const underlay = document.createElement('div');
@@ -359,20 +360,59 @@ function navigateGridAfterCongratsReveal(dexId) {
           cell.appendChild(underlay);
           cell.appendChild(cardLayer);
 
-          const finish = () => {
+          /** Flash ends → restore normal card DOM/layout before sheen (no unwrap after sheen = no snap). */
+          let revealPhase = 'flash';
+          let sheenPlaced = false;
+
+          function runSheen() {
+            if (revealPhase !== 'idleCard' || sheenPlaced) return;
+            sheenPlaced = true;
+            const sheen = document.createElement('div');
+            sheen.className = 'gc-dex-reveal-sheen gc-dex-reveal-sheen--once';
+            sheen.setAttribute('aria-hidden', 'true');
+            cell.appendChild(sheen);
+            const stripSheen = () => {
+              sheen.remove();
+              revealPhase = 'done';
+              if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
+            };
+            sheen.addEventListener('animationend', stripSheen, { once: true });
+            window.setTimeout(stripSheen, 560);
+          }
+
+          function finishFlashUnwrapToFinalDom() {
+            if (revealPhase !== 'flash') return;
+            revealPhase = 'idleCard';
             if (!cardLayer.parentNode) return;
             while (cardLayer.firstChild) cell.appendChild(cardLayer.firstChild);
             underlay.remove();
             cardLayer.remove();
             cell.classList.remove('gc-dex-reveal-mode');
             syncCardRows(0);
-            requestAnimationFrame(() => syncCardRows(0));
-          };
+            requestAnimationFrame(() => requestAnimationFrame(runSheen));
+          }
 
-          if (reduced) cardLayer.classList.add('gc-dex-reveal-card-layer--reduced');
+          cardLayer.addEventListener('animationend', finishFlashUnwrapToFinalDom, { once: true });
+          window.setTimeout(() => {
+            if (revealPhase === 'flash') finishFlashUnwrapToFinalDom();
+          }, 750);
 
-          cardLayer.addEventListener('animationend', finish, { once: true });
-          window.setTimeout(finish, reduced ? 450 : 3100);
+          window.setTimeout(() => {
+            if (revealPhase !== 'done') {
+              try {
+                if (cardLayer.parentNode) {
+                  while (cardLayer.firstChild) cell.appendChild(cardLayer.firstChild);
+                  underlay.remove();
+                  cardLayer.remove();
+                }
+                cell.classList.remove('gc-dex-reveal-mode');
+              } catch (err) { /* noop */ }
+              cell.querySelector('.gc-dex-reveal-sheen')?.remove();
+              revealPhase = 'done';
+              syncCardRows(0);
+              requestAnimationFrame(() => syncCardRows(0));
+            }
+          }, 2600);
         }
 
         const fallbackMs = reduced ? 120 : (expandedJustNow ? 820 : 340);

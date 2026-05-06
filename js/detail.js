@@ -3,6 +3,15 @@
 // ══════════════════════════════════════════════════════════════
 //  RENDER DETAIL
 // ══════════════════════════════════════════════════════════════
+
+/** Hero ambient motes: refill only when dex changes (tab switches call renderDetail otherwise). */
+let _detailHeroMotesDexId = null;
+
+function resetDetailHeroMotesCache() {
+  _detailHeroMotesDexId = null;
+  document.getElementById('detail-hero-motes')?.replaceChildren();
+}
+
 function openDetail(id) {
   if (!CATALOG[id]) return; // data not loaded yet
   closeInstanceModal();
@@ -101,7 +110,12 @@ function renderDetail() {
   const motesHost = document.getElementById('detail-hero-motes');
   if (motesHost) {
     const cg = CONGRATS_GRADIENTS[pType] || CONGRATS_GRADIENTS.WIND;
-    fillAmbientMotes(motesHost, cg[0], cg[1], 22);
+    const needMotes =
+      _detailHeroMotesDexId !== id || motesHost.childElementCount === 0;
+    if (needMotes) {
+      fillAmbientMotes(motesHost, cg[0], cg[1], 22);
+      _detailHeroMotesDexId = id;
+    }
   }
 
   const typeHtml = (mem.type || []).map(t => typeBadgeHtml(t)).join('') || '';

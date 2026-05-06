@@ -504,6 +504,7 @@ function resetAll() {
   const _gc = document.getElementById('grid-cells');
   if (_gc) _gc.scrollTop = 0;
   renderGrid();
+  if (typeof resetDetailHeroMotesCache === 'function') resetDetailHeroMotesCache();
   showScreen('grid');
   S.spiritCounts = { fire: 0, water: 0, earth: 0, electric: 0, astral: 0 };
   S.tearCount = 0;
