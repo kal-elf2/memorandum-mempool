@@ -1,6 +1,7 @@
 // TUNER SYSTEM — developer-only panels for adjusting layout values in real-time
 
-/** Persisted in dev: whether floating layout tuner panels are visible at all */
+/** Persisted in dev: whether floating layout tuner panels are visible at all.
+ * Default off: missing/empty LS or any value other than `1` / `true` keeps panels hidden. */
 const _DEV_LAYOUT_TUNERS_LS = 'mempoolDevShowLayoutTuners';
 
 function isDevLayoutTunersEnabled() {
@@ -132,34 +133,34 @@ const PT_CG = [
 // ══════════════════════════════════════════════════════════════
 //  MOBILE CONGRATS LAYOUT TUNER  (≤720px only; --cg-m-* on overlay)
 // ══════════════════════════════════════════════════════════════
-const _DEV_CG_MOBILE_LS = 'mempoolCgMobilePT';
+const _DEV_CG_MOBILE_LS = 'mempoolCgMobilePT_v2';
 
 const PT_M_DEFAULTS = {
-  cgStripTop: 16,
-  cgStripBot: 39,
+  cgStripTop: 21,
+  cgStripBot: 44,
   cgBandOp: 63,
   cgBandFadeS: 28,
   cgBandFadeE: 100,
-  cgGlowSz: 30,
-  cgGlowOp: 50,
+  cgGlowSz: 22,
+  cgGlowOp: 46,
   cgGlowSolid: 10,
   cgGlowGone: 100,
-  cgCreatureTop: 14,
-  cgCreatureSz: 292,
-  cgWmFsMin: 64,
+  cgCreatureTop: 16,
+  cgCreatureSz: 400,
+  cgWmFsMin: 70,
   cgWmFsMax: 168,
-  cgWmScale: 130,
+  cgWmScale: 135,
   cgWmX: 0,
-  cgWmY: 44,
+  cgWmY: 26,
   cgWmOp: 8,
-  cgTagsTop: 38,
-  cgTxtTop: 54,
-  cgCloseL: 12,
-  cgCloseT: 48,
+  cgTagsTop: 41,
+  cgTxtTop: 45,
+  cgCloseL: 24,
+  cgCloseT: 88,
   cgCloseSz: 34,
   cgBtnR: 14,
-  cgBtnBottom: 118,
-  cgBtnSafeExtra: 22,
+  cgBtnBottom: 202,
+  cgBtnSafeExtra: 20,
   cgPadBot: 68,
   cgPadBotSafe: 12,
   cgBtnPx: 46,
@@ -167,7 +168,7 @@ const PT_M_DEFAULTS = {
   cgBtnFs: 14,
   cgBtnMinW: 197,
   cgRwX: 12,
-  cgRwY: 36,
+  cgRwY: 23,
   cgEssFsMin: 17,
   cgEssFsMax: 29,
   cgEssGap: 5,
@@ -210,7 +211,7 @@ const PT_CG_MOBILE = [
   { col: 3, key: 'cgCloseT', label: 'Top', unit: 'px', step: 2, min: 0, max: 200, mVar: '--cg-m-close-t', cssSuffix: 'px' },
   { col: 3, key: 'cgCloseSz', label: 'Size', unit: 'px', step: 2, min: 28, max: 56, mVar: '--cg-m-close-sz', cssSuffix: 'px' },
   { col: 3, sec: 'CTA', key: 'cgBtnR', label: 'Btn right', unit: 'px', step: 2, min: 0, max: 120, mVar: '--cg-m-btn-r', cssSuffix: 'px' },
-  { col: 3, key: 'cgBtnBottom', label: 'Btn bottom', unit: 'px', step: 4, min: 40, max: 280, mVar: '--cg-m-btn-bottom', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnBottom', label: 'Btn bottom', unit: 'px', step: 4, min: 40, max: 320, mVar: '--cg-m-btn-bottom', cssSuffix: 'px' },
   { col: 3, key: 'cgBtnSafeExtra', label: 'Safe +', unit: 'px', step: 2, min: 0, max: 80, mVar: '--cg-m-btn-safe-extra', cssSuffix: 'px' },
   { col: 3, key: 'cgPadBot', label: 'Pad bot', unit: 'px', step: 4, min: 40, max: 160, mVar: '--cg-m-pad-bot', cssSuffix: 'px' },
   { col: 3, key: 'cgPadBotSafe', label: 'Pad safe', unit: 'px', step: 2, min: 0, max: 48, mVar: '--cg-m-pad-bot-safe', cssSuffix: 'px' },
