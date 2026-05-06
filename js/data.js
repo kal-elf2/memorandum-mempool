@@ -54,5 +54,3 @@ const WOW_TABLES = {
   legendary: [[1.00,1.06,0.290],[1.07,1.18,0.220],[1.19,1.44,0.215],[1.45,2.08,0.155],[2.09,3.35,0.080],[3.36,5.30,0.040]],
 };
 
-// For testing: player has unlimited spirits of all types
-const PLAYER_SPIRITS = { fire:true, water:true, earth:true, electric:true, astral:true, wind:true, mind:true, soul:true, aether:true, void:true };

@@ -499,13 +499,17 @@ function _evoSmoothstep01(t) {
   return x * x * (3 - 2 * x);
 }
 
-/** Piecewise path around creature center (px); p ∈ [0,1] linear time */
-function _evoSpiritSamplePath(p) {
-  const rx = 152;
-  const ry = 104;
+/**
+ * Piecewise path around creature center (px); p ∈ [0,1] linear time.
+ * @param {number} scale - Multiply orbit / offsets (e.g. compact instance-card hero ≈ 0.42–0.85).
+ */
+function _evoSpiritSamplePath(p, scale = 1) {
+  const S = scale;
+  const rx = 152 * S;
+  const ry = 104 * S;
   const orbit = (theta) => ({ x: rx * Math.cos(theta), y: ry * Math.sin(theta) });
 
-  const entry = { x: 258, y: 158 };
+  const entry = { x: 258 * S, y: 158 * S };
   const theta0 = Math.PI;
   const orbitStart = orbit(theta0);
 
@@ -541,8 +545,8 @@ function _evoSpiritSamplePath(p) {
   }
 
   const Oclose = orbit(theta0 + Math.PI * 2);
-  const camPeak = { x: 18, y: -172 };
-  const swoopMid = { x: -62, y: 88 };
+  const camPeak = { x: 18 * S, y: -172 * S };
+  const swoopMid = { x: -62 * S, y: 88 * S };
 
   if (p < 0.63) {
     const local = (p - 0.48) / (0.63 - 0.48);
@@ -571,8 +575,8 @@ function _evoSpiritSamplePath(p) {
 
   const local = (p - 0.80) / (1 - 0.80);
   const k = _evoEaseInOutQuart(local);
-  const spiral = (1 - k) * Math.sin(k * Math.PI * 6) * 32 * (1 - k);
-  const spiralY = (1 - k) * Math.cos(k * Math.PI * 6) * 22 * (1 - k);
+  const spiral = (1 - k) * Math.sin(k * Math.PI * 6) * 32 * S * (1 - k);
+  const spiralY = (1 - k) * Math.cos(k * Math.PI * 6) * 22 * S * (1 - k);
   const opacityMerge = opacity * (1 - Math.pow(k, 1.85));
 
   return {

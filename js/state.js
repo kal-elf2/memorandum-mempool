@@ -16,4 +16,8 @@ const S = {
   filter:              "all",
   collSort:            "akronite",
   instanceCardOpen:    false,
+  /** Dev / prototype: counts per spirit key (fire, water, earth, electric, astral). */
+  spiritCounts:        { fire: 0, water: 0, earth: 0, electric: 0, astral: 0 },
+  /** Tear of the Goddess — instant max level (prototype inventory). */
+  tearCount:           0,
 };

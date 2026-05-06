@@ -147,29 +147,7 @@ let _congratsDismissToDetail = false;
 
 /** Same pulsing drift/twinkle as evolution reveal `.evo-final-mote` — banner only */
 function _congratsFillBannerMotes(color1, color2) {
-  const host = document.getElementById('congrats-banner-motes');
-  if (!host) return;
-  host.innerHTML = '';
-  const n = 20;
-  for (let i = 0; i < n; i++) {
-    const m = document.createElement('div');
-    m.className = 'evo-final-mote';
-    const c = Math.random() < 0.52 ? color1 : Math.random() < 0.72 ? color2 : '#fff';
-    m.style.setProperty('--mote-c', c);
-    const near = Math.random() < 0.64;
-    const cx = near ? 14 + Math.random() * 40 : 8 + Math.random() * 84;
-    const cy = near ? 18 + Math.random() * 56 : 6 + Math.random() * 86;
-    m.style.left = `${cx}%`;
-    m.style.top = `${cy}%`;
-    const size = near ? 2.2 + Math.random() * 2.6 : 1.4 + Math.random() * 2.2;
-    m.style.width = `${size}px`;
-    m.style.height = `${size}px`;
-    m.style.opacity = `${near ? 0.38 + Math.random() * 0.28 : 0.16 + Math.random() * 0.22}`;
-    m.style.animationDelay = `${-(Math.random() * 24)}s`;
-    m.style.setProperty('--mote-dur', `${12 + Math.random() * 16}s`);
-    m.style.setProperty('--mote-twinkle', `${3 + Math.random() * 4}s`);
-    host.appendChild(m);
-  }
+  fillAmbientMotes(document.getElementById('congrats-banner-motes'), color1, color2, 20);
 }
 
 function showCongrats(instance, opts) {

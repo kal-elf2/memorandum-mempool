@@ -376,6 +376,422 @@ body {
   font-family: var(--font); font-size: 14px; font-weight: 600;
   color: #2a2a32; line-height: 1.45; margin-bottom: 18px;
 }
+.imx-confirm-visual {
+  margin-bottom: 14px;
+}
+.imx-confirm-visual[hidden] { display: none !important; }
+.imx-confirm-cost {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.imx-confirm-ico-stack {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+}
+.imx-confirm-ico {
+  width: 44px;
+  height: 44px;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 10px rgba(0,0,0,0.2));
+}
+.imx-confirm-cost-note {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a5a62;
+  line-height: 1.35;
+}
+.imx-confirm-cost-note strong {
+  text-transform: capitalize;
+}
+
+.imx-confirm-ico-stack .spirit-inv-teal-badge {
+  top: -5px;
+  right: -7px;
+  padding: 1px 5px;
+  font-size: 8px;
+  font-weight: 700;
+}
+
+.inv-qty-badge {
+  position: absolute;
+  right: -4px;
+  top: -4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #2a2a32, #454550);
+  color: #fff;
+  font-size: 9px;
+  font-weight: 800;
+  font-family: var(--font);
+  line-height: 16px;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+  pointer-events: none;
+}
+
+.detail-hero-motes {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.imx-evo-hint {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--chip-bg, #f6f6f8);
+  border: 1px solid var(--chip-border, #e4e4ea);
+}
+.imx-evo-hint[hidden] { display: none !important; }
+.imx-evo-hint-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.imx-evo-hint-ico-wrap {
+  position: relative;
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.imx-evo-hint-ico {
+  width: 32px;
+  height: 32px;
+  object-fit: contain;
+}
+.imx-evo-hint-txt {
+  font-family: var(--font);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  line-height: 1.4;
+}
+.imx-evo-hint-stock.warn { color: #C88010; }
+
+/* Tear stack badge — same teal pill as grid memory counts (#imx-tear-qty also has .gc-count) */
+.imx-tear-btn .gc-count.imx-tear-qty {
+  top: 6px;
+  right: 6px;
+  left: auto;
+  padding: 1px 5px;
+  min-width: 14px;
+  justify-content: center;
+}
+.imx-tear-qty[hidden] { display: none !important; }
+.imx-tear-btn.imx-tear-empty:not(:disabled) {
+  opacity: 0.42;
+  filter: grayscale(0.85);
+}
+
+.imx-tear-fx-layer {
+  position: absolute;
+  inset: 0;
+  z-index: 55;
+  pointer-events: none;
+  overflow: hidden;
+  border-radius: inherit;
+}
+.imx-tear-fx-fly {
+  position: absolute;
+  width: 60px;
+  height: 60px;
+  object-fit: contain;
+  transform: translate(-50%, -50%) scale(0.46);
+  z-index: 60;
+  filter: drop-shadow(0 6px 14px rgba(0,0,0,0.35));
+  pointer-events: none;
+  will-change: left, top, transform;
+}
+/* Larger ritual anchor (~20%) once arrived — reads like pull destination under orb veil */
+.imx-tear-fx-fly.imx-tear-fly-charged {
+  width: 74px;
+  height: 74px;
+}
+
+.imx-tear-burst-sheet {
+  position: absolute;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  border-radius: inherit;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse 92% 72% at 50% 36%,
+    rgba(255,255,255,0.98) 0%,
+    rgba(236,250,255,0.62) 34%,
+    rgba(190,230,255,0.22) 55%,
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
+
+/* Full-panel white punch — runs after shake (“detonation”) */
+.imx-tear-detonate-flash {
+  position: absolute;
+  inset: 0;
+  z-index: 62;
+  pointer-events: none;
+  border-radius: inherit;
+  background: #fff;
+  opacity: 0;
+}
+
+@keyframes imx-tear-shake {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.06); }
+  20% { transform: translate(-53%, -48%) rotate(-11deg) scale(1.12); }
+  45% { transform: translate(-47%, -52%) rotate(12deg) scale(1.09); }
+  70% { transform: translate(-52%, -49%) rotate(-8deg) scale(1.14); }
+}
+.imx-tear-fx-fly.imx-tear-fx-shake {
+  animation: imx-tear-shake 0.14s ease-in-out 6;
+}
+
+@keyframes imx-tear-shake-fast {
+  0%, 100% { transform: translate(-50%, -50%) rotate(0deg) scale(1.08); }
+  14% { transform: translate(-54%, -47%) rotate(-14deg) scale(1.17); }
+  32% { transform: translate(-46%, -53%) rotate(15deg) scale(1.12); }
+  50% { transform: translate(-53%, -48%) rotate(-12deg) scale(1.2); }
+  68% { transform: translate(-47%, -52%) rotate(11deg) scale(1.15); }
+  84% { transform: translate(-52%, -49%) rotate(-7deg) scale(1.18); }
+}
+.imx-tear-fx-fly.imx-tear-fx-shake.imx-tear-shake-fast {
+  animation: imx-tear-shake-fast 0.088s ease-in-out 14;
+}
+
+.imx-tear-fx-flash-core {
+  position: absolute;
+  width: min(124px, 38vw);
+  height: min(124px, 38vw);
+  pointer-events: none;
+  z-index: 16;
+  border-radius: 50%;
+  background: radial-gradient(circle,
+    rgba(255,255,255,1) 0%,
+    rgba(235,250,255,0.62) 42%,
+    rgba(180,220,255,0.15) 68%,
+    transparent 78%);
+  mix-blend-mode: screen;
+  filter: blur(0.35px);
+}
+.imx-tear-fx-flash-core.imx-tear-flash-core-lift {
+  z-index: 61;
+}
+
+/* Tear ritual — energy pulled inward (slow outer linger → faster terminal snap, evolution-adjacent) */
+.tear-energy-orb {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  margin: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9;
+  opacity: 0;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, #fff 26%, rgba(176, 235, 220, 0.96) 72%, rgba(120, 200, 220, 0.35) 100%);
+  box-shadow:
+    0 0 10px 3px rgba(130, 220, 200, 0.45),
+    0 0 22px 8px rgba(255, 255, 255, 0.12);
+  will-change: transform, opacity;
+}
+
+@keyframes tear-orb-pull {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(var(--tear-sx), var(--tear-sy)) scale(0.32);
+  }
+  12% { opacity: 0.95; }
+  /* Slow drift — outer third */
+  42% {
+    opacity: 0.98;
+    transform: translate(-50%, -50%) translate(calc(var(--tear-sx) * 0.34), calc(var(--tear-sy) * 0.34)) scale(0.95);
+  }
+  /* Faster convergence */
+  78% {
+    opacity: 0.9;
+    transform: translate(-50%, -50%) translate(calc(var(--tear-sx) * 0.06), calc(var(--tear-sy) * 0.06)) scale(0.82);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) translate(0, 0) scale(0.08);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .imx-tear-fx-fly.imx-tear-fx-shake {
+    animation: none;
+  }
+  .imx-tear-fx-fly.imx-tear-fx-shake.imx-tear-shake-fast {
+    animation: none;
+  }
+}
+
+.dev-inventory-bar {
+  width: var(--device-w);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  background: rgba(12,18,32,0.55);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-sizing: border-box;
+}
+.dev-inventory-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.dev-inventory-row--tear {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 8px;
+}
+.dev-inventory-label {
+  font-size: 9px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.65px;
+  color: rgba(255,255,255,0.38);
+  font-family: var(--font);
+  flex-shrink: 0;
+  min-width: 48px;
+}
+.dev-spirit-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: center;
+}
+.dev-spirit-pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 34px;
+  padding: 4px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  transition: transform 0.12s, background 0.12s;
+}
+.dev-spirit-pill:hover {
+  transform: scale(1.06);
+  background: rgba(255,255,255,0.11);
+}
+.dev-spirit-pill img {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+}
+.dev-spirit-pill .inv-qty-badge.dev-spirit-stock {
+  right: -5px;
+  top: -5px;
+  transform: scale(0.92);
+}
+.dev-spirit-plus {
+  position: absolute;
+  bottom: -2px;
+  right: -2px;
+  font-size: 7px;
+  font-weight: 900;
+  color: rgba(180,255,220,0.95);
+  font-family: var(--font);
+  pointer-events: none;
+}
+.dev-tear-grant-btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255,255,255,0.14);
+  background: rgba(255,255,255,0.06);
+  cursor: pointer;
+  font-family: var(--font);
+  transition: background 0.12s, transform 0.12s;
+}
+.dev-tear-grant-btn:hover {
+  background: rgba(255,255,255,0.12);
+  transform: scale(1.03);
+}
+.dev-tear-grant-ico {
+  width: 26px;
+  height: 26px;
+  object-fit: contain;
+}
+.dev-tear-grant-cap {
+  font-size: 11px;
+  font-weight: 800;
+  color: rgba(220,240,255,0.9);
+}
+.dev-tear-total {
+  margin-left: 4px;
+  min-width: 20px;
+  padding: 2px 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.14);
+  color: rgba(255,255,255,0.92);
+  font-size: 10px;
+  font-weight: 800;
+  font-family: var(--font);
+  text-align: center;
+  box-sizing: border-box;
+}
+
+.spirit-node--stock {
+  position: relative;
+}
+.spirit-node--stock .inv-qty-badge {
+  right: -8px;
+  top: -8px;
+}
+/* Same teal pill as grid saved-memory counts */
+.spirit-node--stock .spirit-inv-teal-badge {
+  top: -7px;
+  right: -10px;
+  padding: 1px 5px;
+  min-width: 14px;
+  justify-content: center;
+}
+
+.evo-branch-spirit-hit .evo-branch-spirit-qty {
+  position: absolute;
+  right: 4px;
+  bottom: 4px;
+  font-size: 9px;
+  font-weight: 900;
+  color: rgba(30,30,34,0.72);
+  font-family: var(--font);
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dev-spirit-pill:hover,
+  .dev-tear-grant-btn:hover {
+    transform: none;
+  }
+}
+
 .imx-confirm-btns { display: flex; gap: 10px; }
 .imx-confirm-btn {
   flex: 1; padding: 10px 8px; border-radius: 10px; border: none;
@@ -436,6 +852,9 @@ body {
   justify-self: center;
 }
 .spirit-warn-miss { opacity: 0.65; }
+.spirit-warn-miss img {
+  filter: grayscale(1) brightness(1.05) opacity(0.45);
+}
 
 /* Multi-branch evolution picker */
 .evo-branch-overlay {
@@ -469,6 +888,7 @@ body {
   gap: 14px 18px;
 }
 .evo-branch-spirit-hit {
+  position: relative;
   padding: 0;
   margin: 0;
   border: none;
@@ -612,6 +1032,7 @@ body {
 .imx-stat-lbl { font-size: 11px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.45px; white-space: nowrap; }
 .imx-stat-val { font-size: 18px; font-weight: 700; color: var(--text-dark); }
 .imx-tear-btn {
+  position: relative;
   background: var(--chip-bg) url('../assets/icons/Tear_of_the_Goddess.png') center/var(--imx-tear-sz, 60%) no-repeat;
   cursor: pointer;
   transition: opacity 0.12s, transform 0.12s;
@@ -632,6 +1053,9 @@ body {
   height: 100%; border-radius: 999px;
   background: linear-gradient(90deg, var(--hero-1), var(--hero-2));
   transition: width 0.35s ease;
+}
+.imx-fill.imx-fill--tear-anim {
+  transition: none !important;
 }
 .imx-fill.maxed { background: linear-gradient(90deg, #38D27A, #68F2A0); }
 .imx-cap { font-size: 10px; color: var(--text-muted); text-align: right; }
@@ -1710,6 +2134,13 @@ html.mempool-production .mempool-dev-only {
   width: 28px; height: 28px; object-fit: contain;
   filter: drop-shadow(0 2px 6px rgba(0,0,0,0.3));
 }
+.spirit-img.spirit-img--missing {
+  filter: grayscale(1) brightness(1.05) opacity(0.4) drop-shadow(0 1px 3px rgba(0,0,0,0.12));
+}
+.spirit-fallback--missing {
+  opacity: 0.36;
+  filter: grayscale(1);
+}
 .spirit-label {
   font-size: 8px; font-weight: 700; color: var(--text-muted);
   text-transform: uppercase; letter-spacing: 0.3px; white-space: nowrap;
@@ -1759,6 +2190,14 @@ html.mempool-production .mempool-dev-only {
   font-size: 13px; font-weight: 700;
 }
 .spirit-warn { font-size: 11px; color: #C88010; margin-top: 5px; display: flex; align-items: center; gap: 4px; }
+.spirit-warn--plain {
+  margin-top: 8px;
+  font-weight: 700;
+}
+.spirit-warn--plain strong {
+  text-transform: capitalize;
+  font-weight: 800;
+}
 
 /* COLLECTION TAB */
 .coll-empty {

@@ -98,6 +98,12 @@ function renderDetail() {
   const wm = document.getElementById('hero-wm');
   if (wm) wm.textContent = mem.name;
 
+  const motesHost = document.getElementById('detail-hero-motes');
+  if (motesHost) {
+    const cg = CONGRATS_GRADIENTS[pType] || CONGRATS_GRADIENTS.WIND;
+    fillAmbientMotes(motesHost, cg[0], cg[1], 22);
+  }
+
   const typeHtml = (mem.type || []).map(t => typeBadgeHtml(t)).join('') || '';
   const elTypeD = document.getElementById('detail-type-details');
   const elTypeC = document.getElementById('detail-type-collection');
@@ -144,6 +150,7 @@ function renderDetail() {
   renderEvoLine(id, mem, base);
   renderCollection(id, mem, insts, inst);
   updateButtons(mem, bank, progress, maxMC, inst);
+  syncDevInventoryBar();
 
   if (S.instanceCardOpen && onColl && inst) {
     refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax);
@@ -199,11 +206,15 @@ function renderEvoLine(id, mem, base) {
       }
       if (spiritType) {
         const spiritSrc = SPIRIT_MAP[spiritType];
+        const cnt       = getSpiritCount(spiritType);
+        const hasSpirit = cnt >= 1;
+        const missCls   = hasSpirit ? '' : ' spirit-img--missing';
         const spiritEl  = spiritSrc
-          ? `<img class="spirit-img" src="${spiritSrc}" alt="${spiritType}" title="${spiritType} spirit required" onerror="this.style.display='none'">`
-          : `<span style="font-size:16px" title="${spiritType} spirit required">🔮</span>`;
+          ? `<img class="spirit-img${missCls}" src="${spiritSrc}" alt="${spiritType}" title="${spiritType} spirit required" onerror="this.style.display='none'">`
+          : `<span class="spirit-fallback${hasSpirit ? '' : ' spirit-fallback--missing'}" style="font-size:16px" title="${spiritType} spirit required">🔮</span>`;
+        const badge = cnt > 0 ? inventoryQtyBadgeHtml(cnt, { variant: 'grid-teal' }) : '';
         prefix = `<span class="evo-arrow">→</span>
-          <div class="spirit-node">${spiritEl}<span class="spirit-label">${spiritType}</span></div>
+          <div class="spirit-node spirit-node--stock">${spiritEl}${badge}<span class="spirit-label">${spiritType}</span></div>
           <span class="evo-arrow">→</span>`;
       } else {
         prefix = `<span class="evo-arrow">→</span>`;
@@ -225,11 +236,15 @@ function renderEvoLine(id, mem, base) {
       const tid = b.to;
       const spiritKey = b.spirit || '';
       const spiritSrc = spiritKey && SPIRIT_MAP[spiritKey];
+      const n = spiritKey ? getSpiritCount(spiritKey) : 0;
+      const hasSpirit = n >= 1;
+      const missCls = hasSpirit ? '' : ' spirit-img--missing';
       const spiritEl = spiritSrc
-        ? `<img class="spirit-img" src="${spiritSrc}" alt="" title="${spiritKey} spirit" onerror="this.style.display='none'">`
-        : `<span style="font-size:18px" title="${spiritKey} spirit">🔮</span>`;
+        ? `<img class="spirit-img${missCls}" src="${spiritSrc}" alt="" title="${spiritKey} spirit" onerror="this.style.display='none'">`
+        : `<span class="spirit-fallback${hasSpirit ? '' : ' spirit-fallback--missing'}" style="font-size:18px" title="${spiritKey} spirit">🔮</span>`;
+      const bdg = spiritKey && n > 0 ? inventoryQtyBadgeHtml(n, { variant: 'grid-teal' }) : '';
       return `<div class="evo-branch-row">
-        <div class="spirit-node evo-branch-spirit">${spiritEl}<span class="spirit-label">${spiritKey}</span></div>
+        <div class="spirit-node evo-branch-spirit spirit-node--stock">${spiritEl}${bdg}<span class="spirit-label">${spiritKey}</span></div>
         <span class="evo-arrow evo-arrow-branch">→</span>
         ${evoDexCapsuleHtml(tid, id)}
       </div>`;
@@ -249,7 +264,7 @@ function renderEvoLine(id, mem, base) {
   const reqEl = document.getElementById('evo-req');
   if (showOrbyxFork) {
     const opts = mem.evolution_branches.map(b => {
-      const has = !b.spirit || PLAYER_SPIRITS[b.spirit];
+      const has = !b.spirit || getSpiritCount(b.spirit) >= 1;
       const icon = b.spirit && SPIRIT_MAP[b.spirit]
         ? `<img src="${SPIRIT_MAP[b.spirit]}" alt="">`
         : '🔮';
@@ -264,15 +279,12 @@ function renderEvoLine(id, mem, base) {
   } else if (mem.evolves_to) {
     const evoReq = mem.mc_for_evo || mem.mc_needed;
     const spirit = mem.spirit_req;
-    const hasSp  = !spirit || !!PLAYER_SPIRITS[spirit];
+    const hasSp  = !spirit || getSpiritCount(spirit) >= 1;
 
     reqEl.innerHTML = `
       <div class="evo-req-box">
         <div class="evo-req-static">Next evolution needs <strong>${evoReq != null ? evoReq + ' ◆' : '—'}</strong> on a saved Memory — <strong>level up</strong> and <strong>evolve</strong> from <strong>Collection</strong> after you hit the cap.</div>
-        ${spirit ? `<div class="spirit-warn">
-          ${SPIRIT_MAP[spirit] ? `<img src="${SPIRIT_MAP[spirit]}" style="width:16px;height:16px;object-fit:contain">` : '🔮'}
-          ${hasSp ? '✓ Have' : '✗ Need'} <strong>${spirit}</strong> spirit for this evolution
-        </div>` : ''}
+        ${spirit ? `<div class="spirit-warn spirit-warn--plain">${hasSp ? '✓ Own' : '✗ Need'} <strong>${spirit}</strong> spirit</div>` : ''}
       </div>`;
   } else {
     reqEl.innerHTML = `<div class="evo-final" style="color:${tc(mem.type[0]||'WIND')}">
@@ -339,8 +351,8 @@ function updateButtons(mem, bank, progress, maxMC, inst) {
   const atMax   = progress >= maxMC;
   const branchy = mem.evolution_branches?.length > 1;
   const hasSp   = branchy
-    ? mem.evolution_branches.some(b => !b.spirit || PLAYER_SPIRITS[b.spirit])
-    : (!mem.spirit_req || PLAYER_SPIRITS[mem.spirit_req]);
+    ? mem.evolution_branches.some(b => !b.spirit || getSpiritCount(b.spirit) >= 1)
+    : (!mem.spirit_req || getSpiritCount(mem.spirit_req) >= 1);
   const hasEvo  = !!mem.evolves_to || branchy;
 
   const lvlBtn  = document.getElementById('ic-btn-lvl');

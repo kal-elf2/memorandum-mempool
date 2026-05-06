@@ -184,9 +184,27 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
     nftArtBtn.style.display = inst.is_nft ? 'flex' : 'none';
   }
 
-  const tearBtn = document.getElementById('imx-tear-btn');
-  if (tearBtn) {
-    tearBtn.disabled = atMax;
+  syncImxTearButton(mem, inst);
+
+  const evoHint = document.getElementById('imx-evo-hint');
+  if (evoHint) {
+    const branchy = mem.evolution_branches?.length > 1;
+    const linSpirit = mem.evolves_to && mem.spirit_req && !branchy ? mem.spirit_req : null;
+    if (atMax && linSpirit) {
+      const src = SPIRIT_MAP[linSpirit];
+      const n = getSpiritCount(linSpirit);
+      evoHint.hidden = false;
+      evoHint.innerHTML = `<span class="imx-evo-hint-inner">
+        ${src ? `<span class="imx-evo-hint-ico-wrap"><img src="${src}" alt="" class="imx-evo-hint-ico">${inventoryQtyBadgeHtml(n)}</span>` : ''}
+        <span class="imx-evo-hint-txt">Evolve spends one <strong>${linSpirit}</strong> spirit <span class="imx-evo-hint-stock${n < 1 ? ' warn' : ''}">(${n} in inventory)</span>.</span>
+      </span>`;
+    } else if (atMax && branchy) {
+      evoHint.hidden = false;
+      evoHint.innerHTML = `<span class="imx-evo-hint-txt">Each path needs its spirit — tap <strong>Evolve</strong>, then choose.</span>`;
+    } else {
+      evoHint.hidden = true;
+      evoHint.innerHTML = '';
+    }
   }
 }
 

@@ -73,3 +73,107 @@ function personalityBadgeHtml(p) {
   const col = PERSONALITY_COLORS[p] || '#888';
   return `<span class="badge personality" style="background:${col};border-color:${col};">${p}</span>`;
 }
+
+const TEAR_ICON_SRC = 'assets/icons/Tear_of_the_Goddess.png';
+
+/** Keys that match `SPIRIT_MAP` (five spirit items). */
+const SPIRIT_INVENTORY_KEYS = ['fire', 'water', 'earth', 'electric', 'astral'];
+
+function normalizeSpiritKey(k) {
+  return String(k || '').toLowerCase();
+}
+
+function getSpiritCount(k) {
+  const key = normalizeSpiritKey(k);
+  return Math.max(0, (S.spiritCounts && S.spiritCounts[key]) || 0);
+}
+
+function addSpirit(k, n = 1) {
+  const key = normalizeSpiritKey(k);
+  if (!SPIRIT_INVENTORY_KEYS.includes(key)) return;
+  const add = Math.max(1, Math.floor(Number(n)) || 1);
+  S.spiritCounts[key] = getSpiritCount(key) + add;
+}
+
+function tryConsumeSpirit(k) {
+  const key = normalizeSpiritKey(k);
+  if (getSpiritCount(key) < 1) return false;
+  S.spiritCounts[key] = getSpiritCount(key) - 1;
+  return true;
+}
+
+function getTearCount() {
+  return Math.max(0, Math.floor(S.tearCount || 0));
+}
+
+function addTear(n = 1) {
+  const add = Math.max(1, Math.floor(Number(n)) || 1);
+  S.tearCount = getTearCount() + add;
+}
+
+function tryConsumeTear() {
+  if (getTearCount() < 1) return false;
+  S.tearCount = getTearCount() - 1;
+  return true;
+}
+
+/**
+ * Pulsing drift/twinkle motes (same CSS as `.evo-final-mote` in evolution-animation.css).
+ * Used by congrats banner and detail hero.
+ */
+function fillAmbientMotes(hostEl, color1, color2, count = 20) {
+  if (!hostEl) return;
+  hostEl.innerHTML = '';
+  const n = Math.max(0, Math.min(48, count));
+  for (let i = 0; i < n; i++) {
+    const m = document.createElement('div');
+    m.className = 'evo-final-mote';
+    const c = Math.random() < 0.52 ? color1 : Math.random() < 0.72 ? color2 : '#fff';
+    m.style.setProperty('--mote-c', c);
+    const near = Math.random() < 0.64;
+    const cx = near ? 14 + Math.random() * 40 : 8 + Math.random() * 84;
+    const cy = near ? 18 + Math.random() * 56 : 6 + Math.random() * 86;
+    m.style.left = `${cx}%`;
+    m.style.top = `${cy}%`;
+    const size = near ? 2.2 + Math.random() * 2.6 : 1.4 + Math.random() * 2.2;
+    m.style.width = `${size}px`;
+    m.style.height = `${size}px`;
+    m.style.opacity = `${near ? 0.38 + Math.random() * 0.28 : 0.16 + Math.random() * 0.22}`;
+    m.style.animationDelay = `${-(Math.random() * 24)}s`;
+    m.style.setProperty('--mote-dur', `${12 + Math.random() * 16}s`);
+    m.style.setProperty('--mote-twinkle', `${3 + Math.random() * 4}s`);
+    hostEl.appendChild(m);
+  }
+}
+
+/** Badge HTML for inventory qty on spirit/tear icons (detail + confirms). */
+function inventoryQtyBadgeHtml(qty, opts) {
+  const q = Math.max(0, Math.floor(Number(qty)) || 0);
+  if (q < 1) return '';
+  if (opts && opts.variant === 'grid-teal') {
+    return `<span class="gc-count spirit-inv-teal-badge" aria-hidden="true">${q}</span>`;
+  }
+  const cls = (opts && opts.className) ? String(opts.className) : 'inv-qty-badge';
+  return `<span class="${cls}" aria-hidden="true">${q}</span>`;
+}
+
+/** Instance modal: tear stack badge + disabled / empty styling from prototype inventory. */
+function syncImxTearButton(mem, inst) {
+  const tearBtn = document.getElementById('imx-tear-btn');
+  const tq = document.getElementById('imx-tear-qty');
+  if (!tearBtn || !tq || !mem || !inst) return;
+  const base = mem.base_memory;
+  const maxMC = mem.max_mc;
+  const spent = instanceMcSpent(inst, base);
+  const atMax = spent >= maxMC;
+  const tears = getTearCount();
+  if (tears > 1) {
+    tq.textContent = String(tears);
+    tq.hidden = false;
+  } else {
+    tq.textContent = '';
+    tq.hidden = true;
+  }
+  tearBtn.classList.toggle('imx-tear-empty', !atMax && tears < 1);
+  tearBtn.disabled = atMax || (!atMax && tears < 1);
+}

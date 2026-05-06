@@ -9,9 +9,46 @@ function openNftArt() {
 }
 
 let _imxConfirmCb = null;
-function showImxConfirm(msg, onConfirm, _pType) {
-  document.getElementById('imx-confirm-msg').innerHTML = msg;
+
+function clearImxConfirmVisual() {
+  const vis = document.getElementById('imx-confirm-visual');
+  if (!vis) return;
+  vis.innerHTML = '';
+  vis.hidden = true;
+  vis.setAttribute('aria-hidden', 'true');
+}
+
+/**
+ * @param {Object} [visualSpec] — `{ type:'spirit', key }` or `{ type:'tear' }`
+ */
+function showImxConfirm(msg, onConfirm, _pType, visualSpec) {
+  const msgEl = document.getElementById('imx-confirm-msg');
+  if (msgEl) msgEl.innerHTML = msg;
   _imxConfirmCb = onConfirm;
+  const vis = document.getElementById('imx-confirm-visual');
+  clearImxConfirmVisual();
+  if (vis && visualSpec && visualSpec.type === 'spirit' && visualSpec.key) {
+    const key = String(visualSpec.key).toLowerCase();
+    const src = SPIRIT_MAP[key];
+    const n = getSpiritCount(key);
+    vis.hidden = false;
+    vis.setAttribute('aria-hidden', 'false');
+    vis.innerHTML = `
+      <div class="imx-confirm-cost imx-confirm-cost--spirit">
+        ${src ? `<span class="imx-confirm-ico-stack"><img src="${src}" alt="" class="imx-confirm-ico">${inventoryQtyBadgeHtml(n)}</span>` : ''}
+        <p class="imx-confirm-cost-note">One <strong>${key}</strong> spirit will be consumed.</p>
+      </div>`;
+  } else if (vis && visualSpec && visualSpec.type === 'tear') {
+    const n = getTearCount();
+    vis.hidden = false;
+    vis.setAttribute('aria-hidden', 'false');
+    vis.innerHTML = `
+      <div class="imx-confirm-cost imx-confirm-cost--tear">
+        <span class="imx-confirm-ico-stack"><img src="${TEAR_ICON_SRC}" alt="" class="imx-confirm-ico">${inventoryQtyBadgeHtml(n, { variant: 'grid-teal' })}</span>
+        <p class="imx-confirm-cost-note">One tear will be spent to reach max level.</p>
+      </div>`;
+  }
+
   const yesBtn = document.getElementById('imx-confirm-yes');
   const p = _pType || 'WIND';
   const cg = CONGRATS_GRADIENTS[p] || ['#b8dcff','#92bef0'];
@@ -22,13 +59,50 @@ function showImxConfirm(msg, onConfirm, _pType) {
     const cb = _imxConfirmCb;
     _imxConfirmCb = null;
     document.getElementById('imx-confirm-overlay').classList.remove('show');
+    clearImxConfirmVisual();
     if (cb) cb();
   };
   document.getElementById('imx-confirm-overlay').classList.add('show');
 }
 function closeImxConfirm() {
   document.getElementById('imx-confirm-overlay').classList.remove('show');
+  clearImxConfirmVisual();
   _imxConfirmCb = null;
+}
+
+function syncDevInventoryBar() {
+  if (typeof window !== 'undefined' && window.__MEMPOOL_PRODUCTION__) return;
+  const host = document.getElementById('dev-spirit-pills');
+  if (host) {
+    host.innerHTML = SPIRIT_INVENTORY_KEYS.map(key => {
+      const src = SPIRIT_MAP[key];
+      const n = getSpiritCount(key);
+      const badge = n > 0 ? inventoryQtyBadgeHtml(n, { className: 'inv-qty-badge dev-spirit-stock' }) : '';
+      return `<button type="button" class="dev-spirit-pill" onclick="devGrantSpirit('${key}')" title="${key} spirit (+1) · owned ${n}">
+        <img src="${src}" alt="">
+        ${badge}
+        <span class="dev-spirit-plus">+1</span>
+      </button>`;
+    }).join('');
+  }
+  const dt = document.getElementById('dev-tear-total');
+  if (dt) dt.textContent = String(getTearCount());
+}
+
+function devGrantSpirit(key) {
+  addSpirit(key, 1);
+  syncDevInventoryBar();
+  const ds = document.getElementById('screen-detail');
+  if (ds && ds.classList.contains('active')) renderDetail();
+  const gridOpen = document.getElementById('screen-grid')?.classList.contains('active');
+  if (gridOpen) renderGrid();
+}
+
+function devAddTear(amount) {
+  addTear(typeof amount === 'number' ? amount : 1);
+  syncDevInventoryBar();
+  const ds = document.getElementById('screen-detail');
+  if (ds && ds.classList.contains('active')) renderDetail();
 }
 
 function doTearMaxLevel() {
@@ -38,11 +112,32 @@ function doTearMaxLevel() {
   const maxMC = mem.max_mc;
   const spent = instanceMcSpent(inst, base);
   if (spent >= maxMC) return;
+  if (getTearCount() < 1) return;
+
   const pType = mem.type[0] || 'WIND';
+  const panel = document.getElementById('imx-panel');
   showImxConfirm(
-    `Use <strong>Tear of the Goddess</strong> on <strong>${mem.name}</strong> to bring it to max level?`,
-    () => { inst.mc_spent = maxMC; renderDetail(); },
-    pType
+    `Bring <strong>${mem.name}</strong> to <strong>max level</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
+    () => {
+      playTearMaxLevelAnimation(panel, {
+        onConsumedOne: () => {
+          tryConsumeTear();
+          syncDevInventoryBar();
+          const mem2 = MEMORIES[S.selectedId];
+          const inst2 = currentInstance();
+          syncImxTearButton(mem2, inst2);
+        },
+        onApplyLevel: () => {
+          inst.mc_spent = maxMC;
+          renderDetail();
+        },
+        onComplete: () => {
+          syncDevInventoryBar();
+        },
+      });
+    },
+    pType,
+    { type: 'tear' }
   );
 }
 
@@ -108,7 +203,8 @@ function openEvoBranchPicker(id, mem, inst) {
   host.innerHTML = '';
   _sortEvolutionBranches(mem.evolution_branches).forEach(b => {
     const spiritKey = b.spirit || '';
-    const hasSpirit = !spiritKey || PLAYER_SPIRITS[spiritKey];
+    const owned = spiritKey ? getSpiritCount(spiritKey) : 0;
+    const hasSpirit = !spiritKey || owned >= 1;
     const asset = spiritKey && SPIRIT_MAP[spiritKey];
     const [c1, c2] = _branchSpiritThemeColors(b);
     const btn = document.createElement('button');
@@ -117,10 +213,11 @@ function openEvoBranchPicker(id, mem, inst) {
     btn.disabled = !hasSpirit;
     btn.style.setProperty('--spirit-pad-c1', c1);
     btn.style.setProperty('--spirit-pad-c2', c2);
-    btn.title = hasSpirit ? spiritKey : `${spiritKey} — not owned`;
+    btn.title = hasSpirit ? `${spiritKey} (×${owned})` : `${spiritKey} — none owned`;
+    const qtyHtml = spiritKey ? `<span class="evo-branch-spirit-qty">×${owned}</span>` : '';
     const inner = asset
-      ? `<span class="evo-branch-spirit-pad"><img src="${asset}" alt="${spiritKey}" loading="lazy"></span>`
-      : `<span class="evo-branch-spirit-pad"><span class="evo-branch-spirit-fallback">🔮</span></span>`;
+      ? `<span class="evo-branch-spirit-pad"><img src="${asset}" alt="${spiritKey}" loading="lazy"></span>${qtyHtml}`
+      : `<span class="evo-branch-spirit-pad"><span class="evo-branch-spirit-fallback">🔮</span></span>${qtyHtml}`;
     btn.innerHTML = inner;
     btn.onclick = () => confirmEvoBranch(b.to, spiritKey);
     host.appendChild(btn);
@@ -143,11 +240,19 @@ function confirmEvoBranch(targetId, spiritKey) {
   if (!target) return;
   closeEvoBranchPicker();
   const confirmThemeType = mem.type[0] || 'WIND';
+  const spiritDisp = spiritKey
+    ? spiritKey.charAt(0).toUpperCase() + spiritKey.slice(1).toLowerCase()
+    : '';
+  /** Branch pick (e.g. Orbyx): don’t spoil the evolved form’s name — spirit + cost are in the visual block. */
+  const branchConfirmHtml = spiritDisp
+    ? `Evolve<br><strong>${mem.name}</strong> with the <strong>${spiritDisp}</strong> spirit.<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`
+    : `Evolve<br><strong>${mem.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`;
   if (!inst.is_nft) {
     showImxConfirm(
-      `Evolve <strong>${mem.name}</strong> with the <strong>${spiritKey}</strong> spirit?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
+      branchConfirmHtml,
       () => _launchEvolveAnimation(id, mem, inst, target, spiritKey),
-      confirmThemeType
+      confirmThemeType,
+      spiritKey ? { type: 'spirit', key: spiritKey } : null
     );
   } else {
     _launchEvolveAnimation(id, mem, inst, target, spiritKey);
@@ -163,7 +268,7 @@ function doEvolve() {
   if (spent < mem.max_mc) return;
 
   if (mem.evolution_branches?.length > 1) {
-    const playable = mem.evolution_branches.some(b => !b.spirit || PLAYER_SPIRITS[b.spirit]);
+    const playable = mem.evolution_branches.some(b => !b.spirit || getSpiritCount(b.spirit) >= 1);
     if (!playable) return;
     openEvoBranchPicker(id, mem, inst);
     return;
@@ -173,11 +278,13 @@ function doEvolve() {
   const target = MEMORIES[mem.evolves_to]; if (!target) return;
 
   const confirmThemeType = mem.type[0] || 'WIND';
+  const linSpirit = mem.spirit_req || null;
   if (!inst.is_nft) {
     showImxConfirm(
       `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
       () => _launchEvolveAnimation(id, mem, inst, target),
-      confirmThemeType
+      confirmThemeType,
+      linSpirit ? { type: 'spirit', key: linSpirit } : null
     );
   } else {
     _launchEvolveAnimation(id, mem, inst, target);
@@ -201,7 +308,7 @@ function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
     spiritRequired: spiritReq,
     spiritAsset: spiritAsset,
     primaryType,
-    onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst, target.id),
+    onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst, target.id, spiritReq || null),
     onComplete: () => {
       if (S._evoCongratsShown) {
         S._evoCongratsShown = false;
@@ -211,9 +318,11 @@ function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
   });
 }
 
-function _executeEvolve(id, mem, inst, targetId) {
+function _executeEvolve(id, mem, inst, targetId, spiritConsumeKey) {
   const base  = mem.base_memory;
   const target = MEMORIES[targetId]; if (!target) return;
+
+  if (spiritConsumeKey && !tryConsumeSpirit(spiritConsumeKey)) return;
 
   const newlyOwnsTarget = !S.instances.some(i => i.dex_id === targetId);
   const carryPersonality = inst.personality;
@@ -384,4 +493,7 @@ function resetAll() {
   if (_gc) _gc.scrollTop = 0;
   renderGrid();
   showScreen('grid');
+  S.spiritCounts = { fire: 0, water: 0, earth: 0, electric: 0, astral: 0 };
+  S.tearCount = 0;
+  syncDevInventoryBar();
 }

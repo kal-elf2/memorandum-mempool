@@ -240,6 +240,7 @@ function renderGrid() {
   if (f === 'type') {
     cellsEl.innerHTML = renderTypeView(q, effectiveOwned);
     syncCardRows();
+    syncDevInventoryBar();
     return;
   }
 
@@ -264,10 +265,12 @@ function renderGrid() {
       No ${label} memories yet
     </div>`;
     syncCardRows();
+    syncDevInventoryBar();
     return;
   }
 
   cellsEl.innerHTML = ids.map(id => renderCard(id, effectiveOwned)).join('');
   syncCardRows();
   if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
+  syncDevInventoryBar();
 }

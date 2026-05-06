@@ -95,7 +95,9 @@
         <div class="imx-stat-lbl">Memcore&nbsp;◆</div>
         <div class="imx-stat-val" id="imx-mc-bank"></div>
       </div>
-      <button type="button" class="imx-stat-pill imx-tear-btn" id="imx-tear-btn" onclick="doTearMaxLevel()" title="Use Tear — max level instantly"></button>
+      <button type="button" class="imx-stat-pill imx-tear-btn" id="imx-tear-btn" onclick="doTearMaxLevel()" title="Use Tear — max level instantly">
+        <span class="gc-count imx-tear-qty" id="imx-tear-qty" hidden aria-hidden="true"></span>
+      </button>
     </div>
     <div class="imx-stg-box">
       <div class="imx-stg-head">
@@ -106,6 +108,7 @@
       <div class="imx-cap" id="imx-cap"></div>
     </div>
     <div class="imx-mint" id="imx-mint"></div>
+    <div class="imx-evo-hint" id="imx-evo-hint" hidden></div>
     <div class="imx-actions">
       <button type="button" class="ic-btn ic-btn-levelup" id="ic-btn-lvl"  onclick="doLevelUp()">Level Up</button>
       <button type="button" class="ic-btn ic-btn-evolve"  id="ic-btn-evo"  onclick="doEvolve()">Evolve</button>
@@ -117,6 +120,7 @@
 
 <div id="imx-confirm-overlay" class="imx-confirm-overlay" onclick="closeImxConfirm()">
   <div class="imx-confirm-card" onclick="event.stopPropagation()">
+    <div class="imx-confirm-visual" id="imx-confirm-visual" hidden aria-hidden="true"></div>
     <div class="imx-confirm-msg" id="imx-confirm-msg"></div>
     <div class="imx-confirm-btns">
       <button type="button" class="imx-confirm-btn imx-confirm-yes" id="imx-confirm-yes">Confirm</button>
@@ -273,6 +277,7 @@
       <div class="detail-hero" id="detail-hero">
         <button class="detail-back" onclick="showScreen('grid')"><img src="assets/icons/back-square.png" alt="Back" class="detail-back-img"></button>
         <div class="hero-wm" id="hero-wm"></div>
+        <div class="detail-hero-motes" id="detail-hero-motes" aria-hidden="true"></div>
         <div class="hero-img-layer" aria-hidden="true">
           <div class="hero-img-wrap" id="hero-img-wrap"></div>
         </div>
@@ -347,6 +352,20 @@
   <button type="button" class="dbg" onclick="debugMC(10)" style="background:rgba(56,210,196,0.28)">+10 ◆</button>
   <button type="button" class="dbg" onclick="debugMC(30)" style="background:rgba(56,210,196,0.28)">+30 ◆</button>
   <span id="mc-dbg" style="font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--font);margin-left:auto"></span>
+</div>
+<div id="dev-inventory-bar" class="dev-inventory-bar mempool-dev-only" aria-label="Dev inventory">
+  <div class="dev-inventory-row">
+    <span class="dev-inventory-label">Spirits</span>
+    <div class="dev-spirit-pills" id="dev-spirit-pills"></div>
+  </div>
+  <div class="dev-inventory-row dev-inventory-row--tear">
+    <span class="dev-inventory-label">Tear</span>
+    <button type="button" class="dev-tear-grant-btn" id="dev-tear-grant-btn" onclick="devAddTear(1)" title="Add Tear of the Goddess to inventory">
+      <img src="assets/icons/Tear_of_the_Goddess.png" alt="" class="dev-tear-grant-ico">
+      <span class="dev-tear-grant-cap">+1</span>
+      <span class="dev-tear-total" id="dev-tear-total">0</span>
+    </button>
+  </div>
 </div>
 
 <!-- ENCOUNTER BIOME BUTTONS -->
@@ -496,6 +515,7 @@
 <script src="js/render.js"></script>
 <script src="js/detail.js"></script>
 <script src="js/evolution-animation.js"></script>
+<script src="js/tear-effects.js"></script>
 <script src="js/game-actions.js"></script>
 <script src="js/grid-tuner.js"></script>
 <script src="js/detail-tuner.js"></script>
