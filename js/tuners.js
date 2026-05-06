@@ -129,6 +129,279 @@ const PT_CG = [
   { col:8, key:'cgWowDy', label:'Y', unit:'px', step:2, min:-200, max:200, cssVar:'--cg-wow-dy', cssSuffix:'px' },
 ];
 
+// ══════════════════════════════════════════════════════════════
+//  MOBILE CONGRATS LAYOUT TUNER  (≤720px only; --cg-m-* on overlay)
+// ══════════════════════════════════════════════════════════════
+const _DEV_CG_MOBILE_LS = 'mempoolCgMobilePT';
+
+const PT_M_DEFAULTS = {
+  cgStripTop: 16,
+  cgStripBot: 39,
+  cgBandOp: 63,
+  cgBandFadeS: 28,
+  cgBandFadeE: 100,
+  cgGlowSz: 30,
+  cgGlowOp: 50,
+  cgGlowSolid: 10,
+  cgGlowGone: 100,
+  cgCreatureTop: 14,
+  cgCreatureSz: 292,
+  cgWmFsMin: 64,
+  cgWmFsMax: 168,
+  cgWmScale: 130,
+  cgWmX: 0,
+  cgWmY: 44,
+  cgWmOp: 8,
+  cgTagsTop: 38,
+  cgTxtTop: 54,
+  cgCloseL: 12,
+  cgCloseT: 48,
+  cgCloseSz: 34,
+  cgBtnR: 14,
+  cgBtnBottom: 118,
+  cgBtnSafeExtra: 22,
+  cgPadBot: 68,
+  cgPadBotSafe: 12,
+  cgBtnPx: 46,
+  cgBtnPy: 14,
+  cgBtnFs: 14,
+  cgBtnMinW: 197,
+  cgRwX: 12,
+  cgRwY: 36,
+  cgEssFsMin: 17,
+  cgEssFsMax: 29,
+  cgEssGap: 5,
+  cgEssDx: 0,
+  cgEssDy: 0,
+  cgMcFsMin: 15,
+  cgMcFsMax: 27,
+  cgMcDx: 0,
+  cgMcDy: 0,
+  cgWowFsMin: 11,
+  cgWowFsMax: 20,
+  cgWowDx: 0,
+  cgWowDy: 6,
+};
+
+let PT_M = { ...PT_M_DEFAULTS };
+
+/** Rows: mVar is written on #congrats-overlay; __skip uses PT_M but applies elsewhere */
+const PT_CG_MOBILE = [
+  { col: 1, sec: 'Band', key: 'cgStripTop', label: 'Strip top', unit: '%', step: 1, min: 0, max: 90, mVar: '--cg-m-strip-top', cssSuffix: '%' },
+  { col: 1, key: 'cgStripBot', label: 'Strip bot', unit: '%', step: 1, min: 0, max: 90, mVar: '--cg-m-strip-bot', cssSuffix: '%' },
+  { col: 1, key: 'cgBandOp', label: 'Band α', unit: '%', step: 2, min: 5, max: 100, mVar: '__skip', cssSuffix: '%' },
+  { col: 1, key: 'cgBandFadeS', label: 'Fade S', unit: '%', step: 2, min: 0, max: 100, mVar: '__skip', cssSuffix: '%' },
+  { col: 1, key: 'cgBandFadeE', label: 'Fade E', unit: '%', step: 2, min: 0, max: 100, mVar: '__skip', cssSuffix: '%' },
+  { col: 1, sec: 'Glow', key: 'cgGlowSz', label: 'Height', unit: 'px', step: 2, min: 4, max: 100, mVar: '--cg-m-glow-sz', cssSuffix: 'px' },
+  { col: 1, key: 'cgGlowOp', label: 'Glow α', unit: '%', step: 2, min: 5, max: 100, mVar: '__skip', cssSuffix: '%' },
+  { col: 1, key: 'cgGlowSolid', label: 'Solid', unit: '%', step: 2, min: 0, max: 80, mVar: '--cg-m-glow-solid', cssSuffix: '%' },
+  { col: 1, key: 'cgGlowGone', label: 'Gone', unit: '%', step: 2, min: 20, max: 100, mVar: '--cg-m-glow-gone', cssSuffix: '%' },
+  { col: 2, sec: 'Creature', key: 'cgCreatureTop', label: 'Y', unit: '%', step: 1, min: 0, max: 85, mVar: '--cg-m-creature-top', cssSuffix: '%' },
+  { col: 2, key: 'cgCreatureSz', label: 'Size', unit: 'px', step: 4, min: 120, max: 480, mVar: '--cg-m-creature-sz', cssSuffix: 'px' },
+  { col: 2, sec: 'WM', key: 'cgWmFsMin', label: 'FS min', unit: 'px', step: 2, min: 20, max: 200, mVar: '--cg-m-wm-fs-min', cssSuffix: 'px' },
+  { col: 2, key: 'cgWmFsMax', label: 'FS max', unit: 'px', step: 2, min: 40, max: 280, mVar: '--cg-m-wm-fs-max', cssSuffix: 'px' },
+  { col: 2, key: 'cgWmScale', label: 'Scale', unit: '%', step: 5, min: 40, max: 240, mVar: '__skip', cssSuffix: '%' },
+  { col: 2, key: 'cgWmX', label: 'WM X', unit: 'px', step: 2, min: -400, max: 400, mVar: '--cg-m-wm-x', cssSuffix: 'px' },
+  { col: 2, key: 'cgWmY', label: 'WM Y', unit: 'px', step: 2, min: -400, max: 400, mVar: '--cg-m-wm-y', cssSuffix: 'px' },
+  { col: 2, key: 'cgWmOp', label: 'WM α', unit: '%', step: 1, min: 2, max: 45, mVar: '__skip', cssSuffix: '%' },
+  { col: 3, sec: 'Tags & text', key: 'cgTagsTop', label: 'Tags Y', unit: '%', step: 1, min: 0, max: 90, mVar: '--cg-m-tags-top', cssSuffix: '%' },
+  { col: 3, key: 'cgTxtTop', label: 'Text Y', unit: '%', step: 1, min: 0, max: 90, mVar: '--cg-m-txt-top', cssSuffix: '%' },
+  { col: 3, sec: 'Close', key: 'cgCloseL', label: 'Left', unit: 'px', step: 2, min: 0, max: 160, mVar: '--cg-m-close-l', cssSuffix: 'px' },
+  { col: 3, key: 'cgCloseT', label: 'Top', unit: 'px', step: 2, min: 0, max: 200, mVar: '--cg-m-close-t', cssSuffix: 'px' },
+  { col: 3, key: 'cgCloseSz', label: 'Size', unit: 'px', step: 2, min: 28, max: 56, mVar: '--cg-m-close-sz', cssSuffix: 'px' },
+  { col: 3, sec: 'CTA', key: 'cgBtnR', label: 'Btn right', unit: 'px', step: 2, min: 0, max: 120, mVar: '--cg-m-btn-r', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnBottom', label: 'Btn bottom', unit: 'px', step: 4, min: 40, max: 280, mVar: '--cg-m-btn-bottom', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnSafeExtra', label: 'Safe +', unit: 'px', step: 2, min: 0, max: 80, mVar: '--cg-m-btn-safe-extra', cssSuffix: 'px' },
+  { col: 3, key: 'cgPadBot', label: 'Pad bot', unit: 'px', step: 4, min: 40, max: 160, mVar: '--cg-m-pad-bot', cssSuffix: 'px' },
+  { col: 3, key: 'cgPadBotSafe', label: 'Pad safe', unit: 'px', step: 2, min: 0, max: 48, mVar: '--cg-m-pad-bot-safe', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnPx', label: 'Btn pad X', unit: 'px', step: 2, min: 8, max: 80, mVar: '--cg-m-btn-px', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnPy', label: 'Btn pad Y', unit: 'px', step: 2, min: 6, max: 48, mVar: '--cg-m-btn-py', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnFs', label: 'Btn font', unit: 'px', step: 1, min: 10, max: 22, mVar: '--cg-m-btn-fs', cssSuffix: 'px' },
+  { col: 3, key: 'cgBtnMinW', label: 'Btn minW', unit: 'px', step: 4, min: 80, max: 320, mVar: '--cg-m-btn-minw', cssSuffix: 'px' },
+  { col: 4, sec: 'Reward', key: 'cgRwX', label: 'Right gap', unit: 'px', step: 2, min: 0, max: 120, mVar: '--cg-m-rw-x', cssSuffix: 'px' },
+  { col: 4, key: 'cgRwY', label: 'Reward Y', unit: '%', step: 1, min: 0, max: 90, mVar: '--cg-m-rw-y', cssSuffix: '%' },
+  { col: 4, sec: 'Essence', key: 'cgEssFsMin', label: 'Ess min', unit: 'px', step: 1, min: 8, max: 40, mVar: '--cg-m-ess-fs-min', cssSuffix: 'px' },
+  { col: 4, key: 'cgEssFsMax', label: 'Ess max', unit: 'px', step: 1, min: 12, max: 60, mVar: '--cg-m-ess-fs-max', cssSuffix: 'px' },
+  { col: 4, key: 'cgEssGap', label: 'Gap', unit: 'px', step: 1, min: 0, max: 30, mVar: '--cg-m-ess-gap', cssSuffix: 'px' },
+  { col: 4, key: 'cgEssDx', label: 'Ess X', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-ess-dx', cssSuffix: 'px' },
+  { col: 4, key: 'cgEssDy', label: 'Ess Y', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-ess-dy', cssSuffix: 'px' },
+  { col: 4, sec: 'Memcore', key: 'cgMcFsMin', label: 'MC min', unit: 'px', step: 1, min: 8, max: 36, mVar: '--cg-m-mc-fs-min', cssSuffix: 'px' },
+  { col: 4, key: 'cgMcFsMax', label: 'MC max', unit: 'px', step: 1, min: 10, max: 44, mVar: '--cg-m-mc-fs-max', cssSuffix: 'px' },
+  { col: 4, key: 'cgMcDx', label: 'MC X', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-mc-dx', cssSuffix: 'px' },
+  { col: 4, key: 'cgMcDy', label: 'MC Y', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-mc-dy', cssSuffix: 'px' },
+  { col: 4, sec: 'Wow', key: 'cgWowFsMin', label: 'Wow min', unit: 'px', step: 1, min: 8, max: 28, mVar: '--cg-m-wow-fs-min', cssSuffix: 'px' },
+  { col: 4, key: 'cgWowFsMax', label: 'Wow max', unit: 'px', step: 1, min: 10, max: 36, mVar: '--cg-m-wow-fs-max', cssSuffix: 'px' },
+  { col: 4, key: 'cgWowDx', label: 'Wow X', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-wow-dx', cssSuffix: 'px' },
+  { col: 4, key: 'cgWowDy', label: 'Wow Y', unit: 'px', step: 2, min: -200, max: 200, mVar: '--cg-m-wow-dy', cssSuffix: 'px' },
+];
+
+function _loadPTMobileFromLs() {
+  try {
+    const raw = localStorage.getItem(_DEV_CG_MOBILE_LS);
+    if (!raw) return;
+    const o = JSON.parse(raw);
+    if (!o || typeof o !== 'object') return;
+    for (const k of Object.keys(PT_M_DEFAULTS)) {
+      if (typeof o[k] === 'number' && !isNaN(o[k])) PT_M[k] = o[k];
+    }
+  } catch (_) {}
+}
+
+function _savePTMobileToLs() {
+  try {
+    localStorage.setItem(_DEV_CG_MOBILE_LS, JSON.stringify(PT_M));
+  } catch (_) {}
+}
+
+function _applyPTMobileBannerMaskAndGlow(overlay) {
+  const bOp = PT_M.cgBandOp / 100;
+  const bS = PT_M.cgBandFadeS;
+  const bE = PT_M.cgBandFadeE;
+  const maskVal = `linear-gradient(to right, rgba(0,0,0,${bOp}) 0%, rgba(0,0,0,${bOp}) ${bS}%, transparent ${bE}%)`;
+  const bannerMain = overlay.querySelector('.cg-banner-main');
+  if (bannerMain) {
+    bannerMain.style.maskImage = maskVal;
+    bannerMain.style.webkitMaskImage = maskVal;
+  }
+  const gOp = PT_M.cgGlowOp / 100;
+  overlay.querySelectorAll('.cg-banner-top-glow, .cg-banner-bot-glow').forEach(el => {
+    el.style.opacity = String(gOp);
+  });
+}
+
+function _applyPTMobile() {
+  const overlay = document.getElementById('congrats-overlay');
+  if (!overlay) return;
+
+  const mq =
+    typeof window.matchMedia === 'function' ? window.matchMedia('(max-width: 720px)') : null;
+  const mobile = mq ? mq.matches : window.innerWidth <= 720;
+
+  PT_CG_MOBILE.forEach(r => {
+    const elIn = document.getElementById('pt-cgm-' + r.key);
+    if (elIn) elIn.value = PT_M[r.key];
+    if (r.mVar === '__skip') return;
+    const suf = r.cssSuffix ?? '';
+    overlay.style.setProperty(r.mVar, String(PT_M[r.key]) + suf);
+  });
+
+  overlay.style.setProperty('--cg-m-wm-sc', String(PT_M.cgWmScale / 100));
+  overlay.style.setProperty('--cg-m-wm-op', String(PT_M.cgWmOp / 100));
+
+  if (overlay.classList.contains('show')) {
+    if (mobile) _applyPTMobileBannerMaskAndGlow(overlay);
+    else if (typeof _applyPT === 'function') _applyPT();
+  }
+
+  const ro = document.getElementById('cg-m-tuner-readout');
+  if (ro) {
+    ro.textContent = [
+      `band ${PT_M.cgStripTop}-${PT_M.cgStripBot}% α${PT_M.cgBandOp}% ${PT_M.cgBandFadeS}-${PT_M.cgBandFadeE}%`,
+      `glow ${PT_M.cgGlowSz}px α${PT_M.cgGlowOp}%`,
+      `sprite ${PT_M.cgCreatureTop}% ${PT_M.cgCreatureSz}px`,
+      `wm clamp ${PT_M.cgWmFsMin}-${PT_M.cgWmFsMax}px ×${PT_M.cgWmScale}% xy${PT_M.cgWmX},${PT_M.cgWmY} α${PT_M.cgWmOp}%`,
+      `tags ${PT_M.cgTagsTop}% text ${PT_M.cgTxtTop}%`,
+      `× ${PT_M.cgCloseL},${PT_M.cgCloseT} (${PT_M.cgCloseSz}px)`,
+      `btn R${PT_M.cgBtnR} bot${PT_M.cgBtnBottom} safe+${PT_M.cgBtnSafeExtra} padB${PT_M.cgPadBot}`,
+      `rw ${PT_M.cgRwX}px Y${PT_M.cgRwY}%`,
+      `ess ${PT_M.cgEssFsMin}-${PT_M.cgEssFsMax}px gap${PT_M.cgEssGap}`,
+      `mc ${PT_M.cgMcFsMin}-${PT_M.cgMcFsMax}px wow ${PT_M.cgWowFsMin}-${PT_M.cgWowFsMax}px`,
+    ].join(' · ');
+  }
+}
+
+function _ptMAdj(key, delta) {
+  const r = PT_CG_MOBILE.find(x => x.key === key);
+  if (!r) return;
+  let v = PT_M[key] + delta;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  PT_M[key] = v;
+  _savePTMobileToLs();
+  _applyPTMobile();
+}
+
+function _ptMSet(key, val) {
+  const r = PT_CG_MOBILE.find(x => x.key === key);
+  if (!r) return;
+  let v = parseFloat(val);
+  if (isNaN(v)) return;
+  if (r.min !== undefined) v = Math.max(r.min, v);
+  if (r.max !== undefined) v = Math.min(r.max, v);
+  PT_M[key] = v;
+  _savePTMobileToLs();
+  _applyPTMobile();
+}
+
+function _makeTunerRowMobile(r) {
+  const d = document.createElement('div');
+  d.className = 'cgt-row';
+  d.innerHTML =
+    `<span class="cgt-label">${r.label}</span>` +
+    `<button type="button" class="cgt-btn" onclick="_ptMAdj('${r.key}',-${r.step})">↑</button>` +
+    `<input id="pt-cgm-${r.key}" class="cgt-input" type="number" value="${PT_M[r.key]}" onchange="_ptMSet('${r.key}',this.value)">` +
+    `<button type="button" class="cgt-btn" onclick="_ptMAdj('${r.key}',${r.step})">↓</button>` +
+    `<span class="cgt-unit">${r.unit}</span>`;
+  return d;
+}
+
+let _cgMobileResizeHooked = false;
+function _ensureCgMobileResizeHook() {
+  if (_cgMobileResizeHooked) return;
+  _cgMobileResizeHooked = true;
+  window.addEventListener(
+    'resize',
+    () => {
+      const o = document.getElementById('congrats-overlay');
+      if (!o || !o.classList.contains('show')) return;
+      if (typeof _applyPTMobile === 'function') _applyPTMobile();
+    },
+    { passive: true }
+  );
+}
+
+function _initTunerMobile() {
+  _ensureCgMobileResizeHook();
+  _loadPTMobileFromLs();
+  const wrap = document.getElementById('cg-m-tuner-rows');
+  if (wrap) {
+    wrap.innerHTML = '';
+    const maxCol = PT_CG_MOBILE.reduce((m, r) => Math.max(m, r.col || 1), 1);
+    const cols = [];
+    const lastSec = {};
+    for (let i = 1; i <= maxCol; i++) {
+      const c = document.createElement('div');
+      c.className = 'cg-tuner-col';
+      c.dataset.col = String(i);
+      wrap.appendChild(c);
+      cols.push(c);
+      lastSec[i] = null;
+    }
+    PT_CG_MOBILE.forEach(r => {
+      const ci = r.col || 1;
+      const colEl = cols[ci - 1];
+      if (!colEl) return;
+      if (r.sec && r.sec !== lastSec[ci]) {
+        lastSec[ci] = r.sec;
+        const h = document.createElement('div');
+        h.className = 'cgt-sec';
+        h.textContent = r.sec;
+        colEl.appendChild(h);
+      }
+      colEl.appendChild(_makeTunerRowMobile(r));
+    });
+  }
+  _applyPTMobile();
+}
+
+function _resetPTMobile() {
+  PT_M = { ...PT_M_DEFAULTS };
+  try {
+    localStorage.removeItem(_DEV_CG_MOBILE_LS);
+  } catch (_) {}
+  _initTunerMobile();
+}
+
 function _applyPT() {
   const root = document.documentElement;
   PT_CG.forEach(r => {
@@ -185,14 +458,42 @@ function _applyPT() {
   }
 }
 
-function copyTunerReadout() { copyReadout('cg-tuner-readout'); }
-function copyReadout(id) {
+function copyTunerReadout(feedbackBtn) {
+  copyReadout('cg-tuner-readout', feedbackBtn);
+}
+/** Uses Clipboard API when available; textarea fallback helps mobile / insecure origins. */
+function copyReadout(id, feedbackBtn) {
   const ro = document.getElementById(id);
   if (!ro) return;
-  navigator.clipboard.writeText(ro.textContent).then(() => {
-    const btn = ro.parentElement?.querySelector('.cg-tuner-copy');
-    if (btn) { btn.textContent = '✓'; setTimeout(() => btn.textContent = '📋', 1200); }
-  });
+  const text = ro.textContent;
+  const markDone = () => {
+    const btn = feedbackBtn && feedbackBtn.nodeType === 1 ? feedbackBtn : null;
+    if (!btn) return;
+    const prev = btn.textContent;
+    btn.textContent = '✓';
+    setTimeout(() => {
+      btn.textContent = prev;
+    }, 1200);
+  };
+  const fallbackCopy = () => {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = text;
+      ta.style.cssText = 'position:fixed;left:-9999px;top:0;opacity:0';
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      const ok = document.execCommand('copy');
+      document.body.removeChild(ta);
+      if (ok) markDone();
+    } catch (_) {}
+  };
+  if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+    navigator.clipboard.writeText(text).then(markDone).catch(fallbackCopy);
+  } else {
+    fallbackCopy();
+  }
 }
 
 // ── TUNER COLLAPSE ──

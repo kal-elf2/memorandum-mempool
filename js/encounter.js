@@ -225,6 +225,7 @@ function showCongrats(instance, opts) {
   }
 
   document.getElementById('congrats-overlay').classList.add('show');
+  if (typeof _applyPTMobile === 'function') _applyPTMobile();
 
   if (_congratsKeydownHandler)
     document.removeEventListener('keydown', _congratsKeydownHandler);

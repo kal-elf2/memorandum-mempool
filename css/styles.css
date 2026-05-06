@@ -2873,26 +2873,43 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
     min-height: 100vh;
     min-height: 100dvh;
     min-height: 100svh;
-    /* Mobile-only vertical rhythm: stagger bands so tags/rewards/title don’t stack at one % */
-    --cg-strip-top: 16%;
-    --cg-strip-bot: 39%;
-    --cg-creature-top: 14%;
-    --cg-creature-sz: min(292px, 54vmin);
-    --cg-wm-fs: clamp(64px, 18vmin, 168px);
-    --cg-wm-y: 44px;
-    --cg-tags-top: 38%;
-    --cg-txt-top: 54%;
-    --cg-rw-y: 36%;
-    --cg-close-l: max(12px, env(safe-area-inset-left, 0px));
-    --cg-close-t: max(48px, calc(env(safe-area-inset-top, 0px) + 28px));
-    --cg-close-sz: 34px;
-    --cg-rw-x: max(12px, env(safe-area-inset-right, 0px));
-    --cg-ess-fs: clamp(17px, 4.6vw, 29px);
-    --cg-ess-num-fs: clamp(17px, 4.6vw, 29px);
-    --cg-mc-fs: clamp(15px, 4.2vw, 27px);
-    --cg-wow-fs: clamp(11px, 3.2vw, 20px);
+    /* Tunable via --cg-m-* (mobile congrats tuner); fallbacks = shipped mobile rhythm */
+    --cg-glow-sz: var(--cg-m-glow-sz, 30px);
+    --cg-glow-solid: var(--cg-m-glow-solid, 10%);
+    --cg-glow-gone: var(--cg-m-glow-gone, 100%);
+    --cg-strip-top: var(--cg-m-strip-top, 16%);
+    --cg-strip-bot: var(--cg-m-strip-bot, 39%);
+    --cg-creature-top: var(--cg-m-creature-top, 14%);
+    --cg-creature-sz: min(var(--cg-m-creature-sz, 292px), 54vmin);
+    --cg-wm-fs: clamp(var(--cg-m-wm-fs-min, 64px), 18vmin, var(--cg-m-wm-fs-max, 168px));
+    --cg-wm-sc: var(--cg-m-wm-sc, 1.3);
+    --cg-wm-op: var(--cg-m-wm-op, 0.08);
+    --cg-wm-x: var(--cg-m-wm-x, 0px);
+    --cg-wm-y: var(--cg-m-wm-y, 44px);
+    --cg-tags-top: var(--cg-m-tags-top, 38%);
+    --cg-txt-top: var(--cg-m-txt-top, 54%);
+    --cg-rw-y: var(--cg-m-rw-y, 36%);
+    --cg-close-l: max(var(--cg-m-close-l, 12px), env(safe-area-inset-left, 0px));
+    --cg-close-t: max(var(--cg-m-close-t, 48px), calc(env(safe-area-inset-top, 0px) + 28px));
+    --cg-close-sz: var(--cg-m-close-sz, 34px);
+    --cg-rw-x: max(var(--cg-m-rw-x, 12px), env(safe-area-inset-right, 0px));
+    --cg-ess-fs: clamp(var(--cg-m-ess-fs-min, 17px), 4.6vw, var(--cg-m-ess-fs-max, 29px));
+    --cg-ess-num-fs: clamp(var(--cg-m-ess-fs-min, 17px), 4.6vw, var(--cg-m-ess-fs-max, 29px));
+    --cg-ess-gap: var(--cg-m-ess-gap, 5px);
+    --cg-ess-dx: var(--cg-m-ess-dx, 0px);
+    --cg-ess-dy: var(--cg-m-ess-dy, 0px);
+    --cg-mc-fs: clamp(var(--cg-m-mc-fs-min, 15px), 4.2vw, var(--cg-m-mc-fs-max, 27px));
+    --cg-mc-dx: var(--cg-m-mc-dx, 0px);
+    --cg-mc-dy: var(--cg-m-mc-dy, 0px);
+    --cg-wow-fs: clamp(var(--cg-m-wow-fs-min, 11px), 3.2vw, var(--cg-m-wow-fs-max, 20px));
+    --cg-wow-dx: var(--cg-m-wow-dx, 0px);
+    --cg-wow-dy: var(--cg-m-wow-dy, 6px);
+    --cg-btn-fs: var(--cg-m-btn-fs, 14px);
+    --cg-btn-px: var(--cg-m-btn-px, 46px);
+    --cg-btn-py: var(--cg-m-btn-py, 14px);
+    --cg-btn-minw: var(--cg-m-btn-minw, 197px);
     /* Room for bottom-right CTA when scrolling */
-    padding-bottom: calc(68px + max(12px, env(safe-area-inset-bottom, 0px)));
+    padding-bottom: calc(var(--cg-m-pad-bot, 68px) + max(var(--cg-m-pad-bot-safe, 12px), env(safe-area-inset-bottom, 0px)));
   }
 
   #congrats-overlay .congrats-content {
@@ -2927,29 +2944,31 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 
   #congrats-overlay .congrats-btns {
     top: auto;
-    bottom: max(118px, calc(22px + env(safe-area-inset-bottom, 0px)));
-    right: max(14px, env(safe-area-inset-right, 0px));
+    bottom: max(var(--cg-m-btn-bottom, 118px), calc(var(--cg-m-btn-safe-extra, 22px) + env(safe-area-inset-bottom, 0px)));
+    right: max(var(--cg-m-btn-r, 14px), env(safe-area-inset-right, 0px));
     left: auto;
   }
 
   #congrats-overlay .congrats-btn-primary {
-    min-width: min(197px, calc(100vw - 36px));
-    padding-inline: clamp(14px, 5vw, 46px);
+    font-size: var(--cg-btn-fs, 14px);
+    min-width: min(var(--cg-btn-minw, 197px), calc(100vw - 36px));
+    padding-inline: clamp(14px, 5vw, var(--cg-btn-px, 46px));
+    padding-block: var(--cg-btn-py, 14px);
   }
 }
 
 /* Short phones / landscape — tighten vertical rhythm without losing composition */
 @media screen and (max-width: 720px) and (max-height: 720px) {
   #congrats-overlay {
-    --cg-strip-top: 13%;
-    --cg-strip-bot: 43%;
-    --cg-creature-top: 12%;
-    --cg-creature-sz: min(264px, 50vmin);
-    --cg-wm-fs: clamp(52px, 15vmin, 136px);
-    --cg-wm-y: 36px;
-    --cg-tags-top: 36%;
-    --cg-txt-top: 52%;
-    --cg-rw-y: 34%;
+    --cg-strip-top: var(--cg-m-strip-top, 13%);
+    --cg-strip-bot: var(--cg-m-strip-bot, 43%);
+    --cg-creature-top: var(--cg-m-creature-top, 12%);
+    --cg-creature-sz: min(var(--cg-m-creature-sz, 264px), 50vmin);
+    --cg-wm-fs: clamp(var(--cg-m-wm-fs-min, 52px), 15vmin, var(--cg-m-wm-fs-max, 136px));
+    --cg-wm-y: var(--cg-m-wm-y, 36px);
+    --cg-tags-top: var(--cg-m-tags-top, 36%);
+    --cg-txt-top: var(--cg-m-txt-top, 52%);
+    --cg-rw-y: var(--cg-m-rw-y, 34%);
   }
 
   #congrats-overlay .congrats-title {
@@ -2965,20 +2984,30 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 
 @media screen and (max-width: 720px) and (max-height: 520px) {
   #congrats-overlay {
-    --cg-strip-top: 10%;
-    --cg-strip-bot: 48%;
-    --cg-creature-sz: min(228px, 46vmin);
-    --cg-wm-fs: clamp(44px, 13vmin, 118px);
-    --cg-wm-y: 28px;
-    --cg-tags-top: 34%;
-    --cg-txt-top: 50%;
-    --cg-rw-y: 31%;
+    --cg-strip-top: var(--cg-m-strip-top, 10%);
+    --cg-strip-bot: var(--cg-m-strip-bot, 48%);
+    --cg-creature-sz: min(var(--cg-m-creature-sz, 228px), 46vmin);
+    --cg-wm-fs: clamp(var(--cg-m-wm-fs-min, 44px), 13vmin, var(--cg-m-wm-fs-max, 118px));
+    --cg-wm-y: var(--cg-m-wm-y, 28px);
+    --cg-tags-top: var(--cg-m-tags-top, 34%);
+    --cg-txt-top: var(--cg-m-txt-top, 50%);
+    --cg-rw-y: var(--cg-m-rw-y, 31%);
   }
 
   #congrats-overlay .congrats-subtitle-row {
     margin-top: 8px;
     padding-top: 8px;
   }
+}
+
+/* Desktop congrats tuner: hidden on narrow viewports (mobile has its own panel). */
+@media screen and (max-width: 720px) {
+  #cg-tuner-panel.cg-tuner-panel { display: none !important; }
+}
+/* Mobile congrats tuner: only visible ≤720px (display toggled here + dev-layout visibility). */
+#cg-m-tuner-panel.cg-m-tuner-panel { display: none; }
+@media screen and (max-width: 720px) {
+  #cg-m-tuner-panel.cg-m-tuner-panel { display: block; }
 }
 
 /* In-overlay tuner — wide 6-col bar + low max-height (keeps “View in Mempool” visible) */
@@ -3002,6 +3031,34 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   font-size: 9px; text-transform: uppercase; letter-spacing: 1px;
   color: rgba(255,255,255,0.45); font-weight: 700; margin-bottom: 4px;
 }
+#cg-m-tuner-panel.cg-m-tuner-panel {
+  position: absolute; left: 0; right: 0; bottom: 0;
+  z-index: 10000;
+  max-height: min(38vh, 280px);
+  overflow-x: hidden; overflow-y: auto;
+  background: rgba(12, 18, 32, 0.88);
+  border: 1px solid rgba(255,255,255,0.14);
+  border-bottom: none;
+  border-radius: 14px 14px 0 0;
+  padding: 6px 8px 8px;
+  font-family: monospace;
+  font-size: 10px;
+  color: rgba(255,255,255,0.88);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.45);
+}
+#cg-m-tuner-rows.cg-m-tuner-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 4px 10px;
+  align-items: start;
+}
+@media screen and (min-width: 480px) {
+  #cg-m-tuner-rows.cg-m-tuner-cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 #cg-tuner-rows.cg-tuner-cols {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));

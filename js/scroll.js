@@ -7,6 +7,7 @@ const _DEV_MODE = typeof window.__MEMPOOL_PRODUCTION__ !== 'undefined'
   ? !window.__MEMPOOL_PRODUCTION__
   : location.search.includes('dev');
 _initTuner();
+_initTunerMobile();
 _initGridTuner();
 _initCardTuner();
 _initDetailTuner();
@@ -14,7 +15,7 @@ _initInstanceCardTuner();
 _initGrid3dTuner();
 _initTovTuner();
 if (!_DEV_MODE) {
-  document.querySelectorAll('#grid-tuner, #card-tuner, #detail-tuner, #instance-card-tuner, #grid3d-tuner, #tov-tuner, #cg-tuner-panel, #dev-memcore-bar').forEach(el => {
+  document.querySelectorAll('#grid-tuner, #card-tuner, #detail-tuner, #instance-card-tuner, #grid3d-tuner, #tov-tuner, #cg-tuner-panel, #cg-m-tuner-panel, #dev-memcore-bar').forEach(el => {
     el.style.setProperty('display', 'none', 'important');
   });
 } else if (typeof applyDevLayoutTunersPreferenceToDom === 'function') {

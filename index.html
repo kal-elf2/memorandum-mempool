@@ -184,13 +184,30 @@
       <div class="cg-tuner-head" style="margin-bottom:0">🌊 Layout Tune</div>
       <div style="display:flex;gap:4px">
         <button type="button" class="tuner-collapse-btn" onclick="toggleTunerBody('cg-tuner-panel','cg-body')" aria-expanded="false" title="Expand / collapse tuner">▶</button>
-        <button class="cg-tuner-copy" onclick="copyTunerReadout()" title="Copy readout">📋</button>
+        <button type="button" class="cg-tuner-copy" onclick="copyTunerReadout(this)" title="Copy readout">📋</button>
       </div>
     </div>
     <div id="cg-body" class="tuner-body-hidden">
       <div id="cg-tuner-rows" class="cg-tuner-cols" style="margin-top:4px"></div>
       <div class="cg-tuner-readout-wrap">
         <div id="cg-tuner-readout" class="cg-tuner-readout">—</div>
+      </div>
+    </div>
+  </div>
+  <!-- Mobile-only congrats layout tuner (≤720px); desktop uses #cg-tuner-panel -->
+  <div id="cg-m-tuner-panel" class="cg-tuner-panel cg-m-tuner-panel mempool-dev-only mempool-dev-layout-tuner">
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <div class="cg-tuner-head" style="margin-bottom:0">📱 Mobile congrats</div>
+      <div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:flex-end">
+        <button type="button" class="tuner-collapse-btn" onclick="toggleTunerBody('cg-m-tuner-panel','cg-m-body')" aria-expanded="false" title="Expand / collapse">▶</button>
+        <button type="button" class="cg-tuner-copy" onclick="_resetPTMobile()" title="Reset mobile tuner defaults">↺</button>
+        <button class="cg-tuner-copy" onclick="copyReadout('cg-m-tuner-readout')" title="Copy readout">📋</button>
+      </div>
+    </div>
+    <div id="cg-m-body" class="tuner-body-hidden">
+      <div id="cg-m-tuner-rows" class="cg-tuner-cols cg-m-tuner-cols" style="margin-top:4px"></div>
+      <div class="cg-tuner-readout-wrap">
+        <div id="cg-m-tuner-readout" class="cg-tuner-readout">—</div>
       </div>
     </div>
   </div>
@@ -406,7 +423,7 @@
     <div style="display:flex;flex-direction:column" id="gt-rows"></div>
     <div style="margin-top:6px;display:flex;align-items:flex-start;gap:6px">
       <div style="flex:1;min-width:0;font-size:9px;color:rgba(255,255,255,0.28);word-break:break-all" id="gt-readout">—</div>
-      <button class="cg-tuner-copy" onclick="copyReadout('gt-readout')" title="Copy">📋</button>
+      <button type="button" class="cg-tuner-copy" onclick="copyReadout('gt-readout', this)" title="Copy">📋</button>
     </div>
   </div>
 </div>
@@ -438,7 +455,7 @@
     <div id="dt-rows"></div>
     <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
       <div class="dt-readout" id="dt-readout" style="margin-top:0">—</div>
-      <button class="cg-tuner-copy" onclick="copyReadout('dt-readout')" title="Copy">📋</button>
+      <button type="button" class="cg-tuner-copy" onclick="copyReadout('dt-readout', this)" title="Copy">📋</button>
     </div>
   </div>
 </div>
@@ -456,7 +473,7 @@
     <div id="it-rows"></div>
     <div style="display:flex;align-items:flex-start;gap:6px;margin-top:6px">
       <div class="it-readout" id="it-readout" style="margin-top:0">—</div>
-      <button class="cg-tuner-copy" onclick="copyReadout('it-readout')" title="Copy">📋</button>
+      <button type="button" class="cg-tuner-copy" onclick="copyReadout('it-readout', this)" title="Copy">📋</button>
     </div>
   </div>
 </div>
@@ -480,7 +497,7 @@
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🗂 Overview Tuner</span>
     <div style="display:flex;gap:4px">
       <button type="button" class="tuner-collapse-btn" onclick="toggleTunerBody('tov-tuner','tov-tuner-body')" aria-expanded="false" title="Expand / collapse tuner">▶</button>
-      <button onclick="copyReadout('tov-readout')" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
+      <button type="button" onclick="copyReadout('tov-readout', this)" style="font-size:9px;background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);border-radius:6px;padding:2px 8px;color:rgba(255,255,255,0.6);cursor:pointer;font-family:monospace">📋</button>
     </div>
   </div>
   <div id="tov-tuner-body" class="tuner-body-hidden">
