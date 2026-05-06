@@ -1240,7 +1240,7 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 .tov-row {
   display: flex; align-items: center; gap: var(--tov-row-gap, 8px);
   background: rgba(255,255,255, var(--tov-row-alpha, 0.12)); border-radius: var(--tov-row-rad, 10px);
-  padding: var(--tov-row-py, 6px) var(--tov-row-px, 10px);
+  padding: var(--tov-row-py, 5px) var(--tov-row-px, 10px);
   margin-bottom: var(--tov-row-mb, 4px);
 }
 .tov-icon { width: var(--tov-ico-sz, 28px); height: var(--tov-ico-sz, 28px); object-fit: contain; flex-shrink: 0; }
@@ -1266,7 +1266,7 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   row-gap: var(--tov-swatch-gap, 6px);
   flex-shrink: 0;
   margin-top: var(--tov-swatch-mt, 6px);
-  padding: var(--tov-swatch-py, 5px) var(--tov-swatch-px, 2px);
+  padding: var(--tov-swatch-py, 8px) var(--tov-swatch-px, 2px);
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
@@ -2992,7 +2992,6 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   #screen-type-overview .bg-swatch-row {
     --tov-swatch-gap: 5px;
     --tov-swatch-mt: 2px;
-    padding-top: 8px;
   }
 
   /* Details tab — tighter evolution strip when a spirit node is shown */

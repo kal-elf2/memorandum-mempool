@@ -69,9 +69,9 @@ const TOV = {
   pad: 19, px: 24,
   backX: 3, backSz: 22, backGap: 8, hdrMb: 1,
   titleFs: 17,
-  rowGap: 9, rowPy: 6, rowPx: 10, rowMb: 4, rowRad: 9, rowAlpha: 40,
+  rowGap: 9, rowPy: 5, rowPx: 10, rowMb: 4, rowRad: 9, rowAlpha: 40,
   icoSz: 29, nameFs: 12, countFs: 10, infoGap: 4, barH: 6,
-  swatchSz: 24, swatchGap: 7, swatchMt: 6, swatchPy: 5,
+  swatchSz: 24, swatchGap: 7, swatchMt: 6, swatchPy: 8,
 };
 const TOV_SECTIONS = [
   { label: 'Screen', items: [
@@ -104,7 +104,7 @@ const TOV_SECTIONS = [
     { key:'swatchSz', label:'Size',     unit:'px', step:1, min:16, max:36 },
     { key:'swatchGap',label:'Gap',      unit:'px', step:1, min:2,  max:14 },
     { key:'swatchMt', label:'Top gap',  unit:'px', step:1, min:0,  max:20 },
-    { key:'swatchPy', label:'Pad Y',    unit:'px', step:1, min:0,  max:14 },
+    { key:'swatchPy', label:'Pad Y',    unit:'px', step:1, min:0,  max:16 },
   ]},
 ];
 
