@@ -102,9 +102,8 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   const grad = heroGrad(pType);
   const hero = document.getElementById('imx-hero');
   if (hero) hero.style.background = grad;
-  const cg = CONGRATS_GRADIENTS[pType] || ['#38D2C4','#20B8AA'];
   const lvlBtn = document.getElementById('ic-btn-lvl');
-  if (lvlBtn) lvlBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
+  if (lvlBtn) lvlBtn.style.background = 'linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0)';
 
   const hTypes = document.getElementById('imx-hero-types');
   if (hTypes) {

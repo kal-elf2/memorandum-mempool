@@ -385,7 +385,8 @@ body {
 }
 .imx-confirm-btn:hover { opacity: 0.85; }
 .imx-confirm-yes {
-  background: linear-gradient(135deg, #38D2C4, #20B8AA); color: #fff; border: none;
+  background: linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0); color: #fff;
+  border: 1px solid rgba(140,180,220,0.45);
 }
 .imx-confirm-no {
   background: var(--chip-bg, #f0f0f2); color: #666; border: 1px solid #ddd;
@@ -506,7 +507,7 @@ body {
   text-transform: uppercase; letter-spacing: 0.35px; color: white;
 }
 .ic-btn:active:not(:disabled) { transform: scale(0.96); }
-.ic-btn-levelup { background: linear-gradient(135deg, #38D2C4, #20B8AA); }
+.ic-btn-levelup { background: linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0); }
 .ic-btn-evolve  { background: linear-gradient(135deg, #8A4FCC, #6030A8); }
 .ic-btn-mint    { background: linear-gradient(135deg, #FFB800, #E09000); color: #2A1800; }
 .ic-btn:disabled {
@@ -1992,18 +1993,18 @@ body {
   min-height: var(--cg-btn-h, auto);
   min-width: var(--cg-btn-minw, 197px);
   border-radius: 14px;
-  background: #9CC9FF;
-  border: 2px solid #9CC9FF;
+  background: linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0);
+  border: 2px solid #8cb4dc;
   color: white;
   cursor: pointer; transition: all 0.15s;
   text-transform: uppercase; letter-spacing: 0.6px;
-  box-shadow: 0 2px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.15);
+  box-shadow: 0 2px 12px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.35);
   min-width: 193px; text-align: center;
 }
 .congrats-btn-primary:hover {
   transform: translateY(-2px);
-  background: #b0d8ff;
-  box-shadow: 0 8px 32px rgba(80,160,255,0.5);
+  background: linear-gradient(135deg, #c8e4ff, #b2d6ff 45%, #a0c8f0);
+  box-shadow: 0 8px 28px rgba(100,160,220,0.35);
 }
 
 /* In-overlay tuner — wide 6-col bar + low max-height (keeps “View in Mempool” visible) */

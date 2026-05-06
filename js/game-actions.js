@@ -9,12 +9,12 @@ function openNftArt() {
 }
 
 let _imxConfirmCb = null;
-function showImxConfirm(msg, onConfirm, pType) {
+function showImxConfirm(msg, onConfirm, _pType) {
   document.getElementById('imx-confirm-msg').innerHTML = msg;
   _imxConfirmCb = onConfirm;
   const yesBtn = document.getElementById('imx-confirm-yes');
-  const cg = CONGRATS_GRADIENTS[pType] || ['#38D2C4','#20B8AA'];
-  yesBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
+  yesBtn.style.background = 'linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0)';
+  yesBtn.style.border = '1px solid rgba(140,180,220,0.45)';
   yesBtn.onclick = () => {
     const cb = _imxConfirmCb;
     _imxConfirmCb = null;
@@ -70,12 +70,39 @@ function doEvolve() {
     const pType = mem.type[0] || 'WIND';
     showImxConfirm(
       `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
-      () => _executeEvolve(id, mem, inst),
+      () => _launchEvolveAnimation(id, mem, inst, target),
       pType
     );
   } else {
-    _executeEvolve(id, mem, inst);
+    _launchEvolveAnimation(id, mem, inst, target);
   }
+}
+
+function _launchEvolveAnimation(id, mem, inst, target) {
+  const primaryType   = mem.type[0] || 'WIND';
+  const secondaryType = mem.type[1] || null;
+  const spiritReq     = mem.spirit_req || null;
+  const spiritAsset   = spiritReq ? (SPIRIT_MAP[spiritReq] || null) : null;
+
+  // Close instance modal so the animation is unobstructed
+  closeInstanceModal();
+
+  playEvolutionAnimation({
+    currentMemory: mem,
+    nextMemory: target,
+    instance: inst,
+    spiritRequired: spiritReq,
+    spiritAsset: spiritAsset,
+    primaryType: primaryType,
+    secondaryType: secondaryType,
+    onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst),
+    onComplete: () => {
+      if (S._evoCongratsShown) {
+        S._evoCongratsShown = false;
+        showCongrats(inst, { dismissToDetail: true });
+      }
+    }
+  });
 }
 
 function _executeEvolve(id, mem, inst) {
@@ -100,16 +127,13 @@ function _executeEvolve(id, mem, inst) {
     inst.nft_essence = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
   }
 
-  // Carry forward previous stage max as starting progress for the new form
   S.progress[base] = 0;
   inst.mc_spent = mem.max_mc;
 
-  // Mark both old and new dex as permanently owned
   S.owned[id]       = true;
   S.owned[targetId] = true;
   S.seen[targetId]  = true;
 
-  // If NFT, log both stages in bonded history
   if (inst.is_nft) {
     S.bondedLog[id]       = true;
     S.bondedLog[targetId] = true;
@@ -120,9 +144,8 @@ function _executeEvolve(id, mem, inst) {
   renderGrid();
   renderDetail();
 
-  if (newlyOwnsTarget) {
-    showCongrats(inst, { dismissToDetail: true });
-  }
+  // Flag for onComplete callback — congrats will be shown after animation closes
+  S._evoCongratsShown = newlyOwnsTarget;
 }
 
 function doMint() {

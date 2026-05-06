@@ -202,7 +202,7 @@ function renderEvoLine(id, mem, base) {
 
     reqEl.innerHTML = `
       <div class="evo-req-box">
-        <div class="evo-req-static">Next evolution needs <strong>${evoReq != null ? evoReq + ' ◆' : '—'}</strong> on an owned instance — <strong>level up</strong> and <strong>evolve</strong> from <strong>Collection</strong> after you hit the cap.</div>
+        <div class="evo-req-static">Next evolution needs <strong>${evoReq != null ? evoReq + ' ◆' : '—'}</strong> on a saved Memory — <strong>level up</strong> and <strong>evolve</strong> from <strong>Collection</strong> after you hit the cap.</div>
         ${spirit ? `<div class="spirit-warn">
           ${SPIRIT_MAP[spirit] ? `<img src="${SPIRIT_MAP[spirit]}" style="width:16px;height:16px;object-fit:contain">` : '🔮'}
           ${hasSp ? '✓ Have' : '✗ Need'} <strong>${spirit}</strong> spirit for this evolution
@@ -220,10 +220,12 @@ function renderCollection(id, mem, insts, activeInst) {
   const el = document.getElementById('coll-content');
 
   if (!insts.length) {
+    const primary = mem.type && mem.type[0] ? mem.type[0] : 'WIND';
+    const biomeName = TYPE_ICON_MAP[primary] || primary.charAt(0) + primary.slice(1).toLowerCase();
     el.innerHTML = `<div class="coll-empty">
       <div class="coll-empty-ico">ⓘ</div>
-      <p>No ${mem.name} instances yet</p>
-      <p style="font-size:11px">Use the encounter buttons below the device</p>
+      <p>No Memories to show for <strong>${mem.name}</strong> yet.</p>
+      <p style="font-size:11px;line-height:1.45;color:var(--text-muted)">Head back to the <strong>${biomeName}</strong> shrine to save more and remember more.</p>
     </div>`;
     return;
   }

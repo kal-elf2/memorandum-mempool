@@ -1,0 +1,728 @@
+/* ═══════════════════════════════════════════════════════════
+   EVOLUTION ANIMATION — full-screen cinematic sequence
+   ═══════════════════════════════════════════════════════════ */
+
+/* ── Overlay Container ── */
+.evo-overlay {
+  position: fixed; inset: 0;
+  z-index: 99999;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at center, #0a0a1a 0%, #000 100%);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  overflow: hidden;
+}
+.evo-overlay.active {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* ── Stage Area ── */
+.evo-stage {
+  position: relative;
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
+}
+
+/* ── Sprites ── */
+.evo-sprite {
+  position: absolute;
+  width: 220px; height: 220px;
+  object-fit: contain;
+  z-index: 3;
+}
+.evo-sprite-current { opacity: 1; }
+.evo-sprite-next { opacity: 0; }
+
+/* Radial glow behind sprite */
+.evo-sprite-glow {
+  position: absolute;
+  width: 280px; height: 280px;
+  z-index: 2;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 65%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Spirit element — dramatic flight path ── */
+.evo-spirit {
+  position: absolute;
+  width: 60px; height: 60px;
+  object-fit: contain;
+  z-index: 8;
+  opacity: 0;
+  filter: drop-shadow(0 0 8px var(--evo-color1, #fff)) brightness(1.2);
+  pointer-events: none;
+}
+
+/* ── Energy ring layers ── */
+.evo-ring {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 2px solid var(--evo-color1, #fff);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 0.3s ease;
+}
+.evo-ring-1 { width: 160px; height: 160px; z-index: 1; }
+.evo-ring-2 { width: 220px; height: 220px; z-index: 1; }
+.evo-ring-3 { width: 290px; height: 290px; z-index: 1; }
+.evo-ring-4 { width: 360px; height: 360px; z-index: 1; }
+
+/* ── Particle container ── */
+.evo-particles {
+  position: absolute; inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+.evo-particle {
+  position: absolute;
+  width: 4px; height: 4px;
+  border-radius: 50%;
+  background: var(--evo-color1, #fff);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ── Energy orbs ── */
+.evo-orb {
+  position: absolute;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  box-shadow: 0 0 8px 3px var(--evo-color1, #fff);
+  background: radial-gradient(circle, #fff 30%, var(--evo-color1, #fff) 100%);
+}
+
+/* ── Column ── */
+.evo-column {
+  position: absolute;
+  left: 50%; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 60px; height: 0;
+  z-index: 1;
+  opacity: 0;
+  pointer-events: none;
+  background: linear-gradient(to top,
+    transparent 0%,
+    var(--evo-color1, #fff) 20%,
+    var(--evo-color2, #fff) 50%,
+    var(--evo-color1, #fff) 80%,
+    transparent 100%
+  );
+  filter: blur(10px);
+  transition: height 1.5s ease, opacity 0.6s ease, width 0.6s ease;
+}
+
+/* ── Aura ── */
+.evo-aura {
+  position: absolute;
+  width: 200px; height: 200px;
+  border-radius: 50%;
+  z-index: 0;
+  background: radial-gradient(circle, var(--evo-color1, #fff) 0%, var(--evo-color2, #fff) 40%, transparent 70%);
+  opacity: 0;
+  filter: blur(30px);
+  pointer-events: none;
+  transition: opacity 1s ease, width 1.5s ease, height 1.5s ease;
+}
+
+/* ── Ground glow ── */
+.evo-ground {
+  position: absolute;
+  bottom: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 300px; height: 40px;
+  border-radius: 50%;
+  z-index: 0;
+  background: radial-gradient(ellipse, var(--evo-color1, #fff) 0%, var(--evo-color2, #fff) 40%, transparent 70%);
+  opacity: 0;
+  filter: blur(12px);
+  pointer-events: none;
+  transition: opacity 1s ease, width 1.5s ease;
+}
+
+/* ── Full-screen flash ── */
+.evo-flash {
+  position: fixed; inset: 0;
+  z-index: 100000;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+}
+.evo-flash.fire { 
+  opacity: 1; 
+  transition: opacity 0.08s ease;
+}
+.evo-flash.fade {
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+/* ═══════════════════════════════════════════════════════════
+   FINAL REVEAL — premium layered hold screen (post-sequence only)
+   ═══════════════════════════════════════════════════════════ */
+.evo-reveal {
+  position: absolute;
+  inset: 0;
+  --evo-focal-x: 50%;
+  --evo-focal-y: 42%;
+  z-index: 10;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.85s ease;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.evo-reveal.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+/* Layer 0 — deep base with subtle warm lift at center */
+.evo-final-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0;
+  background:
+    radial-gradient(
+      ellipse 110% 100% at var(--evo-focal-x) var(--evo-focal-y),
+      #0e0c18 0%, #060610 38%, #020206 68%, #000 100%
+    );
+  transition: opacity 0.8s ease;
+}
+.evo-reveal.show .evo-final-backdrop { opacity: 1; }
+
+/* Layer 1 — strong vignette crush */
+.evo-final-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: radial-gradient(
+    ellipse 62% 58% at var(--evo-focal-x) var(--evo-focal-y),
+    transparent 0%,
+    transparent 32%,
+    rgba(0, 0, 0, 0.5) 62%,
+    rgba(0, 0, 0, 0.92) 100%
+  );
+  transition: opacity 0.9s ease 0.04s;
+}
+.evo-reveal.show .evo-final-vignette { opacity: 1; }
+
+/* Layer 2 — type-colored atmosphere (screen blend) */
+.evo-final-atmosphere {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  mix-blend-mode: screen;
+  background:
+    radial-gradient(
+      ellipse 80% 72% at var(--evo-focal-x) var(--evo-focal-y),
+      color-mix(in srgb, var(--evo-color1, #a2cdff) 42%, transparent) 0%,
+      color-mix(in srgb, var(--evo-color2, #7eb8e8) 24%, transparent) 22%,
+      color-mix(in srgb, var(--evo-color1, #a2cdff) 10%, transparent) 44%,
+      transparent 62%
+    );
+  filter: saturate(1.12);
+  transition: opacity 1.1s ease 0.06s;
+}
+.evo-reveal.show .evo-final-atmosphere { opacity: 0.82; }
+
+/* Layer 3 — subtle volumetric rays (conic + heavy blur + radial mask) */
+.evo-final-rays {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.3s ease 0.12s;
+}
+.evo-reveal.show .evo-final-rays { opacity: 1; }
+
+.evo-final-rays-hub {
+  position: absolute;
+  left: var(--evo-focal-x);
+  top: var(--evo-focal-y);
+  width: 0;
+  height: 0;
+}
+
+.evo-final-rays-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 200vmax;
+  height: 200vmax;
+  margin-left: -100vmax;
+  margin-top: -100vmax;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  -webkit-mask-image: radial-gradient(
+    ellipse 46% 42% at 50% 50%,
+    black 0%,
+    rgba(0, 0, 0, 0.4) 32%,
+    rgba(0, 0, 0, 0.12) 52%,
+    transparent 68%
+  );
+  mask-image: radial-gradient(
+    ellipse 46% 42% at 50% 50%,
+    black 0%,
+    rgba(0, 0, 0, 0.4) 32%,
+    rgba(0, 0, 0, 0.12) 52%,
+    transparent 68%
+  );
+}
+
+.evo-final-rays-a {
+  opacity: 0.62;
+  background: repeating-conic-gradient(
+    from 4deg at 50% 50%,
+    transparent 0deg 32deg,
+    color-mix(in srgb, var(--evo-color1, #fff) 26%, transparent) 32deg 35deg,
+    transparent 35deg 60deg
+  );
+  filter: blur(18px);
+  transform: rotate(4deg);
+}
+
+.evo-final-rays-b {
+  opacity: 0.38;
+  background: repeating-conic-gradient(
+    from 22deg at 50% 50%,
+    transparent 0deg 38deg,
+    color-mix(in srgb, var(--evo-color2, #fff) 22%, transparent) 38deg 41deg,
+    transparent 41deg 72deg
+  );
+  filter: blur(28px);
+  transform: rotate(-6deg);
+}
+
+/* Layer 3.5 — vertical energy column (afterglow of transition beam) */
+.evo-final-column {
+  position: absolute;
+  left: var(--evo-focal-x);
+  top: 0;
+  bottom: 0;
+  width: min(56px, 10vw);
+  margin-left: calc(min(56px, 10vw) / -2);
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(
+    to bottom,
+    transparent 4%,
+    color-mix(in srgb, var(--evo-color1, #fff) 18%, transparent) 18%,
+    color-mix(in srgb, var(--evo-color1, #fff) 32%, transparent) 34%,
+    rgba(255, 255, 255, 0.22) 44%,
+    rgba(255, 255, 255, 0.22) 54%,
+    color-mix(in srgb, var(--evo-color2, #fff) 28%, transparent) 66%,
+    color-mix(in srgb, var(--evo-color2, #fff) 14%, transparent) 80%,
+    transparent 96%
+  );
+  filter: blur(14px);
+  mix-blend-mode: screen;
+  transition: opacity 1.2s ease 0.15s;
+  animation: evo-final-column-pulse 4s ease-in-out infinite;
+  animation-play-state: paused;
+}
+.evo-reveal.show .evo-final-column {
+  opacity: 0.55;
+  animation-play-state: running;
+}
+
+/* Faint ring energy — echoes of pre-evolution ring language */
+.evo-final-ring {
+  position: absolute;
+  left: var(--evo-focal-x);
+  top: var(--evo-focal-y);
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0;
+  border: 1.5px solid color-mix(in srgb, var(--evo-color1, #fff) 28%, transparent);
+  box-shadow:
+    0 0 12px color-mix(in srgb, var(--evo-color1, #fff) 12%, transparent),
+    inset 0 0 8px color-mix(in srgb, var(--evo-color2, #fff) 8%, transparent);
+  z-index: 5;
+  transition: opacity 1.3s ease 0.2s;
+}
+
+.evo-final-ring-a {
+  width: min(62vmin, 360px);
+  height: min(62vmin, 360px);
+  margin-left: calc(min(62vmin, 360px) / -2);
+  margin-top: calc(min(62vmin, 360px) / -2);
+  animation: evo-final-ring-breathe 5s ease-in-out infinite;
+  animation-play-state: paused;
+}
+
+.evo-final-ring-b {
+  width: min(82vmin, 480px);
+  height: min(82vmin, 480px);
+  margin-left: calc(min(82vmin, 480px) / -2);
+  margin-top: calc(min(82vmin, 480px) / -2);
+  border-color: color-mix(in srgb, var(--evo-color2, #fff) 18%, transparent);
+  animation: evo-final-ring-breathe 7s ease-in-out infinite 1s;
+  animation-play-state: paused;
+}
+
+.evo-reveal.show .evo-final-ring-a {
+  opacity: 0.38;
+  animation-play-state: running;
+}
+.evo-reveal.show .evo-final-ring-b {
+  opacity: 0.2;
+  animation-play-state: running;
+}
+
+/* Layer 4 — outer bloom (wide, soft type color) */
+.evo-final-halo-bloom {
+  position: absolute;
+  left: var(--evo-focal-x);
+  top: var(--evo-focal-y);
+  width: min(110vmin, 620px);
+  height: min(110vmin, 620px);
+  margin-left: calc(min(110vmin, 620px) / -2);
+  margin-top: calc(min(110vmin, 620px) / -2);
+  z-index: 4;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--evo-color1, #fff) 20%, transparent) 0%,
+    color-mix(in srgb, var(--evo-color2, #fff) 10%, transparent) 28%,
+    transparent 52%
+  );
+  filter: blur(32px);
+  mix-blend-mode: screen;
+  transition: opacity 1.1s ease 0.1s;
+}
+.evo-reveal.show .evo-final-halo-bloom { opacity: 0.58; }
+
+/* Layer 5 — inner halo (tight, bright, crisp edges) */
+.evo-final-halo {
+  position: absolute;
+  left: var(--evo-focal-x);
+  top: var(--evo-focal-y);
+  width: min(52vmin, 310px);
+  height: min(52vmin, 310px);
+  margin-left: calc(min(52vmin, 310px) / -2);
+  margin-top: calc(min(52vmin, 310px) / -2);
+  z-index: 5;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 50%;
+  background:
+    radial-gradient(
+      circle,
+      rgba(255, 255, 255, 0.52) 0%,
+      color-mix(in srgb, var(--evo-color1, #fff) 48%, transparent) 18%,
+      color-mix(in srgb, var(--evo-color2, #fff) 32%, transparent) 38%,
+      color-mix(in srgb, var(--evo-color1, #fff) 12%, transparent) 55%,
+      transparent 68%
+    );
+  transition: opacity 0.9s ease 0.14s, transform 0.9s ease 0.14s;
+  transform: scale(0.92);
+}
+.evo-reveal.show .evo-final-halo {
+  opacity: 1;
+  transform: scale(1);
+  animation: evo-final-halo-pulse 4.5s ease-in-out infinite 1s;
+}
+
+/* Layer 6 — pedestal ground glow (elliptical pool, tighter) */
+.evo-final-ground-glow {
+  position: absolute;
+  left: 50%;
+  top: calc(var(--evo-focal-y) + 18%);
+  width: min(72vw, 380px);
+  height: min(10vmin, 52px);
+  margin-left: calc(min(72vw, 380px) / -2);
+  z-index: 6;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse 100% 100% at 50% 50%,
+    rgba(255, 255, 255, 0.55) 0%,
+    color-mix(in srgb, var(--evo-color1, #fff) 48%, transparent) 22%,
+    color-mix(in srgb, var(--evo-color2, #fff) 28%, transparent) 48%,
+    transparent 76%
+  );
+  filter: blur(8px);
+  mix-blend-mode: screen;
+  transition: opacity 1s ease 0.2s;
+}
+.evo-reveal.show .evo-final-ground-glow {
+  opacity: 0.72;
+  animation: evo-final-ground-shimmer 5s ease-in-out infinite 0.5s;
+}
+
+/* Pedestal ring — faint circular boundary */
+.evo-final-ground-glow::after {
+  content: '';
+  position: absolute;
+  inset: -18% -6%;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--evo-color1, #fff) 18%, transparent);
+  opacity: 0.4;
+  filter: blur(1px);
+  pointer-events: none;
+}
+
+/* Layer 8 — particles */
+.evo-final-particles {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.evo-final-mote {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.98) 0%, var(--mote-c, #fff) 40%, transparent 68%);
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--mote-c, #fff) 45%, transparent);
+  animation: evo-final-mote-drift var(--mote-dur, 18s) ease-in-out infinite,
+    evo-final-mote-twinkle var(--mote-twinkle, 4s) ease-in-out infinite;
+}
+
+@keyframes evo-final-mote-drift {
+  0%   { transform: translate(0, 0) scale(1); }
+  25%  { transform: translate(6px, -14px) scale(1.08); }
+  50%  { transform: translate(-5px, -26px) scale(0.92); }
+  75%  { transform: translate(-10px, -8px) scale(1.04); }
+  100% { transform: translate(0, 0) scale(1); }
+}
+
+@keyframes evo-final-mote-twinkle {
+  0%, 100% { opacity: 0.18; }
+  50%      { opacity: 0.72; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .evo-final-mote,
+  .evo-final-column,
+  .evo-final-ring,
+  .evo-reveal-sprite {
+    animation: none !important;
+  }
+  .evo-final-mote { opacity: 0.35; }
+  .evo-reveal.show .evo-final-halo { animation: none; }
+  .evo-reveal.show .evo-final-ground-glow { animation: none; }
+}
+
+/* ── Foreground content ── */
+.evo-reveal-content {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100%;
+  padding: 36px 20px 32px;
+  box-sizing: border-box;
+}
+
+.evo-reveal-sprite-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.evo-reveal-sprite {
+  position: relative;
+  width: min(300px, 74vw);
+  height: min(300px, 74vw);
+  object-fit: contain;
+  z-index: 1;
+  animation: evo-reveal-entrance 1.1s cubic-bezier(0.22, 1.4, 0.5, 1),
+    evo-final-sprite-idle 6s ease-in-out 1.2s infinite;
+  filter:
+    drop-shadow(0 18px 32px rgba(0, 0, 0, 0.6))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4))
+    drop-shadow(0 0 16px color-mix(in srgb, var(--evo-color1, #fff) 42%, transparent))
+    drop-shadow(0 0 42px color-mix(in srgb, var(--evo-color2, #fff) 32%, transparent));
+}
+
+.evo-reveal-msg {
+  margin-top: 24px;
+  max-width: min(340px, 88vw);
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-family: var(--font, 'Kanit', sans-serif);
+  font-size: clamp(18px, 4.5vw, 23px);
+  font-weight: 700;
+  line-height: 1.3;
+  letter-spacing: 0.015em;
+  color: #fff;
+  text-align: center;
+  background: rgba(4, 6, 12, 0.42);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  text-shadow:
+    0 1px 3px rgba(0, 0, 0, 0.9),
+    0 0 14px color-mix(in srgb, var(--evo-color1, #fff) 32%, transparent),
+    0 0 24px color-mix(in srgb, var(--evo-color2, #fff) 22%, transparent);
+  animation: evo-msg-fade 0.8s ease 0.4s both;
+}
+
+.evo-reveal-btn {
+  margin-top: 18px;
+  padding: 12px 42px;
+  border: 1px solid color-mix(in srgb, var(--evo-color1, #a2cdff) 38%, rgba(255, 255, 255, 0.2));
+  border-radius: 10px;
+  font-family: var(--font, 'Kanit', sans-serif);
+  font-size: 13.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: #fff;
+  cursor: pointer;
+  background: linear-gradient(
+    150deg,
+    color-mix(in srgb, var(--evo-color1, #b8dcff) 88%, #fff),
+    color-mix(in srgb, var(--evo-color1, #a2cdff) 78%, var(--evo-color2, #92bef0)) 55%,
+    color-mix(in srgb, var(--evo-color2, #92bef0) 82%, #222)
+  );
+  box-shadow:
+    0 4px 16px rgba(0, 0, 0, 0.3),
+    0 0 18px color-mix(in srgb, var(--evo-color1, #fff) 16%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  transition: transform 0.16s ease, box-shadow 0.16s ease, filter 0.16s ease;
+  animation: evo-msg-fade 0.6s ease 0.68s both;
+}
+
+.evo-reveal-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  filter: brightness(1.08);
+  box-shadow:
+    0 8px 28px rgba(0, 0, 0, 0.35),
+    0 0 28px color-mix(in srgb, var(--evo-color1, #fff) 24%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.evo-reveal-btn:active {
+  transform: translateY(0) scale(0.98);
+  filter: brightness(0.97);
+}
+
+/* ── Keyframes ── */
+@keyframes evo-reveal-entrance {
+  0%   { transform: scale(0.2) translateY(8px); opacity: 0; }
+  50%  { transform: scale(1.12) translateY(-3px); opacity: 1; }
+  72%  { transform: scale(0.97) translateY(1px); }
+  88%  { transform: scale(1.03) translateY(0); }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+@keyframes evo-msg-fade {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes evo-final-column-pulse {
+  0%, 100% { opacity: 0.55; filter: blur(14px); }
+  50%      { opacity: 0.72; filter: blur(16px); }
+}
+
+@keyframes evo-final-halo-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.04); opacity: 0.88; }
+}
+
+@keyframes evo-final-ring-breathe {
+  0%, 100% { transform: scale(1); opacity: inherit; }
+  50%      { transform: scale(1.03); opacity: 0.5; }
+}
+
+@keyframes evo-final-ground-shimmer {
+  0%, 100% { opacity: 0.72; transform: scaleX(1); }
+  50%      { opacity: 0.85; transform: scaleX(1.04); }
+}
+
+@keyframes evo-final-sprite-idle {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-3px); }
+}
+
+@keyframes evo-ring-spin {
+  from { transform: translate(-50%,-50%) rotate(0deg); }
+  to   { transform: translate(-50%,-50%) rotate(360deg); }
+}
+
+@keyframes evo-ring-spin-rev {
+  from { transform: translate(-50%,-50%) rotate(360deg); }
+  to   { transform: translate(-50%,-50%) rotate(0deg); }
+}
+
+@keyframes evo-shake {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-3px, 2px); }
+  20% { transform: translate(4px, -2px); }
+  30% { transform: translate(-2px, 4px); }
+  40% { transform: translate(3px, -3px); }
+  50% { transform: translate(-4px, 1px); }
+  60% { transform: translate(2px, -3px); }
+  70% { transform: translate(-3px, 3px); }
+  80% { transform: translate(4px, 2px); }
+  90% { transform: translate(-2px, -2px); }
+}
+
+@keyframes evo-shake-heavy {
+  0%, 100% { transform: translate(0,0); }
+  10% { transform: translate(-7px, 5px); }
+  20% { transform: translate(8px, -5px); }
+  30% { transform: translate(-5px, 8px); }
+  40% { transform: translate(7px, -6px); }
+  50% { transform: translate(-8px, 3px); }
+  60% { transform: translate(5px, -7px); }
+  70% { transform: translate(-6px, 6px); }
+  80% { transform: translate(8px, 4px); }
+  90% { transform: translate(-5px, -6px); }
+}
+
+@keyframes evo-particle-fly {
+  0%   { transform: translate(0,0) scale(1); opacity: 1; }
+  100% { transform: translate(var(--px, 100px), var(--py, -80px)) scale(0); opacity: 0; }
+}
+
+@keyframes evo-orb-converge {
+  0%   { opacity: 0; transform: translate(var(--orb-sx, 0), var(--orb-sy, 0)) scale(0.5); }
+  15%  { opacity: 1; }
+  80%  { opacity: 1; transform: translate(calc(var(--orb-sx, 0) * 0.04), calc(var(--orb-sy, 0) * 0.04)) scale(1); }
+  100% { opacity: 0; transform: translate(0, 0) scale(0); }
+}
+
+/* Spirit dramatic fly-through: behind → across → BIG at screen → rush back in */
+@keyframes evo-spirit-fly {
+  0%   { transform: translate(80px, 30px) scale(0.3); opacity: 0; }
+  8%   { opacity: 1; transform: translate(60px, 20px) scale(0.4); }
+  25%  { transform: translate(-60px, -10px) scale(0.5); }
+  40%  { transform: translate(-120px, 10px) scale(0.6); }
+  55%  { transform: translate(-60px, 30px) scale(0.9); }
+  70%  { transform: translate(20px, 0px) scale(1.8); opacity: 1; filter: drop-shadow(0 0 20px var(--evo-color1, #fff)) brightness(1.6); }
+  78%  { transform: translate(30px, -10px) scale(2.0); opacity: 0.9; }
+  88%  { transform: translate(10px, 5px) scale(0.8); opacity: 0.7; }
+  95%  { transform: translate(0, 0) scale(0.3); opacity: 0.4; }
+  100% { transform: translate(0, 0) scale(0.1); opacity: 0; }
+}

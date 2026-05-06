@@ -204,10 +204,10 @@ function showCongrats(instance, opts) {
 
   const cgBtn = document.querySelector('.congrats-btn-primary');
   if (cgBtn) {
-    const pc = typePrimary(pType);
-    cgBtn.style.background = `linear-gradient(135deg, ${cg[0]}, ${cg[1]})`;
-    cgBtn.style.borderColor = pc;
-    cgBtn.style.boxShadow = `0 2px 12px rgba(0,0,0,0.18), inset 0 1px 0 rgba(255,255,255,0.15)`;
+    cgBtn.style.background = 'linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0)';
+    cgBtn.style.borderColor = '#8cb4dc';
+    cgBtn.style.color = '#fff';
+    cgBtn.style.boxShadow = '0 2px 12px rgba(0,0,0,0.16), inset 0 1px 0 rgba(255,255,255,0.35)';
   }
 
   document.getElementById('congrats-overlay').classList.add('show');
