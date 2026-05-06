@@ -3,7 +3,9 @@
 // ══════════════════════════════════════════════════════════════
 //  INIT
 // ══════════════════════════════════════════════════════════════
-const _DEV_MODE = location.search.includes('dev');
+const _DEV_MODE = typeof window.__MEMPOOL_PRODUCTION__ !== 'undefined'
+  ? !window.__MEMPOOL_PRODUCTION__
+  : location.search.includes('dev');
 _initTuner();
 _initGridTuner();
 _initCardTuner();

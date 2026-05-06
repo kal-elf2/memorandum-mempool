@@ -379,6 +379,7 @@ function setCollSort(k) {
 }
 
 function syncDevPanelVisibility(screenName) {
+  if (window.__MEMPOOL_PRODUCTION__) return;
   if (typeof _DEV_MODE !== 'undefined' && !_DEV_MODE) return;
   const icOpen = S.instanceCardOpen;
   const det = screenName === 'detail';

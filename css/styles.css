@@ -708,6 +708,13 @@ body {
   flex-shrink: 0;
   filter: drop-shadow(0 24px 60px rgba(0,0,0,0.8));
 }
+/* Embed / main branch: no outer drop shadow on the device shell */
+html.mempool-production #device-frame {
+  filter: none;
+}
+html.mempool-production .mempool-dev-only {
+  display: none !important;
+}
 #device-img {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;

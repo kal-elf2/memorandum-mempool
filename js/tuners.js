@@ -166,9 +166,14 @@ function copyReadout(id) {
 function toggleTunerBody(panelId, bodyId) {
   const body = document.getElementById(bodyId);
   if (!body) return;
-  const btn = document.querySelector(`#${panelId} .tuner-collapse-btn`);
+  const panel = document.getElementById(panelId);
+  const btn = panel?.querySelector('.tuner-collapse-btn');
   body.classList.toggle('tuner-body-hidden');
-  if (btn) btn.textContent = body.classList.contains('tuner-body-hidden') ? '▶' : '▼';
+  const collapsed = body.classList.contains('tuner-body-hidden');
+  if (btn) {
+    btn.textContent = collapsed ? '▶' : '▼';
+    btn.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+  }
 }
 
 function _ptAdj(key, delta) {

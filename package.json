@@ -5,7 +5,11 @@
   "private": true,
   "scripts": {
     "dev": "npx serve . -l 3000",
-    "start": "npx serve . -l 3000"
+    "start": "npx serve . -l 3000",
+    "push:dev": "node scripts/push-dev.js",
+    "build:production": "node scripts/set-mempool-build.cjs production",
+    "build:embed": "node scripts/set-mempool-build.cjs production",
+    "build:dev": "node scripts/set-mempool-build.cjs dev"
   },
   "keywords": ["mempool", "nft", "game", "collection"],
   "license": "UNLICENSED"
