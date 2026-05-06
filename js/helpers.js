@@ -18,6 +18,21 @@ const CONGRATS_GRADIENTS = {
   SOUL:['#CC58AB','#FFA2E7'], VOID:['#2F1945','#3B376D'], WATER:['#2699D2','#85D5F7'],
   WIND:['#8EEDDB','#D3FCF9'],
 };
+
+/** Spirit inventory keys → theme gradient stops for evolution FX (trail, glow, impact). */
+function spiritKeyGradientColors(spiritKey) {
+  if (!spiritKey) return null;
+  const k = String(spiritKey).toLowerCase();
+  const typeMap = {
+    fire: 'FIRE', water: 'WATER', electric: 'ELECTRIC', earth: 'EARTH',
+    wind: 'WIND', mind: 'MIND', soul: 'SOUL', astral: 'ASTRAL',
+    void: 'VOID', aether: 'AETHER',
+  };
+  const t = typeMap[k];
+  if (!t) return null;
+  const g = CONGRATS_GRADIENTS[t];
+  return g ? [g[0], g[1]] : null;
+}
 const TYPE_PRIMARY = {
   EARTH:'#bf8f57', FIRE:'#ef6614', WIND:'#96eede', WATER:'#51b4e3',
   ELECTRIC:'#f3d66e', SOUL:'#e379c6', AETHER:'#8394b6', VOID:'#393165',

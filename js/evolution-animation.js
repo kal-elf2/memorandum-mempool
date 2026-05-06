@@ -8,21 +8,48 @@ function playEvolutionAnimation(config) {
     onMidpointApplyEvolution, onComplete
   } = config;
 
-  const cGrad = CONGRATS_GRADIENTS[primaryType] || ['#38D2C4','#20B8AA'];
-  const color1 = cGrad[0];
-  const color2 = cGrad[1];
+  const starterPT = currentMemory.type[0] || 'WIND';
+  const starterSec = currentMemory.type[1] || null;
+  const sGrad = CONGRATS_GRADIENTS[starterPT] || ['#38D2C4','#20B8AA'];
+  const starterColor1 = sGrad[0];
+  let starterColor2 = sGrad[1];
+  if (starterSec && CONGRATS_GRADIENTS[starterSec]) {
+    const g = CONGRATS_GRADIENTS[starterSec];
+    starterColor2 = g[1] || g[0];
+  }
+
+  const rGrad = CONGRATS_GRADIENTS[primaryType] || ['#38D2C4','#20B8AA'];
+  let revealColor1 = rGrad[0];
+  let revealColor2 = rGrad[1];
+  if (secondaryType && CONGRATS_GRADIENTS[secondaryType]) {
+    const g2 = CONGRATS_GRADIENTS[secondaryType];
+    revealColor2 = g2[1] || g2[0];
+  }
+
+  let spiritHighlight1 = starterColor1;
+  let spiritHighlight2 = starterColor2;
+  const spiritGrad = spiritKeyGradientColors(spiritRequired);
+  if (spiritGrad) {
+    spiritHighlight1 = spiritGrad[0];
+    spiritHighlight2 = spiritGrad[1];
+  }
 
   const currentSprite = (instance.is_shiny ? SHINY_MAP[currentMemory.id] : IMAGE_MAP[currentMemory.id]) || IMAGE_MAP[currentMemory.id];
   const nextSprite    = (instance.is_shiny ? SHINY_MAP[nextMemory.id] : IMAGE_MAP[nextMemory.id]) || IMAGE_MAP[nextMemory.id];
 
-  const overlay = _evoCreateOverlay(currentSprite, nextSprite, spiritAsset, color1, color2);
+  const overlay = _evoCreateOverlay(currentSprite, nextSprite, spiritAsset, starterColor1, starterColor2);
   document.body.appendChild(overlay);
 
   requestAnimationFrame(() => {
     overlay.classList.add('active');
     _evoRunSequence(overlay, {
       currentSprite, nextSprite, spiritAsset,
-      color1, color2,
+      color1: starterColor1,
+      color2: starterColor2,
+      spiritHighlight1,
+      spiritHighlight2,
+      revealColor1,
+      revealColor2,
       currentName: currentMemory.name,
       nextName: nextMemory.name,
       onMidpointApplyEvolution,
@@ -229,21 +256,28 @@ function _evoRunSequence(overlay, opts) {
   at(3000, () => { _evoSpawnBurst(particleCt, opts.color1, 10); rings[3].style.opacity = '0.15'; rings[3].style.transition = 'opacity 0.4s'; });
 
   // ══════════════════════════════════════════════════════════
-  // SPIRIT — dramatic fly-through (if required)
-  // Starts at 3s, flies behind → across → gets HUGE at screen → rushes back in
-  // Lasts 3s, merges ~6s mark with a burst
+  // SPIRIT — cinematic fairy arc (if required)
+  // Path: far back-right → behind creature → arcs to front → rushes toward
+  // screen (huge) → curves back → slams into creature; 3.2s duration
   // ══════════════════════════════════════════════════════════
   if (spirit) {
-    at(3000, () => {
+    const sc1 = opts.spiritHighlight1 ?? opts.color1;
+    const sc2 = opts.spiritHighlight2 ?? opts.color2;
+    at(2800, () => {
       spirit.style.opacity = '1';
-      spirit.style.animation = 'evo-spirit-fly 3000ms cubic-bezier(0.25, 0.1, 0.25, 1) forwards';
+      spirit.style.filter = `drop-shadow(0 0 8px ${sc1}) drop-shadow(0 0 18px ${sc1}) brightness(1.15)`;
+      spirit.style.animation = 'evo-spirit-arc 3200ms cubic-bezier(0.22, 0.6, 0.36, 1) forwards';
+      _evoSpiritTrail(spirit, particleCt, sc1, sc2, 3200);
     });
-    // Spirit merge burst — when it dives back into the center
-    at(5800, () => {
-      _evoSpawnBurst(particleCt, opts.color1, 18);
-      _evoSpawnBurst(particleCt, '#fff', 10);
-      aura.style.opacity = '0.6';
-      aura.style.width = '340px'; aura.style.height = '340px';
+    at(5900, () => {
+      _evoSpawnBurst(particleCt, sc1, 22);
+      _evoSpawnBurst(particleCt, '#fff', 14);
+      _evoSpawnBurst(particleCt, sc2, 8);
+      aura.style.opacity = '0.7';
+      aura.style.width = '360px'; aura.style.height = '360px';
+      glow.style.opacity = '0.8';
+      flash.style.opacity = '0.15';
+      setTimeout(() => { flash.style.opacity = '0'; flash.style.transition = 'opacity 0.3s'; }, 80);
     });
   }
 
@@ -380,9 +414,14 @@ function _evoRunSequence(overlay, opts) {
     nxtSprite.style.opacity = '0';
     overlay.style.background = 'radial-gradient(ellipse at center, #060612 0%, #000 100%)';
 
+    const rc1 = opts.revealColor1 != null ? opts.revealColor1 : opts.color1;
+    const rc2 = opts.revealColor2 != null ? opts.revealColor2 : opts.color2;
+    overlay.style.setProperty('--evo-color1', rc1);
+    overlay.style.setProperty('--evo-color2', rc2);
+
     revealMsg.textContent = `${opts.currentName} evolved into ${opts.nextName}!`;
     reveal.classList.add('show');
-    _evoRevealStartMotes(reveal, opts.color1, opts.color2);
+    _evoRevealStartMotes(reveal, rc1, rc2);
   });
 
   // ── Continue ──
@@ -448,4 +487,45 @@ function _evoSpawnBurst(container, color, count) {
     container.appendChild(p);
     setTimeout(() => p.remove(), 1300);
   }
+}
+
+/* ═══════════════════════════════════════════════════════════
+   SPIRIT TRAIL + SPARKLES — emits along the arc duration
+   ═══════════════════════════════════════════════════════════ */
+function _evoSpiritTrail(spiritEl, container, color1, color2, durationMs) {
+  const interval = 65;
+  const total = Math.floor(durationMs / interval);
+  let tick = 0;
+  const id = setInterval(() => {
+    tick++;
+    if (tick > total || !spiritEl.parentElement) { clearInterval(id); return; }
+    const rect = spiritEl.getBoundingClientRect();
+    const parentRect = container.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2 - parentRect.left;
+    const cy = rect.top + rect.height / 2 - parentRect.top;
+
+    const t = document.createElement('div');
+    t.className = 'evo-spirit-trail';
+    t.style.left = cx + 'px';
+    t.style.top = cy + 'px';
+    t.style.background = Math.random() < 0.6 ? color1 : color2;
+    const sz = 4 + Math.random() * 6;
+    t.style.width = sz + 'px';
+    t.style.height = sz + 'px';
+    container.appendChild(t);
+    setTimeout(() => t.remove(), 900);
+
+    if (tick % 3 === 0) {
+      const s = document.createElement('div');
+      s.className = 'evo-spirit-sparkle';
+      s.style.left = (cx + (Math.random() - 0.5) * 24) + 'px';
+      s.style.top = (cy + (Math.random() - 0.5) * 24) + 'px';
+      s.style.background = Math.random() < 0.5 ? '#fff' : color1;
+      const ssz = 2 + Math.random() * 3;
+      s.style.width = ssz + 'px';
+      s.style.height = ssz + 'px';
+      container.appendChild(s);
+      setTimeout(() => s.remove(), 1200);
+    }
+  }, interval);
 }

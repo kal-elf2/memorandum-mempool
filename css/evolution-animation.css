@@ -713,16 +713,54 @@
   100% { opacity: 0; transform: translate(0, 0) scale(0); }
 }
 
-/* Spirit dramatic fly-through: behind → across → BIG at screen → rush back in */
-@keyframes evo-spirit-fly {
-  0%   { transform: translate(80px, 30px) scale(0.3); opacity: 0; }
-  8%   { opacity: 1; transform: translate(60px, 20px) scale(0.4); }
-  25%  { transform: translate(-60px, -10px) scale(0.5); }
-  40%  { transform: translate(-120px, 10px) scale(0.6); }
-  55%  { transform: translate(-60px, 30px) scale(0.9); }
-  70%  { transform: translate(20px, 0px) scale(1.8); opacity: 1; filter: drop-shadow(0 0 20px var(--evo-color1, #fff)) brightness(1.6); }
-  78%  { transform: translate(30px, -10px) scale(2.0); opacity: 0.9; }
-  88%  { transform: translate(10px, 5px) scale(0.8); opacity: 0.7; }
-  95%  { transform: translate(0, 0) scale(0.3); opacity: 0.4; }
-  100% { transform: translate(0, 0) scale(0.1); opacity: 0; }
+/*
+  Spirit cinematic arc path:
+  Start far back-right (small/dim) → fly behind creature → arc to front →
+  rush toward screen (huge) → curve back → slam into creature center
+*/
+@keyframes evo-spirit-arc {
+  0%   { transform: translate(140px, 40px) scale(0.22); opacity: 0; }
+  6%   { opacity: 1; transform: translate(110px, 28px) scale(0.28); }
+  18%  { transform: translate(40px, -30px) scale(0.38); }
+  30%  { transform: translate(-50px, -55px) scale(0.42); opacity: 0.9; }
+  42%  { transform: translate(-100px, -20px) scale(0.55); }
+  54%  { transform: translate(-60px, 30px) scale(0.85); opacity: 1; }
+  66%  { transform: translate(-10px, 50px) scale(1.6); }
+  74%  { transform: translate(20px, 25px) scale(2.2); opacity: 1; }
+  82%  { transform: translate(30px, -5px) scale(1.4); opacity: 0.95; }
+  90%  { transform: translate(12px, -8px) scale(0.6); opacity: 0.8; }
+  96%  { transform: translate(2px, 2px) scale(0.2); opacity: 0.6; }
+  100% { transform: translate(0, 0) scale(0.05); opacity: 0; }
+}
+
+/* Spirit trail dots — glow and fade in place */
+.evo-spirit-trail {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.75;
+  filter: blur(2px);
+  animation: evo-spirit-trail-fade 850ms ease-out forwards;
+  box-shadow: 0 0 8px currentColor;
+}
+
+@keyframes evo-spirit-trail-fade {
+  0%   { transform: scale(1); opacity: 0.75; }
+  100% { transform: scale(0.2); opacity: 0; }
+}
+
+/* Spirit sparkles — tiny bright motes that drift and vanish */
+.evo-spirit-sparkle {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.9;
+  animation: evo-spirit-sparkle-drift 1100ms ease-out forwards;
+  box-shadow: 0 0 4px #fff;
+}
+
+@keyframes evo-spirit-sparkle-drift {
+  0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
+  50%  { transform: translate(var(--px, 6px), var(--py, -14px)) scale(0.8); opacity: 0.6; }
+  100% { transform: translate(var(--px, 12px), var(--py, -28px)) scale(0); opacity: 0; }
 }

@@ -392,6 +392,144 @@ body {
   background: var(--chip-bg, #f0f0f2); color: #666; border: 1px solid #ddd;
 }
 
+/* Evolution tree — branched preview (Orbyx: spirits stacked, arrows → ??? cards) */
+.evo-line.evo-line--branched {
+  overflow-x: visible;
+  justify-content: center;
+}
+.evo-branched-wrap {
+  display: flex;
+  flex-flow: row wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px 12px;
+  width: 100%;
+  padding-top: 10px;
+  margin-top: 6px;
+  border-top: 1px dashed color-mix(in srgb, var(--text-muted, #888) 35%, transparent);
+}
+.evo-pre-branch {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+.evo-arrow-to-stack {
+  flex-shrink: 0;
+}
+.evo-branch-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  align-items: start;
+}
+.evo-branch-row {
+  display: grid;
+  grid-template-columns: 80px 22px 76px;
+  align-items: center;
+  column-gap: 6px;
+}
+.evo-branch-row .evo-arrow-branch {
+  text-align: center;
+  justify-self: center;
+}
+.evo-branch-spirit {
+  justify-self: center;
+}
+.spirit-warn-miss { opacity: 0.65; }
+
+/* Multi-branch evolution picker */
+.evo-branch-overlay {
+  position: fixed; inset: 0; z-index: 8065;
+  background: rgba(0,0,0,0.55); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 16px;
+  opacity: 0; pointer-events: none; transition: opacity 0.18s;
+}
+.evo-branch-overlay.show { opacity: 1; pointer-events: all; }
+.evo-branch-card {
+  background: #fff; border-radius: 16px; padding: 20px 18px 16px;
+  max-width: 340px; width: 100%;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.25);
+  text-align: center;
+}
+.evo-branch-title {
+  font-family: var(--font); font-size: 15px; font-weight: 800;
+  color: #2a2a32; letter-spacing: 0.02em;
+}
+.evo-branch-sub {
+  font-family: var(--font); font-size: 12px; color: #666;
+  margin: 8px 0 14px; line-height: 1.4;
+}
+.evo-branch-options {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 14px 18px;
+}
+.evo-branch-spirit-hit {
+  padding: 0;
+  margin: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 16px;
+  line-height: 0;
+  transition: transform 0.14s ease, opacity 0.14s ease;
+}
+.evo-branch-spirit-hit:hover:not(:disabled) {
+  transform: scale(1.07);
+}
+.evo-branch-spirit-hit:active:not(:disabled) {
+  transform: scale(0.98);
+}
+.evo-branch-spirit-hit:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.evo-branch-spirit-pad {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 14px;
+  box-sizing: border-box;
+  background: linear-gradient(
+    155deg,
+    color-mix(in srgb, var(--spirit-pad-c1, #fff) 34%, #fff) 0%,
+    #fff 42%,
+    color-mix(in srgb, var(--spirit-pad-c2, #f2f2f5) 28%, #fff) 100%
+  );
+  border: 1px solid color-mix(in srgb, var(--spirit-pad-c1, #ccc) 42%, rgba(0,0,0,0.08));
+  box-shadow:
+    0 2px 10px color-mix(in srgb, var(--spirit-pad-c1, #000) 16%, transparent),
+    inset 0 1px 0 rgba(255,255,255,0.85);
+}
+.evo-branch-spirit-pad img {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+.evo-branch-spirit-fallback {
+  font-size: 28px;
+  line-height: 1;
+}
+.evo-branch-cancel {
+  margin-top: 14px; width: 100%; padding: 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(56,210,196,0.25);
+  background: rgba(56,210,196,0.06);
+  color: rgba(32,160,144,0.85);
+  font-family: var(--font); font-size: 11px; font-weight: 700;
+  cursor: pointer;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  transition: background 0.14s ease;
+}
+.evo-branch-cancel:hover { background: rgba(56,210,196,0.12); }
+
 .imx-concept-overlay {
   position: fixed; inset: 0; z-index: 8052;
   background: rgba(0,0,0,0.72); backdrop-filter: blur(6px);
@@ -1022,7 +1160,8 @@ body {
   scroll-margin-top: 8px;
 }
 
-/* Base card — row height via JS syncCardRows (= column width × rowPct%, Card Tuner) */
+/* Base card — row height via JS syncCardRows (= column width × rowPct%, Card Tuner).
+ * min-height: grid items use overflow:hidden; tiny erroneous grid-auto-rows would clip to razor-thin rows — floor prevents collapse. */
 .grid-cell {
   background: rgba(255,255,255,0.16);
   border: var(--gc-unk-bw, 3px) solid rgba(255,255,255,var(--gc-unk-br-a, 0.3));
@@ -1031,6 +1170,7 @@ body {
   display: flex; flex-direction: column;
   align-items: center; justify-content: center;
   padding: 6px; position: relative; overflow: hidden;
+  min-height: var(--gc-cell-min-h, 52px);
 }
 
 /* Owned / saved */
@@ -1187,10 +1327,27 @@ body {
   min-height: var(--dt-hero-min-h);
 }
 
+/* Type pills + blueprint (same strip layout goal as instance card id row) */
+#screen-detail .detail-type-strip {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+#screen-detail .detail-type-strip .detail-type-row {
+  flex: 1;
+  min-width: 0;
+  margin-bottom: 0;
+}
+#screen-detail .detail-type-strip .detail-bp-btn {
+  flex-shrink: 0;
+  align-self: flex-start;
+}
+
 /* Type pills in detail body (above Description / Collection content) */
 #screen-detail .detail-type-row {
   display: flex; flex-wrap: wrap; gap: 6px;
-  margin-bottom: 10px;
 }
 #screen-detail .detail-type-row .type-badge {
   background: rgba(255,255,255,0.98) !important;
@@ -1341,7 +1498,7 @@ body {
 }
 
 /* First block in tab body: pull type row up slightly under curved body */
-.detail-body .tab-pane > .detail-type-row:first-child { margin-top: 0; }
+.detail-body .tab-pane > .detail-type-strip:first-child { margin-top: 0; }
 
 /* INSTANCE SELECTOR (multiple instances of same dex) */
 .instance-bar {
@@ -1544,6 +1701,39 @@ body {
   border-radius: 10px; padding: var(--dt-chip-pad-y) var(--dt-chip-pad-x); margin-bottom: 4px;
 }
 .evo-req-static { font-size: 11px; color: var(--text-muted); line-height: 1.4; margin-bottom: 4px; }
+/* Orbyx: fire / water / electric spirit chips — single row */
+.evo-branch-req-row {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3px;
+  margin-top: 8px;
+  width: 100%;
+}
+.evo-branch-req-chip {
+  flex: 1 1 0;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  font-size: 9px;
+  font-weight: 700;
+  color: #C88010;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+.evo-branch-req-chip img {
+  width: 12px;
+  height: 12px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+.evo-branch-req-chip strong {
+  font-weight: 800;
+  text-transform: capitalize;
+}
 .evo-final {
   background: rgba(56,210,196,0.06); border: 1.5px solid rgba(56,210,196,0.2);
   border-radius: 10px; padding: 14px; text-align: center;
@@ -1993,7 +2183,6 @@ body {
   min-height: var(--cg-btn-h, auto);
   min-width: var(--cg-btn-minw, 197px);
   border-radius: 14px;
-  background: linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0);
   border: 2px solid #8cb4dc;
   color: white;
   cursor: pointer; transition: all 0.15s;
@@ -2003,8 +2192,8 @@ body {
 }
 .congrats-btn-primary:hover {
   transform: translateY(-2px);
-  background: linear-gradient(135deg, #c8e4ff, #b2d6ff 45%, #a0c8f0);
-  box-shadow: 0 8px 28px rgba(100,160,220,0.35);
+  filter: brightness(1.08);
+  box-shadow: 0 8px 28px rgba(0,0,0,0.22), inset 0 1px 0 rgba(255,255,255,0.4);
 }
 
 /* In-overlay tuner — wide 6-col bar + low max-height (keeps “View in Mempool” visible) */

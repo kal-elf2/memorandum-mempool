@@ -164,28 +164,58 @@ function renderTypeView(q, ownedIds) {
 }
 
 // Measures actual column width after layout; row height = width × (rowPct/100).
-function syncCardRows() {
+function syncCardRows(retry) {
+  const attempt = typeof retry === 'number' ? retry : 0;
   requestAnimationFrame(() => {
     const grid = document.getElementById('grid-cells');
     if (!grid) return;
+    const typeMode = grid.classList.contains('type-mode');
+    const gridVisible = document.getElementById('screen-grid')?.classList.contains('active');
+
     const firstCard = grid.querySelector('.grid-cell');
     if (!firstCard) return;
+
+    const rawMul = (typeof CT !== 'undefined' && CT.rowPct != null) ? CT.rowPct / 100 : 1;
+    const mul = Number.isFinite(rawMul) && rawMul > 0 ? rawMul : 1;
+
     const w = Math.round(firstCard.getBoundingClientRect().width);
-    if (w > 0) {
-      const mul = (typeof CT !== 'undefined' && CT.rowPct != null) ? CT.rowPct / 100 : 1;
-      const h = Math.max(36, Math.round(w * mul));
-      grid.style.gridAutoRows = h + 'px';
-      document.querySelectorAll('.type-section-grid').forEach(tg => {
-        const tc = tg.querySelector('.grid-cell');
-        if (tc) {
-          const tw = Math.round(tc.getBoundingClientRect().width);
-          if (tw > 0) tg.style.gridAutoRows = Math.max(36, Math.round(tw * mul)) + 'px';
-        }
-      });
+
+    if (gridVisible && w <= 0 && attempt < 14) {
+      syncCardRows(attempt + 1);
+      return;
+    }
+
+    if (!typeMode) {
+      if (w > 0) {
+        const h = Math.max(40, Math.min(240, Math.round(w * mul)));
+        grid.style.gridAutoRows = h + 'px';
+      } else {
+        grid.style.removeProperty('grid-auto-rows');
+      }
+    } else {
+      grid.style.removeProperty('grid-auto-rows');
+    }
+
+    let sectionNeedsRetry = false;
+    document.querySelectorAll('.type-section-grid').forEach(tg => {
+      const tc = tg.querySelector('.grid-cell');
+      if (!tc) return;
+      const tw = Math.round(tc.getBoundingClientRect().width);
+      if (tw > 0) {
+        const th = Math.max(40, Math.min(240, Math.round(tw * mul)));
+        tg.style.gridAutoRows = th + 'px';
+      } else {
+        tg.style.removeProperty('grid-auto-rows');
+        if (gridVisible) sectionNeedsRetry = true;
+      }
+    });
+
+    if (gridVisible && sectionNeedsRetry && attempt < 14) {
+      syncCardRows(attempt + 1);
     }
   });
 }
-window.addEventListener('resize', syncCardRows);
+window.addEventListener('resize', () => syncCardRows(0));
 
 function renderGrid() {
   const q        = (document.getElementById('grid-q')?.value || '').toLowerCase().trim();

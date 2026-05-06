@@ -13,8 +13,9 @@ function showImxConfirm(msg, onConfirm, _pType) {
   document.getElementById('imx-confirm-msg').innerHTML = msg;
   _imxConfirmCb = onConfirm;
   const yesBtn = document.getElementById('imx-confirm-yes');
-  yesBtn.style.background = 'linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0)';
-  yesBtn.style.border = '1px solid rgba(140,180,220,0.45)';
+  const cg = CONGRATS_GRADIENTS[_pType] || ['#b8dcff','#92bef0'];
+  yesBtn.style.background = `linear-gradient(135deg, ${cg[0]}, color-mix(in srgb, ${cg[0]} 55%, ${cg[1]}) 45%, ${cg[1]})`;
+  yesBtn.style.border = `1px solid color-mix(in srgb, ${cg[1]} 55%, rgba(0,0,0,0.2))`;
   yesBtn.onclick = () => {
     const cb = _imxConfirmCb;
     _imxConfirmCb = null;
@@ -57,32 +58,137 @@ function doLevelUp() {
   renderDetail();
 }
 
+let _evoBranchPick = null;
+
+/** Left-to-right spirit order for branch picker (Orbyx line: fire → water → electric). */
+const _EVO_BRANCH_SPIRIT_ORDER = ['fire', 'water', 'electric'];
+
+/** Theme palette for spirit picker pads (matches evolved branch primary type when possible). */
+function _branchSpiritThemeColors(branch) {
+  const tid = branch?.to;
+  const tm = tid ? MEMORIES[tid] : null;
+  const fromMem = tm?.type?.[0];
+  if (fromMem && CONGRATS_GRADIENTS[fromMem]) {
+    const g = CONGRATS_GRADIENTS[fromMem];
+    return [g[0], g[1]];
+  }
+  const k = String(branch?.spirit || '').toLowerCase();
+  const fallbackType =
+    { fire: 'FIRE', water: 'WATER', electric: 'ELECTRIC', earth: 'EARTH',
+      wind: 'WIND', mind: 'MIND', soul: 'SOUL', astral: 'ASTRAL', void: 'VOID',
+      aether: 'AETHER' }[k] || 'WIND';
+  const g = CONGRATS_GRADIENTS[fallbackType] || CONGRATS_GRADIENTS.WIND;
+  return [g[0], g[1]];
+}
+
+function _sortEvolutionBranches(branches) {
+  return [...branches].sort((a, b) => {
+    const ka = String(a.spirit || '').toLowerCase();
+    const kb = String(b.spirit || '').toLowerCase();
+    const ia = _EVO_BRANCH_SPIRIT_ORDER.indexOf(ka);
+    const ib = _EVO_BRANCH_SPIRIT_ORDER.indexOf(kb);
+    const ra = ia === -1 ? _EVO_BRANCH_SPIRIT_ORDER.length : ia;
+    const rb = ib === -1 ? _EVO_BRANCH_SPIRIT_ORDER.length : ib;
+    if (ra !== rb) return ra - rb;
+    return ka.localeCompare(kb);
+  });
+}
+
+function openEvoBranchPicker(id, mem, inst) {
+  const overlay = document.getElementById('evo-branch-overlay');
+  const host = document.getElementById('evo-branch-options');
+  if (!overlay || !host || !mem.evolution_branches?.length) return;
+  _evoBranchPick = { id, mem, inst };
+  const sub = document.getElementById('evo-branch-sub');
+  if (sub) {
+    sub.textContent = `Tap a spirit to evolve ${mem.name}.`;
+  }
+  host.innerHTML = '';
+  _sortEvolutionBranches(mem.evolution_branches).forEach(b => {
+    const spiritKey = b.spirit || '';
+    const hasSpirit = !spiritKey || PLAYER_SPIRITS[spiritKey];
+    const asset = spiritKey && SPIRIT_MAP[spiritKey];
+    const [c1, c2] = _branchSpiritThemeColors(b);
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'evo-branch-spirit-hit';
+    btn.disabled = !hasSpirit;
+    btn.style.setProperty('--spirit-pad-c1', c1);
+    btn.style.setProperty('--spirit-pad-c2', c2);
+    btn.title = hasSpirit ? spiritKey : `${spiritKey} — not owned`;
+    const inner = asset
+      ? `<span class="evo-branch-spirit-pad"><img src="${asset}" alt="${spiritKey}" loading="lazy"></span>`
+      : `<span class="evo-branch-spirit-pad"><span class="evo-branch-spirit-fallback">🔮</span></span>`;
+    btn.innerHTML = inner;
+    btn.onclick = () => confirmEvoBranch(b.to, spiritKey);
+    host.appendChild(btn);
+  });
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden', 'false');
+}
+
+function closeEvoBranchPicker() {
+  document.getElementById('evo-branch-overlay')?.classList.remove('show');
+  document.getElementById('evo-branch-overlay')?.setAttribute('aria-hidden', 'true');
+  _evoBranchPick = null;
+}
+
+function confirmEvoBranch(targetId, spiritKey) {
+  const pick = _evoBranchPick;
+  if (!pick) return;
+  const { id, mem, inst } = pick;
+  const target = MEMORIES[targetId];
+  if (!target) return;
+  closeEvoBranchPicker();
+  const pType = target.type[0] || 'WIND';
+  if (!inst.is_nft) {
+    showImxConfirm(
+      `Evolve <strong>${mem.name}</strong> with the <strong>${spiritKey}</strong> spirit?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
+      () => _launchEvolveAnimation(id, mem, inst, target, spiritKey),
+      pType
+    );
+  } else {
+    _launchEvolveAnimation(id, mem, inst, target, spiritKey);
+  }
+}
+
 function doEvolve() {
   const id  = S.selectedId;
-  const mem = MEMORIES[id]; if (!mem || !mem.evolves_to) return;
+  const mem = MEMORIES[id]; if (!mem) return;
   const inst = currentInstance(); if (!inst) return;
   const base  = mem.base_memory;
   const spent = instanceMcSpent(inst, base);
   if (spent < mem.max_mc) return;
+
+  if (mem.evolution_branches?.length > 1) {
+    const playable = mem.evolution_branches.some(b => !b.spirit || PLAYER_SPIRITS[b.spirit]);
+    if (!playable) return;
+    openEvoBranchPicker(id, mem, inst);
+    return;
+  }
+
+  if (!mem.evolves_to) return;
   const target = MEMORIES[mem.evolves_to]; if (!target) return;
 
+  const targetPType = target.type[0] || 'WIND';
   if (!inst.is_nft) {
-    const pType = mem.type[0] || 'WIND';
     showImxConfirm(
       `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
       () => _launchEvolveAnimation(id, mem, inst, target),
-      pType
+      targetPType
     );
   } else {
     _launchEvolveAnimation(id, mem, inst, target);
   }
 }
 
-function _launchEvolveAnimation(id, mem, inst, target) {
-  const primaryType   = mem.type[0] || 'WIND';
-  const secondaryType = mem.type[1] || null;
-  const spiritReq     = mem.spirit_req || null;
+function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
+  const spiritReq     = chosenSpirit != null && chosenSpirit !== ''
+    ? chosenSpirit
+    : (mem.spirit_req || null);
   const spiritAsset   = spiritReq ? (SPIRIT_MAP[spiritReq] || null) : null;
+  const primaryType   = target.type[0] || 'WIND';
+  const secondaryType = target.type[1] || null;
 
   // Close instance modal so the animation is unobstructed
   closeInstanceModal();
@@ -95,7 +201,7 @@ function _launchEvolveAnimation(id, mem, inst, target) {
     spiritAsset: spiritAsset,
     primaryType: primaryType,
     secondaryType: secondaryType,
-    onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst),
+    onMidpointApplyEvolution: () => _executeEvolve(id, mem, inst, target.id),
     onComplete: () => {
       if (S._evoCongratsShown) {
         S._evoCongratsShown = false;
@@ -105,10 +211,9 @@ function _launchEvolveAnimation(id, mem, inst, target) {
   });
 }
 
-function _executeEvolve(id, mem, inst) {
+function _executeEvolve(id, mem, inst, targetId) {
   const base  = mem.base_memory;
-  const targetId = mem.evolves_to;
-  const target   = MEMORIES[targetId]; if (!target) return;
+  const target = MEMORIES[targetId]; if (!target) return;
 
   const newlyOwnsTarget = !S.instances.some(i => i.dex_id === targetId);
   const carryPersonality = inst.personality;
@@ -241,6 +346,7 @@ function resetAll() {
   S.instanceCardOpen = false;
   document.getElementById('imx-overlay')?.classList.remove('show');
   document.getElementById('imx-panel')?.classList.remove('show');
+  closeEvoBranchPicker();
   closeImxConceptArt();
   if (_instCardKeydownHandler) {
     document.removeEventListener('keydown', _instCardKeydownHandler);

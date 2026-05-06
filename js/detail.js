@@ -22,6 +22,43 @@ function openDetail(id) {
   showScreen('detail');
 }
 
+/**
+ * One evolution-strip card: ??? vs silhouette vs full art from player discovery pipeline.
+ * Matches main grid semantics (instances dex_id + S.owned / S.seen).
+ */
+function evoDexCapsuleHtml(eid, activeDetailDexId) {
+  const em = MEMORIES[eid];
+  const cat = CATALOG[eid];
+  const name = em?.name || cat?.name || eid;
+  const ptype = em?.type?.[0] || cat?.primary || 'WIND';
+  const owned = S.instances.some(i => i.dex_id === eid) || !!S.owned[eid];
+  const seenOnly = !!S.seen[eid] && !owned;
+  const unknown = !S.seen[eid] && !owned;
+
+  let imgEl;
+  if (unknown) {
+    imgEl = `<div class="evo-card-ph" style="font-size:22px;font-weight:700;color:var(--text-muted)">?</div>`;
+  } else if (owned && IMAGE_MAP[eid]) {
+    imgEl = `<img class="evo-card-img" src="${IMAGE_MAP[eid]}" alt="${name}" loading="lazy">`;
+  } else if (seenOnly && IMAGE_MAP[eid]) {
+    imgEl = `<img class="evo-card-img evo-silhouette" src="${IMAGE_MAP[eid]}" alt="" loading="lazy">`;
+  } else {
+    imgEl = `<div class="evo-card-ph">${ti(ptype)}</div>`;
+  }
+
+  const isCur = eid === activeDetailDexId;
+  const clickable = owned && !isCur;
+  const cardCls = `evo-card${isCur ? ' current' : ''}${!clickable && !isCur ? ' evo-card-locked' : ''}`;
+  const onclk = clickable ? ` onclick="openDetail('${eid}')"` : '';
+  const displayName = unknown ? '???' : name;
+
+  return `<div class="${cardCls}"${onclk}>
+    ${imgEl}
+    <div class="evo-num">#${eid}</div>
+    <div class="evo-name">${displayName}</div>
+  </div>`;
+}
+
 function renderDetail() {
   const id   = S.selectedId;
   const mem  = MEMORIES[id];
@@ -66,10 +103,10 @@ function renderDetail() {
 
   document.getElementById('desc-text').textContent = mem.description;
 
-  const chain = evoChainFrom(base);
+  const familyStages = evoFamilyMaxStages(base);
   document.getElementById('stats-grid').innerHTML = `
     <div class="stat-chip wide">
-      <span class="stat-val">Stage ${mem.stage} of ${chain.length}</span>
+      <span class="stat-val">Stage ${mem.stage} of ${familyStages}</span>
       <span class="stat-lbl">Evolution Stage</span>
     </div>
     <div class="stat-chip">
@@ -129,7 +166,9 @@ function selectInstance(sortedIdx) {
   _instCardKeydownHandler = (e) => {
     if (e.key === 'Escape') {
       e.preventDefault();
-      if (document.getElementById('imx-concept-overlay')?.classList.contains('show')) {
+      if (document.getElementById('evo-branch-overlay')?.classList.contains('show')) {
+        closeEvoBranchPicker();
+      } else if (document.getElementById('imx-concept-overlay')?.classList.contains('show')) {
         closeImxConceptArt();
       } else {
         closeInstanceModal();
@@ -142,37 +181,19 @@ function selectInstance(sortedIdx) {
 }
 
 function renderEvoLine(id, mem, base) {
-  const chain = evoChainFrom(base);
+  const chain = evoLineDexSequence(base, id);
 
-  document.getElementById('evo-line').innerHTML = chain.map((eid, idx) => {
-    const em     = MEMORIES[eid];
-    const cat    = CATALOG[eid];
-    const name   = em?.name   || cat?.name  || eid;
-    const ptype  = em?.type?.[0] || cat?.primary || 'WIND';
-    const isCur  = eid === id;
-    const owned  = S.instances.some(i => i.dex_id === eid) || !!S.owned[eid];
-    const seenOnly = !!S.seen[eid] && !owned;
-    const unknown = !S.seen[eid] && !owned;
-
-    let imgEl;
-    if (unknown) {
-      imgEl = `<div class="evo-card-ph" style="font-size:22px;font-weight:700;color:var(--text-muted)">?</div>`;
-    } else if (owned && IMAGE_MAP[eid]) {
-      imgEl = `<img class="evo-card-img" src="${IMAGE_MAP[eid]}" alt="${name}" loading="lazy">`;
-    } else if (seenOnly && IMAGE_MAP[eid]) {
-      imgEl = `<img class="evo-card-img evo-silhouette" src="${IMAGE_MAP[eid]}" alt="" loading="lazy">`;
-    } else {
-      imgEl = `<div class="evo-card-ph">${ti(ptype)}</div>`;
-    }
-
-    const clickable = owned && !isCur;
-    const cardCls = `evo-card${isCur ? ' current' : ''}${!clickable && !isCur ? ' evo-card-locked' : ''}`;
-    const onclk = clickable ? ` onclick="openDetail('${eid}')"` : '';
-
+  const rowHtml = chain.map((eid, idx) => {
     let prefix = '';
     if (idx > 0) {
-      const prevMem    = MEMORIES[chain[idx-1]];
-      const spiritType = prevMem?.spirit_req;
+      const prevEid = chain[idx - 1];
+      const curEid = chain[idx];
+      const prevMem = MEMORIES[prevEid];
+      let spiritType = prevMem?.spirit_req;
+      if (!spiritType && prevMem?.evolution_branches?.length > 1) {
+        const br = prevMem.evolution_branches.find(b => b.to === curEid);
+        spiritType = br?.spirit;
+      }
       if (spiritType) {
         const spiritSrc = SPIRIT_MAP[spiritType];
         const spiritEl  = spiritSrc
@@ -186,16 +207,58 @@ function renderEvoLine(id, mem, base) {
       }
     }
 
-    const displayName = unknown ? '???' : name;
-    return `${prefix}<div class="${cardCls}"${onclk}>
-      ${imgEl}
-      <div class="evo-num">#${eid}</div>
-      <div class="evo-name">${displayName}</div>
-    </div>`;
+    return `${prefix}${evoDexCapsuleHtml(eid, id)}`;
   }).join('');
 
+  /** Triple spirit fork UI — Orbyx (#104) only; all other families use a single linear strip above. */
+  const showOrbyxFork = mem.id === '104' && mem.evolution_branches?.length > 1 && id === mem.id;
+
+  let forkHtml = '';
+  const evoLineEl = document.getElementById('evo-line');
+  if (evoLineEl) evoLineEl.classList.toggle('evo-line--branched', !!showOrbyxFork);
+
+  if (showOrbyxFork) {
+    const rows = mem.evolution_branches.map(b => {
+      const tid = b.to;
+      const spiritKey = b.spirit || '';
+      const spiritSrc = spiritKey && SPIRIT_MAP[spiritKey];
+      const spiritEl = spiritSrc
+        ? `<img class="spirit-img" src="${spiritSrc}" alt="" title="${spiritKey} spirit" onerror="this.style.display='none'">`
+        : `<span style="font-size:18px" title="${spiritKey} spirit">🔮</span>`;
+      return `<div class="evo-branch-row">
+        <div class="spirit-node evo-branch-spirit">${spiritEl}<span class="spirit-label">${spiritKey}</span></div>
+        <span class="evo-arrow evo-arrow-branch">→</span>
+        ${evoDexCapsuleHtml(tid, id)}
+      </div>`;
+    }).join('');
+    forkHtml = `
+      <div class="evo-branched-wrap" role="group" aria-label="Spirit evolution paths">
+        <div class="evo-pre-branch">${rowHtml}</div>
+        <span class="evo-arrow evo-arrow-to-stack" aria-hidden="true">→</span>
+        <div class="evo-branch-stack">${rows}</div>
+      </div>`;
+  }
+
+  if (evoLineEl) {
+    evoLineEl.innerHTML = forkHtml || rowHtml;
+  }
+
   const reqEl = document.getElementById('evo-req');
-  if (mem.evolves_to) {
+  if (showOrbyxFork) {
+    const opts = mem.evolution_branches.map(b => {
+      const has = !b.spirit || PLAYER_SPIRITS[b.spirit];
+      const icon = b.spirit && SPIRIT_MAP[b.spirit]
+        ? `<img src="${SPIRIT_MAP[b.spirit]}" alt="">`
+        : '🔮';
+      return `<span class="evo-branch-req-chip${has ? '' : ' spirit-warn-miss'}">${has ? '✓' : '✗'} ${icon} <strong>${b.spirit}</strong> → #${b.to}</span>`;
+    }).join('');
+    const evoReq = mem.mc_for_evo || mem.mc_needed;
+    reqEl.innerHTML = `
+      <div class="evo-req-box">
+        <div class="evo-req-static">This Memory can evolve along <strong>${mem.evolution_branches.length} spirit paths</strong>. Tap <strong>Evolve</strong> to choose a path. Needs <strong>${evoReq != null ? evoReq + ' ◆' : '—'}</strong> at max level.</div>
+        <div class="evo-branch-req-row">${opts}</div>
+      </div>`;
+  } else if (mem.evolves_to) {
     const evoReq = mem.mc_for_evo || mem.mc_needed;
     const spirit = mem.spirit_req;
     const hasSp  = !spirit || !!PLAYER_SPIRITS[spirit];
@@ -271,7 +334,11 @@ function renderCollection(id, mem, insts, activeInst) {
 // ══════════════════════════════════════════════════════════════
 function updateButtons(mem, bank, progress, maxMC, inst) {
   const atMax   = progress >= maxMC;
-  const hasSp   = !mem.spirit_req || !!PLAYER_SPIRITS[mem.spirit_req];
+  const branchy = mem.evolution_branches?.length > 1;
+  const hasSp   = branchy
+    ? mem.evolution_branches.some(b => !b.spirit || PLAYER_SPIRITS[b.spirit])
+    : (!mem.spirit_req || PLAYER_SPIRITS[mem.spirit_req]);
+  const hasEvo  = !!mem.evolves_to || branchy;
 
   const lvlBtn  = document.getElementById('ic-btn-lvl');
   const evoBtn  = document.getElementById('ic-btn-evo');
@@ -283,11 +350,18 @@ function updateButtons(mem, bank, progress, maxMC, inst) {
   lvlBtn.disabled  = !canLevel;
   lvlBtn.title     = !inst ? 'No instance' : atMax ? 'Max level reached' : bank < 1 ? 'No ◆ in bank' : '';
 
-  // EVOLVE: requires MAX level + spirit + has evolves_to (NFT instances CAN evolve — mint then evolve is the flow)
-  const canEvo  = !!inst && !!mem.evolves_to && atMax && hasSp;
+  // EVOLVE: requires MAX level + spirit + evolution target(s)
+  const canEvo  = !!inst && hasEvo && atMax && hasSp;
   evoBtn.disabled  = !canEvo;
-  evoBtn.textContent = mem.evolves_to ? 'Evolve' : 'Final Form';
-  evoBtn.title = !mem.evolves_to ? 'Final form' : !atMax ? 'Reach max level first' : !hasSp ? `Need ${mem.spirit_req} spirit` : '';
+  evoBtn.textContent = hasEvo ? 'Evolve' : 'Final Form';
+  let evoTitle = '';
+  if (!hasEvo) evoTitle = 'Final form';
+  else if (!atMax) evoTitle = 'Reach max level first';
+  else if (!hasSp && branchy) {
+    const need = [...new Set(mem.evolution_branches.map(b => b.spirit).filter(Boolean))];
+    evoTitle = need.length ? `Need at least one of: ${need.join(', ')} spirit` : 'Cannot evolve';
+  } else if (!hasSp) evoTitle = `Need ${mem.spirit_req} spirit`;
+  evoBtn.title = evoTitle;
 
   // MINT: requires instance + mintable + max level + not yet evolved (origin_state === 'saved')
   const canMint = !!inst && mem.mintable && atMax && inst.origin_state === 'saved' && !inst.is_nft;

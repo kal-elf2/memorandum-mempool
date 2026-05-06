@@ -9,7 +9,17 @@ function showScreen(name) {
   document.getElementById('screen-' + name).classList.add('active');
   syncDevPanelVisibility(name);
   if (name === 'detail') renderDetail();
-  if (name === 'grid') startLogoAnim(); else stopLogoAnim();
+  if (name === 'grid') {
+    startLogoAnim();
+    requestAnimationFrame(() => {
+      if (typeof syncCardRows === 'function') syncCardRows();
+      requestAnimationFrame(() => {
+        if (typeof syncCardRows === 'function') syncCardRows();
+      });
+    });
+  } else {
+    stopLogoAnim();
+  }
 }
 
 function switchTab(btn) {

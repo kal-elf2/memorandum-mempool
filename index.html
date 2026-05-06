@@ -124,6 +124,15 @@
   </div>
 </div>
 
+<div id="evo-branch-overlay" class="evo-branch-overlay" onclick="closeEvoBranchPicker()" aria-hidden="true">
+  <div class="evo-branch-card" onclick="event.stopPropagation()">
+    <div class="evo-branch-title">Choose a spirit path</div>
+    <p class="evo-branch-sub" id="evo-branch-sub"></p>
+    <div id="evo-branch-options" class="evo-branch-options"></div>
+    <button type="button" class="evo-branch-cancel" onclick="closeEvoBranchPicker()">Cancel</button>
+  </div>
+</div>
+
 <div id="imx-concept-overlay" class="imx-concept-overlay" onclick="closeImxConceptArt()" aria-hidden="true">
   <div class="imx-concept-panel" onclick="event.stopPropagation()">
     <button type="button" class="imx-concept-close" onclick="closeImxConceptArt()" aria-label="Close blueprint">×</button>
@@ -283,7 +292,10 @@
       <div class="detail-body">
         <!-- DETAILS TAB: species info + evolution tree -->
         <div class="tab-pane active" id="tab-details">
-          <div class="detail-type-row" id="detail-type-details"></div>
+          <div class="detail-type-strip">
+            <div class="detail-type-row" id="detail-type-details"></div>
+            <button type="button" class="imx-bp-btn detail-bp-btn" onclick="openImxConceptArt()" title="Blueprint" aria-label="View blueprint"><img src="assets/icons/blueprint.png" alt="" class="imx-bp-ico"></button>
+          </div>
           <div class="sec">Description</div>
           <p class="desc-text" id="desc-text"></p>
           <div class="sec">Stats</div>
@@ -295,7 +307,10 @@
 
         <!-- COLLECTION TAB: per-instance actions -->
         <div class="tab-pane" id="tab-collection">
-          <div class="detail-type-row" id="detail-type-collection"></div>
+          <div class="detail-type-strip">
+            <div class="detail-type-row" id="detail-type-collection"></div>
+            <button type="button" class="imx-bp-btn detail-bp-btn" onclick="openImxConceptArt()" title="Blueprint" aria-label="View blueprint"><img src="assets/icons/blueprint.png" alt="" class="imx-bp-ico"></button>
+          </div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
           <div class="coll-sort-row" id="coll-sort-row"></div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">

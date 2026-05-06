@@ -86,6 +86,7 @@ function openImxConceptArt() {
 function closeInstanceModal() {
   S.instanceCardOpen = false;
   closeImxConceptArt();
+  closeEvoBranchPicker();
   document.getElementById('imx-overlay')?.classList.remove('show');
   document.getElementById('imx-panel')?.classList.remove('show');
   if (_instCardKeydownHandler) {
@@ -103,7 +104,17 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   const hero = document.getElementById('imx-hero');
   if (hero) hero.style.background = grad;
   const lvlBtn = document.getElementById('ic-btn-lvl');
-  if (lvlBtn) lvlBtn.style.background = 'linear-gradient(135deg, #b8dcff, #a2cdff 45%, #92bef0)';
+  if (lvlBtn) {
+    const cg = CONGRATS_GRADIENTS[pType] || ['#b8dcff','#92bef0'];
+    lvlBtn.style.background = `linear-gradient(135deg, ${cg[0]}, color-mix(in srgb, ${cg[0]} 55%, ${cg[1]}) 45%, ${cg[1]})`;
+    lvlBtn.style.borderColor = `color-mix(in srgb, ${cg[1]} 60%, #000)`;
+  }
+
+  const evoBtn = document.getElementById('ic-btn-evo');
+  if (evoBtn) {
+    evoBtn.style.background = '';
+    evoBtn.style.borderColor = '';
+  }
 
   const hTypes = document.getElementById('imx-hero-types');
   if (hTypes) {
@@ -156,7 +167,9 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   fill.classList.toggle('maxed', atMax);
   const cap = document.getElementById('imx-cap');
   if (atMax) {
-    cap.textContent = mem.evolves_to ? 'Max ◆ — ready to evolve!' : 'Max ◆ reached — fully evolved!';
+    cap.textContent = mem.evolution_branches?.length > 1
+      ? 'Max ◆ — choose a spirit path to evolve!'
+      : mem.evolves_to ? 'Max ◆ — ready to evolve!' : 'Max ◆ reached — fully evolved!';
   } else if (bank < 1) {
     cap.textContent = 'Collect more ◆ to level up';
   } else {
@@ -177,21 +190,103 @@ function refreshInstanceModal(mem, id, inst, bank, progress, maxMC, atMax) {
   }
 }
 
-function evoChainFrom(baseId) {
-  const chain = []; let cur = baseId;
-  while (cur && chain.length < 10) {
-    chain.push(cur);
+/** Does evolving from `fromDex` eventually reach `targetDex` along a single-target chain? */
+function leadsToDex(fromDex, targetDex) {
+  let c = fromDex;
+  const seen = new Set();
+  while (c && !seen.has(c)) {
+    seen.add(c);
+    if (c === targetDex) return true;
+    const mm = MEMORIES[c];
+    if (!mm) break;
+    if (!mm.evolves_to) break;
+    c = mm.evolves_to;
+  }
+  return false;
+}
+
+/** Linear path from family base to current dex (handles spirit branches like Orbyx). */
+function evoDisplayChain(baseId, currentId) {
+  const path = [];
+  let cur = baseId;
+  const visited = new Set();
+  while (cur && path.length < 14 && !visited.has(cur)) {
+    visited.add(cur);
+    path.push(cur);
+    if (cur === currentId) return path;
     const m = MEMORIES[cur];
-    if (!m || !m.evolves_to) break;
+    if (!m) break;
+    if (m.evolution_branches?.length > 1) {
+      const branch = m.evolution_branches.find(b => leadsToDex(b.to, currentId));
+      if (!branch) break;
+      cur = branch.to;
+      continue;
+    }
+    if (!m.evolves_to) break;
     cur = m.evolves_to;
   }
-  return chain;
+  return path;
+}
+
+/**
+ * Full evolution strip for detail UI: base → focus (branch-aware), then all future linear stages.
+ * Unknown future rows still render as ??? via normal card logic.
+ */
+function evoLineDexSequence(baseId, focusId) {
+  const prefix = evoDisplayChain(baseId, focusId);
+  if (!prefix.length) return focusId ? [focusId] : [];
+  const seen = new Set(prefix);
+  const out = [...prefix];
+  let cur = MEMORIES[focusId]?.evolves_to;
+  while (cur && out.length < 24 && !seen.has(cur)) {
+    const m = MEMORIES[cur];
+    if (!m) break;
+    out.push(cur);
+    seen.add(cur);
+    if (m.evolution_branches?.length > 1) break;
+    cur = m.evolves_to;
+  }
+  return out;
+}
+
+/** Longest evolution depth from base (for “Stage X of Y”). */
+function evoFamilyMaxStages(baseId) {
+  const memo = Object.create(null);
+  function depth(id) {
+    if (memo[id] != null) return memo[id];
+    const m = MEMORIES[id];
+    if (!m) return 1;
+    if (m.evolution_branches?.length > 1) {
+      let mx = 1;
+      for (const b of m.evolution_branches) {
+        mx = Math.max(mx, 1 + depth(b.to));
+      }
+      memo[id] = mx;
+      return mx;
+    }
+    if (!m.evolves_to) {
+      memo[id] = 1;
+      return 1;
+    }
+    const d = 1 + depth(m.evolves_to);
+    memo[id] = d;
+    return d;
+  }
+  return depth(baseId);
+}
+
+/** @deprecated use evoDisplayChain(baseId, currentId) — kept for any stray callers */
+function evoChainFrom(baseId) {
+  return evoDisplayChain(baseId, baseId);
 }
 
 /** True if this dex is reached only by evolving another form (wild Akronite disallowed). */
 function isEvolutionOnlyForm(dexId) {
   if (!dexId || !MEMORIES) return false;
-  return Object.values(MEMORIES).some(m => m && m.evolves_to === dexId);
+  return Object.values(MEMORIES).some(m => m && (
+    m.evolves_to === dexId ||
+    (m.evolution_branches && m.evolution_branches.some(b => b.to === dexId))
+  ));
 }
 
 // ══════════════════════════════════════════════════════════════

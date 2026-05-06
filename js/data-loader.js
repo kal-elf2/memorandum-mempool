@@ -4,15 +4,20 @@
 //  DATA LOADING
 // ══════════════════════════════════════════════════════════════
 function mapMemory(id, m) {
-  const evo    = (m.evolution && m.evolution.length > 0) ? m.evolution[0] : null;
+  const branches = Array.isArray(m.evolution) ? m.evolution : [];
+  const multi    = branches.length > 1;
+  const evo      = branches.length === 1 ? branches[0] : null;
   return {
     id,
     name:        m.name,
     type:        Array.isArray(m.type) ? m.type : [m.type].filter(Boolean),
     description: m.description,
     stage:       m.stage,
-    evolves_to:  evo ? evo.to     : null,
+    evolves_to:  evo ? String(evo.to) : null,
     spirit_req:  evo ? evo.spirit : null,
+    evolution_branches: multi
+      ? branches.map(b => ({ to: String(b.to), spirit: b.spirit }))
+      : null,
     base_memory: m.base_memory || id,
     mc_needed:   m.memcore_needed_from_current_stage || 30,
     mc_for_evo:  m.memcore_required_for_next_evo     || null,
