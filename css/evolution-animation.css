@@ -46,15 +46,22 @@
   pointer-events: none;
 }
 
-/* ── Spirit element — dramatic flight path ── */
+/* ── Spirit element — dramatic flight path (transform driven by JS for smooth curves) ── */
 .evo-spirit {
   position: absolute;
-  width: 60px; height: 60px;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  margin-left: -30px;
+  margin-top: -30px;
   object-fit: contain;
-  z-index: 8;
+  z-index: 10;
   opacity: 0;
   filter: drop-shadow(0 0 8px var(--evo-color1, #fff)) brightness(1.2);
   pointer-events: none;
+  transform-origin: center center;
+  will-change: transform, opacity, filter;
 }
 
 /* ── Energy ring layers ── */
@@ -713,25 +720,7 @@
   100% { opacity: 0; transform: translate(0, 0) scale(0); }
 }
 
-/*
-  Spirit cinematic arc path:
-  Start far back-right (small/dim) → fly behind creature → arc to front →
-  rush toward screen (huge) → curve back → slam into creature center
-*/
-@keyframes evo-spirit-arc {
-  0%   { transform: translate(140px, 40px) scale(0.22); opacity: 0; }
-  6%   { opacity: 1; transform: translate(110px, 28px) scale(0.28); }
-  18%  { transform: translate(40px, -30px) scale(0.38); }
-  30%  { transform: translate(-50px, -55px) scale(0.42); opacity: 0.9; }
-  42%  { transform: translate(-100px, -20px) scale(0.55); }
-  54%  { transform: translate(-60px, 30px) scale(0.85); opacity: 1; }
-  66%  { transform: translate(-10px, 50px) scale(1.6); }
-  74%  { transform: translate(20px, 25px) scale(2.2); opacity: 1; }
-  82%  { transform: translate(30px, -5px) scale(1.4); opacity: 0.95; }
-  90%  { transform: translate(12px, -8px) scale(0.6); opacity: 0.8; }
-  96%  { transform: translate(2px, 2px) scale(0.2); opacity: 0.6; }
-  100% { transform: translate(0, 0) scale(0.05); opacity: 0; }
-}
+/* Spirit motion path is computed in evolution-animation.js (smooth ellipse + camera swoop). */
 
 /* Spirit trail dots — glow and fade in place */
 .evo-spirit-trail {
@@ -763,4 +752,28 @@
   0%   { transform: translate(0, 0) scale(1); opacity: 0.9; }
   50%  { transform: translate(var(--px, 6px), var(--py, -14px)) scale(0.8); opacity: 0.6; }
   100% { transform: translate(var(--px, 12px), var(--py, -28px)) scale(0); opacity: 0; }
+}
+
+/* Fairy dust — sparse type-colored embers drifting behind the spirit */
+.evo-fairy-mote {
+  position: absolute;
+  left: 0;
+  top: 0;
+  border-radius: 50%;
+  pointer-events: none;
+  opacity: 0.55;
+  filter: blur(0.85px);
+  box-shadow: 0 0 3px 1px rgba(255, 255, 255, 0.22);
+  animation: evo-fairy-mote-drift var(--fd-dur, 680ms) ease-out forwards;
+}
+
+@keyframes evo-fairy-mote-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.95;
+  }
+  100% {
+    transform: translate(var(--fdx, 0px), var(--fdy, -22px)) scale(0);
+    opacity: 0;
+  }
 }

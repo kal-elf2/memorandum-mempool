@@ -185,6 +185,7 @@ function _evoRunSequence(overlay, opts) {
   let mainInterval = null;
   let orbInterval = null;
   let ringPulseInterval = null;
+  let cancelSpiritFlight = null;
 
   function at(ms, fn) { if (!cancelled) setTimeout(fn, ms); }
 
@@ -256,20 +257,18 @@ function _evoRunSequence(overlay, opts) {
   at(3000, () => { _evoSpawnBurst(particleCt, opts.color1, 10); rings[3].style.opacity = '0.15'; rings[3].style.transition = 'opacity 0.4s'; });
 
   // ══════════════════════════════════════════════════════════
-  // SPIRIT — cinematic fairy arc (if required)
-  // Path: far back-right → behind creature → arcs to front → rushes toward
-  // screen (huge) → curves back → slams into creature; 3.2s duration
+  // SPIRIT — smooth fairy path (RAF): approach → orbit (ellipse) → camera swoop → merge
   // ══════════════════════════════════════════════════════════
   if (spirit) {
     const sc1 = opts.spiritHighlight1 ?? opts.color1;
     const sc2 = opts.spiritHighlight2 ?? opts.color2;
-    at(2800, () => {
-      spirit.style.opacity = '1';
-      spirit.style.filter = `drop-shadow(0 0 8px ${sc1}) drop-shadow(0 0 18px ${sc1}) brightness(1.15)`;
-      spirit.style.animation = 'evo-spirit-arc 3200ms cubic-bezier(0.22, 0.6, 0.36, 1) forwards';
-      _evoSpiritTrail(spirit, particleCt, sc1, sc2, 3200);
+    const SPIRIT_MS = 6400;
+    at(2500, () => {
+      spirit.style.animation = 'none';
+      spirit.style.opacity = '0';
+      cancelSpiritFlight = _evoSpiritSmoothFlight(spirit, stage, sc1, sc2, SPIRIT_MS, () => cancelled);
     });
-    at(5900, () => {
+    at(2500 + SPIRIT_MS - 40, () => {
       _evoSpawnBurst(particleCt, sc1, 22);
       _evoSpawnBurst(particleCt, '#fff', 14);
       _evoSpawnBurst(particleCt, sc2, 8);
@@ -430,6 +429,7 @@ function _evoRunSequence(overlay, opts) {
     clearInterval(mainInterval);
     clearInterval(orbInterval);
     clearInterval(ringPulseInterval);
+    if (typeof cancelSpiritFlight === 'function') cancelSpiritFlight();
     overlay.classList.remove('active');
     setTimeout(() => {
       overlay.remove();
@@ -490,42 +490,183 @@ function _evoSpawnBurst(container, color, count) {
 }
 
 /* ═══════════════════════════════════════════════════════════
-   SPIRIT TRAIL + SPARKLES — emits along the arc duration
+   SPIRIT — smooth parametric flight + fairy dust (ellipse orbit + swoop)
    ═══════════════════════════════════════════════════════════ */
-function _evoSpiritTrail(spiritEl, container, color1, color2, durationMs) {
-  const interval = 65;
-  const total = Math.floor(durationMs / interval);
-  let tick = 0;
-  const id = setInterval(() => {
-    tick++;
-    if (tick > total || !spiritEl.parentElement) { clearInterval(id); return; }
-    const rect = spiritEl.getBoundingClientRect();
-    const parentRect = container.getBoundingClientRect();
-    const cx = rect.left + rect.width / 2 - parentRect.left;
-    const cy = rect.top + rect.height / 2 - parentRect.top;
 
-    const t = document.createElement('div');
-    t.className = 'evo-spirit-trail';
-    t.style.left = cx + 'px';
-    t.style.top = cy + 'px';
-    t.style.background = Math.random() < 0.6 ? color1 : color2;
-    const sz = 4 + Math.random() * 6;
-    t.style.width = sz + 'px';
-    t.style.height = sz + 'px';
-    container.appendChild(t);
-    setTimeout(() => t.remove(), 900);
-
-    if (tick % 3 === 0) {
-      const s = document.createElement('div');
-      s.className = 'evo-spirit-sparkle';
-      s.style.left = (cx + (Math.random() - 0.5) * 24) + 'px';
-      s.style.top = (cy + (Math.random() - 0.5) * 24) + 'px';
-      s.style.background = Math.random() < 0.5 ? '#fff' : color1;
-      const ssz = 2 + Math.random() * 3;
-      s.style.width = ssz + 'px';
-      s.style.height = ssz + 'px';
-      container.appendChild(s);
-      setTimeout(() => s.remove(), 1200);
-    }
-  }, interval);
+function _evoEaseInOutCubic(t) {
+  return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
 }
+
+function _evoEaseInOutQuart(t) {
+  return t < 0.5 ? 8 * t * t * t * t : 1 - Math.pow(-2 * t + 2, 4) / 2;
+}
+
+function _evoSmoothstep01(t) {
+  const x = Math.max(0, Math.min(1, t));
+  return x * x * (3 - 2 * x);
+}
+
+/** Piecewise path around creature center (px); p ∈ [0,1] linear time */
+function _evoSpiritSamplePath(p) {
+  const rx = 152;
+  const ry = 104;
+  const orbit = (theta) => ({ x: rx * Math.cos(theta), y: ry * Math.sin(theta) });
+
+  const entry = { x: 258, y: 158 };
+  const theta0 = Math.PI;
+  const orbitStart = orbit(theta0);
+
+  let opacity = 1;
+  if (p < 0.028) opacity = _evoSmoothstep01(p / 0.028);
+
+  if (p < 0.10) {
+    const k = _evoEaseInOutCubic(p / 0.10);
+    const behind = k > 0.72;
+    return {
+      x: entry.x + (orbitStart.x - entry.x) * k,
+      y: entry.y + (orbitStart.y - entry.y) * k,
+      scale: 0.22 + 0.26 * k,
+      z: behind ? 2 : 10,
+      opacity
+    };
+  }
+
+  if (p < 0.48) {
+    const local = (p - 0.10) / (0.48 - 0.10);
+    const ang = _evoEaseInOutCubic(local);
+    const theta = theta0 + ang * Math.PI * 2;
+    const o = orbit(theta);
+    const behind = Math.cos(theta) < -0.2;
+    const bob = 0.06 * Math.sin(theta * 3 + 0.4);
+    return {
+      x: o.x * (1 + bob * 0.35),
+      y: o.y * (1 + bob * 0.22),
+      scale: 0.46 + 0.22 * (0.52 + 0.48 * Math.sin(theta + 1.1)),
+      z: behind ? 2 : 11,
+      opacity
+    };
+  }
+
+  const Oclose = orbit(theta0 + Math.PI * 2);
+  const camPeak = { x: 18, y: -172 };
+  const swoopMid = { x: -62, y: 88 };
+
+  if (p < 0.63) {
+    const local = (p - 0.48) / (0.63 - 0.48);
+    const k = _evoEaseInOutCubic(local);
+    const pk = _evoSmoothstep01(k);
+    return {
+      x: Oclose.x + (camPeak.x - Oclose.x) * pk,
+      y: Oclose.y + (camPeak.y - Oclose.y) * pk,
+      scale: 0.62 + (3.05 - 0.62) * pk,
+      z: 14,
+      opacity
+    };
+  }
+
+  if (p < 0.80) {
+    const local = (p - 0.63) / (0.80 - 0.63);
+    const k = _evoEaseInOutCubic(local);
+    return {
+      x: camPeak.x + (swoopMid.x - camPeak.x) * k,
+      y: camPeak.y + (swoopMid.y - camPeak.y) * k,
+      scale: 3.05 + (1.22 - 3.05) * k,
+      z: 12,
+      opacity
+    };
+  }
+
+  const local = (p - 0.80) / (1 - 0.80);
+  const k = _evoEaseInOutQuart(local);
+  const spiral = (1 - k) * Math.sin(k * Math.PI * 6) * 32 * (1 - k);
+  const spiralY = (1 - k) * Math.cos(k * Math.PI * 6) * 22 * (1 - k);
+  const opacityMerge = opacity * (1 - Math.pow(k, 1.85));
+
+  return {
+    x: swoopMid.x * (1 - k) + spiral,
+    y: swoopMid.y * (1 - k) + spiralY,
+    scale: 1.22 * (1 - k) + 0.035 * k,
+    z: 11,
+    opacity: opacityMerge
+  };
+}
+
+function _evoFairyDustSpawn(stageEl, spiritEl, spiritZ, c1, c2, p) {
+  let n = 2;
+  if (p < 0.10) n = 1 + (Math.random() < 0.4 ? 1 : 0);
+  else if (p < 0.48) n = 2 + Math.floor(Math.random() * 3);
+  else if (p < 0.63) n = 3 + Math.floor(Math.random() * 3);
+  else if (p < 0.80) n = 2 + Math.floor(Math.random() * 3);
+  else n = 2 + Math.floor(Math.random() * 2);
+
+  const rect = spiritEl.getBoundingClientRect();
+  const pr = stageEl.getBoundingClientRect();
+  const cx = rect.left + rect.width / 2 - pr.left;
+  const cy = rect.top + rect.height / 2 - pr.top;
+  const spread = 14 + rect.width * 0.14;
+
+  const baseZ = Number(spiritZ);
+  const dustZ = Number.isFinite(baseZ) ? Math.max(1, baseZ - 1) : 6;
+
+  for (let i = 0; i < n; i++) {
+    const m = document.createElement('div');
+    m.className = 'evo-fairy-mote';
+    const roll = Math.random();
+    const bg = roll < 0.18 ? '#ffffff' : roll < 0.58 ? c1 : c2;
+    m.style.background = bg;
+    m.style.left = `${cx + (Math.random() - 0.5) * spread}px`;
+    m.style.top = `${cy + (Math.random() - 0.5) * spread}px`;
+    m.style.zIndex = String(dustZ);
+    const driftX = (Math.random() - 0.5) * (28 + p * 18);
+    const driftY = 10 + Math.random() * 38 + (p > 0.48 ? 14 : 0);
+    m.style.setProperty('--fdx', `${driftX}px`);
+    m.style.setProperty('--fdy', `${driftY}px`);
+    m.style.setProperty('--fd-dur', `${520 + Math.random() * 380}ms`);
+    const sz = 1.2 + Math.random() * 2.6;
+    m.style.width = `${sz}px`;
+    m.style.height = `${sz}px`;
+    m.style.opacity = `${0.28 + Math.random() * 0.28}`;
+    stageEl.appendChild(m);
+    setTimeout(() => m.remove(), 1100);
+  }
+}
+
+/** Returns cancel fn */
+function _evoSpiritSmoothFlight(spiritEl, stageEl, c1, c2, durationMs, shouldCancel) {
+  let raf = 0;
+  const t0 = performance.now();
+  let dustFrame = 0;
+
+  function frame(now) {
+    if (shouldCancel()) return;
+    if (!spiritEl.parentElement) return;
+
+    const elapsed = now - t0;
+    const p = Math.min(1, elapsed / durationMs);
+    const samp = _evoSpiritSamplePath(p);
+
+    spiritEl.style.opacity = String(samp.opacity);
+    spiritEl.style.zIndex = String(samp.z);
+    spiritEl.style.transform = `translate(${samp.x}px, ${samp.y}px) scale(${samp.scale})`;
+
+    const glow1 = 7 + Math.min(22, samp.scale * 4);
+    const glow2 = 12 + Math.min(36, samp.scale * 7);
+    spiritEl.style.filter =
+      `drop-shadow(0 0 ${glow1}px ${c1}) drop-shadow(0 0 ${glow2}px ${c2}) brightness(${1.02 + Math.min(0.22, samp.scale * 0.045)})`;
+
+    dustFrame++;
+    const orbitDense = p >= 0.10 && p < 0.48;
+    const skipDust = orbitDense && dustFrame % 3 !== 0;
+    if (!skipDust) _evoFairyDustSpawn(stageEl, spiritEl, samp.z, c1, c2, p);
+
+    if (p < 1) raf = requestAnimationFrame(frame);
+    else {
+      spiritEl.style.opacity = '0';
+      spiritEl.style.transform = 'translate(0, 0) scale(0.05)';
+    }
+  }
+
+  raf = requestAnimationFrame(frame);
+  return () => cancelAnimationFrame(raf);
+}
+

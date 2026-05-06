@@ -1334,22 +1334,34 @@ html.mempool-production .mempool-dev-only {
   min-height: var(--dt-hero-min-h);
 }
 
-/* Type pills + blueprint (same strip layout goal as instance card id row) */
+/* Single floating blueprint — shared by Details + Collection */
+#screen-detail .detail-bp-floating {
+  position: absolute;
+  top: var(--dt-body-top-pad);
+  right: var(--dt-body-pad);
+  z-index: 6;
+  margin: 0;
+}
+
+/* Blueprint only on Details tab — Collection uses full type row width */
+#screen-detail .detail-body--collection-tab .detail-bp-floating {
+  display: none !important;
+}
+#screen-detail .detail-body--collection-tab #tab-collection .detail-type-strip {
+  padding-right: 0;
+}
+
+/* Type pills row — reserve space so pills don’t run under the floating blueprint */
 #screen-detail .detail-type-strip {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 10px;
+  display: block;
   margin-bottom: 10px;
+  padding-right: 52px;
+  box-sizing: border-box;
 }
 #screen-detail .detail-type-strip .detail-type-row {
   flex: 1;
   min-width: 0;
   margin-bottom: 0;
-}
-#screen-detail .detail-type-strip .detail-bp-btn {
-  flex-shrink: 0;
-  align-self: flex-start;
 }
 
 /* Type pills in detail body (above Description / Collection content) */
@@ -1997,15 +2009,20 @@ html.mempool-production .mempool-dev-only {
   opacity: var(--cg-glow-op, 0.5);
   pointer-events: none;
 }
-/* Layer 6: center-left haze for depth */
-.cg-banner-haze {
+/* Layer 7: evolution-style pulsing motes (theme colors only; same keyframes as .evo-final-mote) */
+.cg-banner-motes {
   position: absolute;
-  left: 5%; top: 15%; bottom: 15%; width: 40%;
-  background: radial-gradient(ellipse at 30% 50%,
-    var(--cg-c1) 0%, transparent 70%
-  );
-  opacity: 0.12;
-  filter: blur(20px);
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cg-banner-motes .evo-final-mote {
+    animation: none !important;
+    opacity: 0.35;
+  }
 }
 
 /* ── 2. CREATURE: independent Y, no connection to anything else ── */

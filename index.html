@@ -152,6 +152,7 @@
     <div class="cg-banner-top-glow"></div>
     <div class="cg-banner-bot-line"></div>
     <div class="cg-banner-bot-glow"></div>
+    <div class="cg-banner-motes" id="congrats-banner-motes" aria-hidden="true"></div>
   </div>
   <!-- 2. Creature image (independent Y) + watermark name behind sprite -->
   <div class="congrats-creature-zone">
@@ -291,11 +292,11 @@
       </div>
 
       <div class="detail-body">
+        <button type="button" class="imx-bp-btn detail-bp-btn detail-bp-floating" onclick="openImxConceptArt()" title="Blueprint" aria-label="View blueprint"><img src="assets/icons/blueprint.png" alt="" class="imx-bp-ico"></button>
         <!-- DETAILS TAB: species info + evolution tree -->
         <div class="tab-pane active" id="tab-details">
           <div class="detail-type-strip">
             <div class="detail-type-row" id="detail-type-details"></div>
-            <button type="button" class="imx-bp-btn detail-bp-btn" onclick="openImxConceptArt()" title="Blueprint" aria-label="View blueprint"><img src="assets/icons/blueprint.png" alt="" class="imx-bp-ico"></button>
           </div>
           <div class="sec">Description</div>
           <p class="desc-text" id="desc-text"></p>
@@ -310,7 +311,6 @@
         <div class="tab-pane" id="tab-collection">
           <div class="detail-type-strip">
             <div class="detail-type-row" id="detail-type-collection"></div>
-            <button type="button" class="imx-bp-btn detail-bp-btn" onclick="openImxConceptArt()" title="Blueprint" aria-label="View blueprint"><img src="assets/icons/blueprint.png" alt="" class="imx-bp-ico"></button>
           </div>
           <div class="mint-row" id="mint-status" style="margin-bottom:10px"></div>
           <div class="coll-sort-row" id="coll-sort-row"></div>

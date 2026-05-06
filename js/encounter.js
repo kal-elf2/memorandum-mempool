@@ -145,6 +145,33 @@ let _congratsKeydownHandler = null;
 
 let _congratsDismissToDetail = false;
 
+/** Same pulsing drift/twinkle as evolution reveal `.evo-final-mote` — banner only */
+function _congratsFillBannerMotes(color1, color2) {
+  const host = document.getElementById('congrats-banner-motes');
+  if (!host) return;
+  host.innerHTML = '';
+  const n = 20;
+  for (let i = 0; i < n; i++) {
+    const m = document.createElement('div');
+    m.className = 'evo-final-mote';
+    const c = Math.random() < 0.52 ? color1 : Math.random() < 0.72 ? color2 : '#fff';
+    m.style.setProperty('--mote-c', c);
+    const near = Math.random() < 0.64;
+    const cx = near ? 14 + Math.random() * 40 : 8 + Math.random() * 84;
+    const cy = near ? 18 + Math.random() * 56 : 6 + Math.random() * 86;
+    m.style.left = `${cx}%`;
+    m.style.top = `${cy}%`;
+    const size = near ? 2.2 + Math.random() * 2.6 : 1.4 + Math.random() * 2.2;
+    m.style.width = `${size}px`;
+    m.style.height = `${size}px`;
+    m.style.opacity = `${near ? 0.38 + Math.random() * 0.28 : 0.16 + Math.random() * 0.22}`;
+    m.style.animationDelay = `${-(Math.random() * 24)}s`;
+    m.style.setProperty('--mote-dur', `${12 + Math.random() * 16}s`);
+    m.style.setProperty('--mote-twinkle', `${3 + Math.random() * 4}s`);
+    host.appendChild(m);
+  }
+}
+
 function showCongrats(instance, opts) {
   closeInstanceModal();
   _congratsDismissToDetail = !!(opts && opts.dismissToDetail);
@@ -165,6 +192,7 @@ function showCongrats(instance, opts) {
   const strip = document.getElementById('congrats-strip');
   strip.style.setProperty('--cg-c1', cg[0]);
   strip.style.setProperty('--cg-c2', cg[1]);
+  _congratsFillBannerMotes(cg[0], cg[1]);
 
   const _badge = (bg, fg, border, text) =>
     `<span class="congrats-badge" style="--cg-b-bg:${bg};--cg-b-fg:${fg};--cg-b-br:${border}">${text}</span>`;
@@ -225,6 +253,8 @@ function showCongrats(instance, opts) {
 
 function closeCongrats(dest) {
   document.getElementById('congrats-overlay').classList.remove('show');
+  const bm = document.getElementById('congrats-banner-motes');
+  if (bm) bm.innerHTML = '';
   if (_congratsKeydownHandler) {
     document.removeEventListener('keydown', _congratsKeydownHandler);
     _congratsKeydownHandler = null;

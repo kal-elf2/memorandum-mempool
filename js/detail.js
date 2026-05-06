@@ -77,6 +77,9 @@ function renderDetail() {
   const atMax    = progress >= maxMC;
   const onColl   = document.getElementById('tab-collection').classList.contains('active');
 
+  const detailBody = document.querySelector('#screen-detail .detail-body');
+  if (detailBody) detailBody.classList.toggle('detail-body--collection-tab', onColl);
+
   document.getElementById('detail-hero').style.background  = grad;
   document.getElementById('detail-tabs').style.background  = grad;
   document.getElementById('hero-dex').textContent          = `#${id}`;
