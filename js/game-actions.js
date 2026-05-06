@@ -54,7 +54,8 @@ function showImxConfirm(msg, onConfirm, _pType, visualSpec) {
   const cg = CONGRATS_GRADIENTS[p] || ['#b8dcff','#92bef0'];
   yesBtn.style.background = `linear-gradient(135deg, ${cg[0]}, color-mix(in srgb, ${cg[0]} 55%, ${cg[1]}) 45%, ${cg[1]})`;
   yesBtn.style.border = `1px solid color-mix(in srgb, ${cg[1]} 55%, rgba(0,0,0,0.2))`;
-  yesBtn.style.color = tf(p);
+  yesBtn.style.color = '#fff';
+  yesBtn.style.textShadow = '0 1px 3px rgba(0,0,0,0.35)';
   yesBtn.onclick = () => {
     const cb = _imxConfirmCb;
     _imxConfirmCb = null;

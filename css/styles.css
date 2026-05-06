@@ -2873,19 +2873,20 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
     min-height: 100vh;
     min-height: 100dvh;
     min-height: 100svh;
-    /* Same horizontal band language as wide layout */
-    --cg-strip-top: 19%;
-    --cg-strip-bot: 41%;
-    --cg-creature-top: 11%;
-    --cg-creature-sz: min(368px, 70vmin);
-    --cg-wm-fs: clamp(68px, 19vmin, 168px);
-    --cg-tags-top: 45%;
-    --cg-txt-top: 45%;
-    --cg-rw-y: 45%;
-    --cg-close-l: max(10px, env(safe-area-inset-left, 0px));
-    --cg-close-t: max(10px, env(safe-area-inset-top, 0px));
+    /* Mobile-only vertical rhythm: stagger bands so tags/rewards/title don’t stack at one % */
+    --cg-strip-top: 16%;
+    --cg-strip-bot: 39%;
+    --cg-creature-top: 14%;
+    --cg-creature-sz: min(292px, 54vmin);
+    --cg-wm-fs: clamp(64px, 18vmin, 168px);
+    --cg-wm-y: 44px;
+    --cg-tags-top: 38%;
+    --cg-txt-top: 54%;
+    --cg-rw-y: 36%;
+    --cg-close-l: max(12px, env(safe-area-inset-left, 0px));
+    --cg-close-t: max(48px, calc(env(safe-area-inset-top, 0px) + 28px));
     --cg-close-sz: 34px;
-    --cg-rw-x: max(10px, env(safe-area-inset-right, 0px));
+    --cg-rw-x: max(12px, env(safe-area-inset-right, 0px));
     --cg-ess-fs: clamp(17px, 4.6vw, 29px);
     --cg-ess-num-fs: clamp(17px, 4.6vw, 29px);
     --cg-mc-fs: clamp(15px, 4.2vw, 27px);
@@ -2926,7 +2927,7 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 
   #congrats-overlay .congrats-btns {
     top: auto;
-    bottom: max(14px, env(safe-area-inset-bottom, 0px));
+    bottom: max(118px, calc(22px + env(safe-area-inset-bottom, 0px)));
     right: max(14px, env(safe-area-inset-right, 0px));
     left: auto;
   }
@@ -2940,14 +2941,15 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 /* Short phones / landscape — tighten vertical rhythm without losing composition */
 @media screen and (max-width: 720px) and (max-height: 720px) {
   #congrats-overlay {
-    --cg-strip-top: 14%;
-    --cg-strip-bot: 46%;
-    --cg-creature-top: 9%;
-    --cg-creature-sz: min(300px, 56vmin);
-    --cg-wm-fs: clamp(56px, 16vmin, 140px);
-    --cg-tags-top: 44%;
-    --cg-txt-top: 44%;
-    --cg-rw-y: 44%;
+    --cg-strip-top: 13%;
+    --cg-strip-bot: 43%;
+    --cg-creature-top: 12%;
+    --cg-creature-sz: min(264px, 50vmin);
+    --cg-wm-fs: clamp(52px, 15vmin, 136px);
+    --cg-wm-y: 36px;
+    --cg-tags-top: 36%;
+    --cg-txt-top: 52%;
+    --cg-rw-y: 34%;
   }
 
   #congrats-overlay .congrats-title {
@@ -2964,12 +2966,13 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 @media screen and (max-width: 720px) and (max-height: 520px) {
   #congrats-overlay {
     --cg-strip-top: 10%;
-    --cg-strip-bot: 52%;
-    --cg-creature-sz: min(240px, 48vmin);
-    --cg-wm-fs: clamp(44px, 14vmin, 120px);
-    --cg-tags-top: 42%;
-    --cg-txt-top: 42%;
-    --cg-rw-y: 42%;
+    --cg-strip-bot: 48%;
+    --cg-creature-sz: min(228px, 46vmin);
+    --cg-wm-fs: clamp(44px, 13vmin, 118px);
+    --cg-wm-y: 28px;
+    --cg-tags-top: 34%;
+    --cg-txt-top: 50%;
+    --cg-rw-y: 31%;
   }
 
   #congrats-overlay .congrats-subtitle-row {
