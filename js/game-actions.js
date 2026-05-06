@@ -232,19 +232,15 @@ function closeEvoBranchPicker() {
   _evoBranchPick = null;
 }
 
-/** Bonded NFT: evolving shifts where the seal applies */
-function _imxConfirmNftEvolvingDisclaimerHtml() {
-  return `<div class="imx-confirm-nft-evo-disclaimer imx-confirm-nft-sealed"><strong>Bonded NFT</strong><span>Your on-chain seal applies to one stage at a time. Evolving advances that seal to the new form—the stage you leave behind won’t be mintable afterward.</span></div>`;
-}
-
 /** Saved-stage mint eligibility: evolving clears the captured stage for sealing */
 function _imxConfirmEvolveMintGateDisclaimerHtml() {
   return `<div class="imx-confirm-nft-evo-disclaimer imx-confirm-mint-gate"><strong>Eternal bond (mint)</strong><span>Evolving advances this Memory past its <em>captured</em> stage. That bond can only be sealed from the form you saved—you won’t be able to mint the stage you’re leaving behind.</span></div>`;
 }
 
+/** Evolve confirm footer: skip when already bonded NFT; warn mint path only for saved + mintable. */
 function _imxConfirmEvolveDisclaimerBlock(inst, mem) {
   if (!inst || !mem) return '';
-  if (inst.is_nft) return _imxConfirmNftEvolvingDisclaimerHtml();
+  if (inst.is_nft) return '';
   if (mem.mintable && inst.origin_state === 'saved') return _imxConfirmEvolveMintGateDisclaimerHtml();
   return '';
 }

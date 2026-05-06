@@ -10,7 +10,7 @@ function isDevLayoutTunersEnabled() {
     if (v === null || v === '') return false;
     return v === '1' || v === 'true';
   } catch (_) {
-    return true;
+    return false;
   }
 }
 
