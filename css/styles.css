@@ -1213,12 +1213,12 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
 #screen-type-overview {
   background: var(--grid-bg, linear-gradient(180deg, #A2CDFF 0%, #A2CDFF 65%, #9CC7F2 100%));
   height: 100%; overflow: hidden; position: relative;
-  padding: var(--tov-pad, 10px) var(--tov-px, 12px);
+  padding: var(--tov-pad, 19px) var(--tov-px, 24px);
 }
-#screen-type-overview.active { display: flex; flex-direction: column; }
+#screen-type-overview.active { display: flex; flex-direction: column; gap: 6px; }
 .tov-header {
   display: flex; align-items: center; gap: var(--tov-back-gap, 5px);
-  margin-bottom: var(--tov-hdr-mb, 6px); flex-shrink: 0;
+  margin-bottom: var(--tov-hdr-mb, 1px); flex-shrink: 0;
   padding-left: var(--tov-back-x, 0px);
 }
 .tov-back {
@@ -1231,7 +1231,12 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   text-shadow: 0 1px 4px rgba(0,0,0,0.15);
   font-family: var(--font);
 }
-.tov-rows-wrap { flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.tov-rows-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
 .tov-row {
   display: flex; align-items: center; gap: var(--tov-row-gap, 8px);
   background: rgba(255,255,255, var(--tov-row-alpha, 0.12)); border-radius: var(--tov-row-rad, 10px);
@@ -1265,8 +1270,8 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   width: 100%;
   max-width: 100%;
   box-sizing: border-box;
-  /* 8 presets + custom — shrink evenly on narrow handheld widths */
-  --tov-swatch-n: 8;
+  /* BG_SWATCHES.length + custom btn — shrink evenly on narrow widths */
+  --tov-swatch-n: 7;
   --tov-swatch-fit: min(
     var(--tov-swatch-sz, 24px),
     calc((100% - (var(--tov-swatch-n) - 1) * var(--tov-swatch-gap, 6px)) / var(--tov-swatch-n))
@@ -2930,12 +2935,29 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
   }
 
   #congrats-overlay .congrats-badges-zone {
-    flex-wrap: wrap;
-    white-space: normal;
-    row-gap: 6px;
-    max-width: calc(100% - 20px);
-    padding-inline: 10px;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    max-width: calc(100vw - 20px);
+    padding-inline: 6px;
     box-sizing: border-box;
+    /* Allow subtle horizontal scroll only if a locale/string ever overflows */
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  #congrats-overlay .congrats-badges-zone::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+  }
+  #congrats-overlay .congrats-badge {
+    flex: 0 0 auto;
+    font-size: 9px;
+    padding: 3px 7px;
+    letter-spacing: 0.02em;
+    border-width: 1px;
   }
 
   #congrats-overlay .congrats-reward {
@@ -2954,6 +2976,67 @@ html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
     min-width: min(var(--cg-btn-minw, 197px), calc(100vw - 36px));
     padding-inline: clamp(14px, 5vw, var(--cg-btn-px, 46px));
     padding-block: var(--cg-btn-py, 14px);
+  }
+
+  /* Collection Progress — dense rows + fixed icons; no inner scroll on handheld */
+  #screen-type-overview {
+    --tov-row-mb: 3px;
+    --tov-ico-sz: 28px;
+  }
+  #screen-type-overview .tov-rows-wrap {
+    overflow: hidden;
+  }
+  #screen-type-overview .tov-row {
+    flex-shrink: 0;
+  }
+  #screen-type-overview .bg-swatch-row {
+    --tov-swatch-gap: 5px;
+    --tov-swatch-mt: 2px;
+    padding-top: 8px;
+  }
+
+  /* Details tab — tighter evolution strip when a spirit node is shown */
+  #screen-detail:has(.evo-line--with-spirit) {
+    --dt-evo-gap: 3px;
+    --dt-evo-img-sz: 38px;
+    --dt-evo-pad-b: 2px;
+    --dt-evo-scale: 0.93;
+  }
+  #screen-detail .evo-line--with-spirit .spirit-img {
+    width: 22px;
+    height: 22px;
+  }
+  #screen-detail .evo-line--with-spirit .spirit-label {
+    font-size: 7px;
+    letter-spacing: 0.02em;
+  }
+  #screen-detail .evo-line--with-spirit .evo-arrow {
+    font-size: 11px;
+  }
+  #screen-detail .evo-line--with-spirit .spirit-node--stock .inv-qty-badge {
+    transform: scale(0.88);
+    transform-origin: center bottom;
+  }
+  #screen-detail:has(.spirit-warn--plain) .evo-req-static {
+    font-size: 10px;
+    line-height: 1.35;
+    margin-bottom: 3px;
+  }
+  #screen-detail:has(.spirit-warn--plain) .evo-req-box {
+    padding-top: 7px;
+    padding-bottom: 7px;
+  }
+  #screen-detail:has(.evo-line--with-spirit) .evo-branched-wrap {
+    gap: 6px 8px;
+    padding-top: 6px;
+    margin-top: 4px;
+  }
+  #screen-detail:has(.evo-line--with-spirit) .evo-branch-stack {
+    gap: 8px;
+  }
+  #screen-detail:has(.evo-line--with-spirit) .evo-branch-row {
+    grid-template-columns: 72px 18px 74px;
+    column-gap: 4px;
   }
 }
 

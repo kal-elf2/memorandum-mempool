@@ -66,8 +66,8 @@ function buildBgSwatches() {
 
 // ── TYPE OVERVIEW TUNER ──
 const TOV = {
-  pad: 18, px: 24,
-  backX: 3, backSz: 22, backGap: 8, hdrMb: 10,
+  pad: 19, px: 24,
+  backX: 3, backSz: 22, backGap: 8, hdrMb: 1,
   titleFs: 17,
   rowGap: 9, rowPy: 6, rowPx: 10, rowMb: 4, rowRad: 9, rowAlpha: 40,
   icoSz: 29, nameFs: 12, countFs: 10, infoGap: 4, barH: 6,

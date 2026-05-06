@@ -292,7 +292,7 @@ function doEvolve() {
   const linSpirit = mem.spirit_req || null;
   const nftNote = _imxConfirmEvolveDisclaimerBlock(inst, mem);
   showImxConfirm(
-    `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>${nftNote}`,
+    `Evolve<br><strong>${mem.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>${nftNote}`,
     () => _launchEvolveAnimation(id, mem, inst, target),
     confirmThemeType,
     linSpirit ? { type: 'spirit', key: linSpirit } : null

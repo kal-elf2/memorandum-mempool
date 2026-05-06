@@ -272,7 +272,9 @@ function renderEvoLine(id, mem, base) {
   }
 
   if (evoLineEl) {
-    evoLineEl.innerHTML = forkHtml || rowHtml;
+    const evoInner = forkHtml || rowHtml;
+    evoLineEl.innerHTML = evoInner;
+    evoLineEl.classList.toggle('evo-line--with-spirit', /\bspirit-node\b/.test(evoInner));
   }
 
   const reqEl = document.getElementById('evo-req');
