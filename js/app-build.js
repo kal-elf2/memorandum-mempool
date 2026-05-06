@@ -9,7 +9,7 @@
  * Query overrides: ?prod=1 embed chrome; ?dev=1 dev chrome.
  */
 (function () {
-  var MEMPOOL_PRODUCTION_BUILTIN = false;
+  var MEMPOOL_PRODUCTION_BUILTIN = true;
 
   window.__MEMPOOL_PRODUCTION__ = MEMPOOL_PRODUCTION_BUILTIN;
   try {
