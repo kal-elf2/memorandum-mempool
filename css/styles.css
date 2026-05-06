@@ -376,6 +376,31 @@ body {
   font-family: var(--font); font-size: 14px; font-weight: 600;
   color: #2a2a32; line-height: 1.45; margin-bottom: 18px;
 }
+.imx-confirm-nft-evo-disclaimer {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 6px;
+  margin: 14px 0 16px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: rgba(56, 210, 196, 0.09);
+  border: 1.5px solid rgba(56, 210, 196, 0.22);
+  text-align: left;
+}
+.imx-confirm-nft-evo-disclaimer strong {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.45px;
+  color: #208878;
+}
+.imx-confirm-nft-evo-disclaimer span {
+  font-size: 12px;
+  font-weight: 600;
+  color: #5a5a62;
+  line-height: 1.42;
+}
 .imx-confirm-visual {
   margin-bottom: 14px;
 }
@@ -662,6 +687,30 @@ body {
 .dev-inventory-row--tear {
   border-top: 1px solid rgba(255,255,255,0.06);
   padding-top: 8px;
+}
+.dev-inventory-row--tuner-toggle {
+  border-top: 1px solid rgba(255,255,255,0.06);
+  padding-top: 8px;
+  align-items: center;
+}
+.dev-layout-tuners-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.55px;
+  color: rgba(255,255,255,0.52);
+  font-family: var(--font);
+  cursor: pointer;
+  user-select: none;
+  margin: 0;
+}
+.dev-layout-tuners-toggle input {
+  margin: 0;
+  flex-shrink: 0;
+  accent-color: #38d2c4;
 }
 .dev-inventory-label {
   font-size: 9px;
@@ -1139,6 +1188,11 @@ html.mempool-production #device-frame {
 html.mempool-production .mempool-dev-only {
   display: none !important;
 }
+
+/* Dev: hide Grid / Card / Detail / Instance / 3D / TOV / Congrats tuners unless inventory toggle is on */
+html.dev-layout-tuners-hidden .mempool-dev-layout-tuner {
+  display: none !important;
+}
 #device-img {
   position: absolute; top: 0; left: 0;
   width: 100%; height: 100%;
@@ -1199,16 +1253,36 @@ html.mempool-production .mempool-dev-only {
 
 /* ── BG COLOR SWATCHES ── */
 .bg-swatch-row {
-  display: flex; align-items: center; justify-content: center;
-  gap: var(--tov-swatch-gap, 6px); flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: var(--tov-swatch-gap, 6px);
+  row-gap: var(--tov-swatch-gap, 6px);
+  flex-shrink: 0;
   margin-top: var(--tov-swatch-mt, 6px);
-  padding: var(--tov-swatch-py, 5px) 0;
+  padding: var(--tov-swatch-py, 5px) var(--tov-swatch-px, 2px);
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  /* 8 presets + custom — shrink evenly on narrow handheld widths */
+  --tov-swatch-n: 8;
+  --tov-swatch-fit: min(
+    var(--tov-swatch-sz, 24px),
+    calc((100% - (var(--tov-swatch-n) - 1) * var(--tov-swatch-gap, 6px)) / var(--tov-swatch-n))
+  );
 }
 .bg-swatch {
-  width: var(--tov-swatch-sz, 24px); height: var(--tov-swatch-sz, 24px);
+  /* Width-only sizing: % inside --tov-swatch-fit resolves against row width; using the
+     same token for height made width≠height in some engines → ovals instead of circles. */
+  flex: 0 0 auto;
+  width: var(--tov-swatch-fit, var(--tov-swatch-sz, 24px));
+  aspect-ratio: 1;
+  height: auto;
   border-radius: 50%; cursor: pointer; border: 2px solid transparent;
   transition: border-color 0.15s, transform 0.15s;
   flex-shrink: 0; padding: 0; position: relative;
+  box-sizing: border-box;
 }
 .bg-swatch:hover { transform: scale(1.12); }
 .bg-swatch.active { border-color: white; box-shadow: 0 0 0 1px rgba(255,255,255,0.5); }
@@ -1704,6 +1778,110 @@ html.mempool-production .mempool-dev-only {
 /* Empty slot */
 .gc-placeholder { width: var(--gc-img-sz, 84px); height: var(--gc-img-sz, 84px); }
 
+/* Grid landing — empty dex pill stays underneath; full white known card flashes on top (opacity) */
+.grid-cell.known.gc-dex-reveal-mode {
+  background: transparent !important;
+  border-color: transparent !important;
+  box-shadow: none !important;
+}
+.grid-cell.known.gc-dex-reveal-mode:hover {
+  transform: none;
+}
+.grid-cell.known.akronite.gc-dex-reveal-mode:hover {
+  box-shadow: none !important;
+}
+.gc-dex-reveal-underlay {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+  pointer-events: none;
+  background: rgba(255, 255, 255, 0.16);
+  border: var(--gc-unk-bw, 3px) solid rgba(255, 255, 255, var(--gc-unk-br-a, 0.3));
+}
+.gc-dex-reveal-underlay .gc-num-unk {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.65);
+  text-align: center;
+  line-height: 1;
+}
+/* Mirrors .grid-cell.known inner layout — dex corner, art, name, badge */
+.gc-dex-reveal-card-layer {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  box-sizing: border-box;
+  z-index: 2;
+  pointer-events: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 6px;
+  padding-top: 20px;
+  overflow: hidden;
+  background: rgba(255, 255, 255, 0.96);
+  border: 3px solid white;
+  box-shadow: 0 6px 14px rgba(60, 110, 170, 0.18);
+  opacity: 0;
+  animation: gc-dex-reveal-card-flash 2.75s cubic-bezier(0.42, 0, 0.15, 1) forwards;
+}
+.grid-cell.known.akronite .gc-dex-reveal-card-layer {
+  border-color: #ffd700 !important;
+  box-shadow: 0 6px 18px rgba(255, 200, 0, 0.45), 0 0 12px rgba(255, 215, 0, 0.4);
+}
+@keyframes gc-dex-reveal-card-flash {
+  /* Empty pill visible (layer opacity 0); then full card on top */
+  0% { opacity: 0; }
+  8% { opacity: 1; }
+  16% { opacity: 0; }
+  24% { opacity: 1; }
+  31% { opacity: 0; }
+  38% { opacity: 1; }
+  44% { opacity: 0; }
+  50% { opacity: 1; }
+  54% { opacity: 0; }
+  58% { opacity: 1; }
+  61% { opacity: 0; }
+  64% { opacity: 1; }
+  67% { opacity: 0; }
+  70% { opacity: 1; }
+  73% { opacity: 0; }
+  75.5% { opacity: 1; }
+  78% { opacity: 0; }
+  80.5% { opacity: 1; }
+  83% { opacity: 0; }
+  85% { opacity: 1; }
+  87% { opacity: 0; }
+  89% { opacity: 1; }
+  91% { opacity: 0; }
+  92.5% { opacity: 1; }
+  94% { opacity: 0; }
+  95% { opacity: 1; }
+  96% { opacity: 0; }
+  97% { opacity: 1; }
+  98% { opacity: 0; }
+  100% { opacity: 1; }
+}
+.gc-dex-reveal-card-layer.gc-dex-reveal-card-layer--reduced {
+  animation: gc-dex-reveal-card-flash-reduced 0.35s ease-out forwards;
+}
+@keyframes gc-dex-reveal-card-flash-reduced {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gc-dex-reveal-card-layer:not(.gc-dex-reveal-card-layer--reduced) {
+    animation: gc-dex-reveal-card-flash-reduced 0.28s ease-out forwards;
+  }
+}
+
 .gc-name {
   font-size: var(--gc-name-sz, 10px); font-weight: 700; text-align: center; line-height: 1.2;
   padding: 0 2px;
@@ -2078,8 +2256,26 @@ html.mempool-production .mempool-dev-only {
 .mb-mintable  { background: rgba(200,128,16,0.08); color: #C88010; border-color: rgba(200,128,16,0.3); }
 .mb-minted    { background: rgba(56,210,196,0.1); color: #20A090; border-color: rgba(56,210,196,0.35); }
 .mb-locked    { background: rgba(160,160,168,0.08); color: #909098; border-color: rgba(160,160,168,0.25); }
+.mint-status-cluster {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+  width: 100%;
+}
+.mint-status-cluster > .mint-badge {
+  flex-shrink: 0;
+}
 .mint-pills-row {
-  display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 0;
+  flex-wrap: wrap;
+}
+.mint-status-cluster .mint-pills-row {
+  flex: 1 1 auto;
+  min-width: 0;
 }
 .mint-pill {
   font-size: var(--imx-mint-pill-fs, 10px); font-weight: 700; letter-spacing: 0.3px;

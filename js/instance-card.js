@@ -29,29 +29,29 @@ function buildMintStatusInnerHtml(mem, inst, base, atMax) {
     if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
     if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
     else if (onChainAtDex > 0 && !canDirectMint) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
-    return `<span class="mint-badge mb-minted">✓ Bonded · Essence: ${inst.nft_essence}</span>${pills.join('')}`;
+    return `<div class="mint-status-cluster"><span class="mint-badge mb-minted">✓ Bonded · Essence: ${inst.nft_essence}</span>${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}</div>`;
   }
   if (!mem.mintable) {
     return `<span class="mint-badge mb-locked">Non-mintable</span><details class="mint-lore-dt"><summary aria-label="Why?">i</summary><div class="mint-lore-txt">Only the original captured form can be bonded on-chain. Once evolved, the soul runs too wild to anchor — that vow must be sworn before transformation.</div></details>`;
   }
   if (inst.origin_state === 'evolved') {
-    return `<span class="mint-badge mb-locked" title="The bond oath must be sealed at the stage this Memory was first saved. Evolved forms have grown beyond the bonding threshold.">Soul too wild to bond — must seal at captured stage</span>
-      ${onChainAtDex > 0 ? `<div class="mint-pills-row"><span class="mint-pill">${onChainAtDex} on-chain</span></div>` : ''}`;
+    return `<div class="mint-status-cluster"><span class="mint-badge mb-locked" title="The bond oath must be sealed at the stage this Memory was first saved. Evolved forms have grown beyond the bonding threshold.">Soul too wild to bond — must seal at captured stage</span>
+      ${onChainAtDex > 0 ? `<div class="mint-pills-row"><span class="mint-pill">${onChainAtDex} on-chain</span></div>` : ''}</div>`;
   }
   if (!atMax) {
     const pills = [];
     if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
     if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
     else if (onChainAtDex > 0 && !canDirectMint) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
-    return `<span class="mint-badge mb-locked">Max level required to mint</span>
-      ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}`;
+    return `<div class="mint-status-cluster"><span class="mint-badge mb-locked">Max level required to mint</span>
+      ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}</div>`;
   }
   const projectedEss = Math.max(1, Math.round(inst.revealed_essence * NFT_STATIC_MULTIPLIER));
   const pills = [];
   if (canDirectMint && maxMints !== null) pills.push(`<span class="mint-pill">${directMintCount} / ${maxMints.toLocaleString()} minted</span>`);
   if (onChainAtDex > 0 && onChainAtDex !== directMintCount) pills.push(`<span class="mint-pill">${onChainAtDex} on-chain</span>`);
-  return `<span class="mint-badge mb-mintable">★ Ready to Mint · Bonded Essence: ${projectedEss}</span>
-    ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}`;
+  return `<div class="mint-status-cluster"><span class="mint-badge mb-mintable">★ Ready to Mint · Bonded Essence: ${projectedEss}</span>
+    ${pills.length ? `<div class="mint-pills-row">${pills.join('')}</div>` : ''}</div>`;
 }
 
 let _instCardKeydownHandler = null;
@@ -399,6 +399,7 @@ function setCollSort(k) {
 function syncDevPanelVisibility(screenName) {
   if (window.__MEMPOOL_PRODUCTION__) return;
   if (typeof _DEV_MODE !== 'undefined' && !_DEV_MODE) return;
+  window.__lastDevSyncScreen = screenName;
   const icOpen = S.instanceCardOpen;
   const det = screenName === 'detail';
   const isGrid = screenName === 'grid';

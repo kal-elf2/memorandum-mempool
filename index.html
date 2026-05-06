@@ -179,7 +179,7 @@
     <button type="button" class="congrats-btn-primary" onclick="closeCongrats('detail')">View in Mempool</button>
   </div>
   <!-- In-overlay position tuner (bottom bar, 6 cols — compact; keeps primary button visible) -->
-  <div id="cg-tuner-panel" class="cg-tuner-panel mempool-dev-only">
+  <div id="cg-tuner-panel" class="cg-tuner-panel mempool-dev-only mempool-dev-layout-tuner">
     <div style="display:flex;align-items:center;justify-content:space-between">
       <div class="cg-tuner-head" style="margin-bottom:0">🌊 Layout Tune</div>
       <div style="display:flex;gap:4px">
@@ -366,6 +366,12 @@
       <span class="dev-tear-total" id="dev-tear-total">0</span>
     </button>
   </div>
+  <div class="dev-inventory-row dev-inventory-row--tuner-toggle">
+    <label class="dev-layout-tuners-toggle">
+      <input type="checkbox" id="dev-show-layout-tuners" autocomplete="off" aria-label="Show layout tuner panels on all screens">
+      Layout tuner panels
+    </label>
+  </div>
 </div>
 
 <!-- ENCOUNTER BIOME BUTTONS -->
@@ -388,7 +394,7 @@
 
 
 <!-- GRID LAYOUT DEV TUNER (dev-only, remove before shipping) -->
-<div id="grid-tuner" style="position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
+<div id="grid-tuner" class="mempool-dev-layout-tuner" style="position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🎛 Grid Tuner</span>
     <div style="display:flex;gap:4px">
@@ -405,7 +411,7 @@
   </div>
 </div>
 
-<div id="card-tuner" style="position:fixed;right:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
+<div id="card-tuner" class="mempool-dev-layout-tuner" style="position:fixed;right:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.88);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 14px;font-family:monospace;z-index:8888;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🃏 Card Tuner</span>
     <div style="display:flex;gap:4px">
@@ -419,7 +425,7 @@
   </div>
 </div>
 
-<div id="detail-tuner">
+<div id="detail-tuner" class="mempool-dev-layout-tuner">
   <div class="dt-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
     <span>🧬 Detail Tuner</span>
     <div style="display:flex;gap:4px">
@@ -437,7 +443,7 @@
   </div>
 </div>
 
-<div id="instance-card-tuner">
+<div id="instance-card-tuner" class="mempool-dev-layout-tuner">
   <div class="it-head" style="display:flex;align-items:center;justify-content:space-between;gap:8px">
     <span>🪪 Instance Tuner</span>
     <div style="display:flex;gap:4px">
@@ -455,7 +461,7 @@
   </div>
 </div>
 
-<div id="grid3d-tuner" style="display:none;position:fixed;right:10px;top:20px;width:230px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8891;backdrop-filter:blur(8px)">
+<div id="grid3d-tuner" class="mempool-dev-layout-tuner" style="display:none;position:fixed;right:10px;top:20px;width:230px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8891;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🔲 3D Grid Tuner</span>
     <div style="display:flex;gap:4px">
@@ -469,7 +475,7 @@
   </div>
 </div>
 
-<div id="tov-tuner" style="display:none;position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8892;backdrop-filter:blur(8px)">
+<div id="tov-tuner" class="mempool-dev-layout-tuner" style="display:none;position:fixed;left:10px;top:20px;width:220px;max-height:calc(100vh - 40px);overflow-y:auto;background:rgba(10,16,30,0.92);border:1px solid rgba(255,255,255,0.12);border-radius:14px;padding:10px 12px;font-family:monospace;z-index:8892;backdrop-filter:blur(8px)">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:7px">
     <span style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:rgba(255,255,255,0.35)">🗂 Overview Tuner</span>
     <div style="display:flex;gap:4px">

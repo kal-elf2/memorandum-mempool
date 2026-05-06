@@ -232,6 +232,23 @@ function closeEvoBranchPicker() {
   _evoBranchPick = null;
 }
 
+/** Bonded NFT: evolving shifts where the seal applies */
+function _imxConfirmNftEvolvingDisclaimerHtml() {
+  return `<div class="imx-confirm-nft-evo-disclaimer imx-confirm-nft-sealed"><strong>Bonded NFT</strong><span>Your on-chain seal applies to one stage at a time. Evolving advances that seal to the new form—the stage you leave behind won’t be mintable afterward.</span></div>`;
+}
+
+/** Saved-stage mint eligibility: evolving clears the captured stage for sealing */
+function _imxConfirmEvolveMintGateDisclaimerHtml() {
+  return `<div class="imx-confirm-nft-evo-disclaimer imx-confirm-mint-gate"><strong>Eternal bond (mint)</strong><span>Evolving advances this Memory past its <em>captured</em> stage. That bond can only be sealed from the form you saved—you won’t be able to mint the stage you’re leaving behind.</span></div>`;
+}
+
+function _imxConfirmEvolveDisclaimerBlock(inst, mem) {
+  if (!inst || !mem) return '';
+  if (inst.is_nft) return _imxConfirmNftEvolvingDisclaimerHtml();
+  if (mem.mintable && inst.origin_state === 'saved') return _imxConfirmEvolveMintGateDisclaimerHtml();
+  return '';
+}
+
 function confirmEvoBranch(targetId, spiritKey) {
   const pick = _evoBranchPick;
   if (!pick) return;
@@ -247,16 +264,13 @@ function confirmEvoBranch(targetId, spiritKey) {
   const branchConfirmHtml = spiritDisp
     ? `Evolve<br><strong>${mem.name}</strong> with the <strong>${spiritDisp}</strong> spirit.<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`
     : `Evolve<br><strong>${mem.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`;
-  if (!inst.is_nft) {
-    showImxConfirm(
-      branchConfirmHtml,
-      () => _launchEvolveAnimation(id, mem, inst, target, spiritKey),
-      confirmThemeType,
-      spiritKey ? { type: 'spirit', key: spiritKey } : null
-    );
-  } else {
-    _launchEvolveAnimation(id, mem, inst, target, spiritKey);
-  }
+  const nftNote = _imxConfirmEvolveDisclaimerBlock(inst, mem);
+  showImxConfirm(
+    branchConfirmHtml + nftNote,
+    () => _launchEvolveAnimation(id, mem, inst, target, spiritKey),
+    confirmThemeType,
+    spiritKey ? { type: 'spirit', key: spiritKey } : null
+  );
 }
 
 function doEvolve() {
@@ -279,16 +293,13 @@ function doEvolve() {
 
   const confirmThemeType = mem.type[0] || 'WIND';
   const linSpirit = mem.spirit_req || null;
-  if (!inst.is_nft) {
-    showImxConfirm(
-      `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>`,
-      () => _launchEvolveAnimation(id, mem, inst, target),
-      confirmThemeType,
-      linSpirit ? { type: 'spirit', key: linSpirit } : null
-    );
-  } else {
-    _launchEvolveAnimation(id, mem, inst, target);
-  }
+  const nftNote = _imxConfirmEvolveDisclaimerBlock(inst, mem);
+  showImxConfirm(
+    `Evolve <strong>${mem.name}</strong> into <strong>${target.name}</strong>?<br><span style="font-size:11px;color:#888;font-weight:400">This cannot be undone.</span>${nftNote}`,
+    () => _launchEvolveAnimation(id, mem, inst, target),
+    confirmThemeType,
+    linSpirit ? { type: 'spirit', key: linSpirit } : null
+  );
 }
 
 function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
@@ -312,7 +323,7 @@ function _launchEvolveAnimation(id, mem, inst, target, chosenSpirit) {
     onComplete: () => {
       if (S._evoCongratsShown) {
         S._evoCongratsShown = false;
-        showCongrats(inst, { dismissToDetail: true });
+        showCongrats(inst, { gridReveal: true });
       }
     }
   });
@@ -466,6 +477,7 @@ function resetAll() {
   if (devRep) devRep.checked = false;
   _congratsInstance = null;
   _congratsDismissToDetail = false;
+  _congratsGridRevealDex = null;
   document.getElementById('congrats-overlay').classList.remove('show');
   document.getElementById('enc-popup').classList.remove('show');
   document.getElementById('enc-popup-overlay').classList.remove('show');

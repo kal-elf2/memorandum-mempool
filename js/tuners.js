@@ -1,5 +1,38 @@
 // TUNER SYSTEM — developer-only panels for adjusting layout values in real-time
 
+/** Persisted in dev: whether floating layout tuner panels are visible at all */
+const _DEV_LAYOUT_TUNERS_LS = 'mempoolDevShowLayoutTuners';
+
+function isDevLayoutTunersEnabled() {
+  if (typeof window !== 'undefined' && window.__MEMPOOL_PRODUCTION__) return false;
+  try {
+    const v = localStorage.getItem(_DEV_LAYOUT_TUNERS_LS);
+    if (v === null || v === '') return false;
+    return v === '1' || v === 'true';
+  } catch (_) {
+    return true;
+  }
+}
+
+function setDevLayoutTunersEnabled(enabled) {
+  try {
+    localStorage.setItem(_DEV_LAYOUT_TUNERS_LS, enabled ? '1' : '0');
+  } catch (_) {}
+  applyDevLayoutTunersPreferenceToDom();
+}
+
+/** Toggle html class + checkbox; refresh screen-specific tuner display rules */
+function applyDevLayoutTunersPreferenceToDom() {
+  const on = isDevLayoutTunersEnabled();
+  document.documentElement.classList.toggle('dev-layout-tuners-hidden', !on);
+  const cb = document.getElementById('dev-show-layout-tuners');
+  if (cb && cb.type === 'checkbox') cb.checked = on;
+  if (typeof syncDevPanelVisibility === 'function') {
+    const scr = window.__lastDevSyncScreen;
+    syncDevPanelVisibility(scr != null ? scr : 'grid');
+  }
+}
+
 // ══════════════════════════════════════════════════════════════
 //  POSITION TUNER
 // ══════════════════════════════════════════════════════════════

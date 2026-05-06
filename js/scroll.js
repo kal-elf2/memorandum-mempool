@@ -17,6 +17,12 @@ if (!_DEV_MODE) {
   document.querySelectorAll('#grid-tuner, #card-tuner, #detail-tuner, #instance-card-tuner, #grid3d-tuner, #tov-tuner, #cg-tuner-panel, #dev-memcore-bar').forEach(el => {
     el.style.setProperty('display', 'none', 'important');
   });
+} else if (typeof applyDevLayoutTunersPreferenceToDom === 'function') {
+  applyDevLayoutTunersPreferenceToDom();
+  const devLayoutCb = document.getElementById('dev-show-layout-tuners');
+  if (devLayoutCb) {
+    devLayoutCb.addEventListener('change', () => setDevLayoutTunersEnabled(devLayoutCb.checked));
+  }
 }
 buildTypeIconRow();
 // ══════════════════════════════════════════════════════════════

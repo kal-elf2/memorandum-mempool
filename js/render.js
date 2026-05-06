@@ -22,14 +22,14 @@ function renderCard(id, ownedIds) {
       const chainCls = activeBonded ? 'active' : 'history';
       const nftCount = insts.filter(i => i.is_nft).length;
       const badge = `<span class="gc-count"><span class="gc-chain ${chainCls}">⬡</span>${nftCount > 0 ? nftCount : ''}</span>`;
-      return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+      return `<div class="grid-cell known${hasShiny?' akronite':''}" data-dex-id="${id}" onclick="openDetail('${id}')">
         <span class="gc-num">${id}</span>
         ${img}
         <span class="gc-name">${cat.name}</span>
         ${badge}
       </div>`;
     }
-    return `<div class="grid-cell">
+    return `<div class="grid-cell" data-dex-id="${id}">
       <span class="gc-num-unk">${id}</span>
     </div>`;
   }
@@ -47,7 +47,7 @@ function renderCard(id, ownedIds) {
     const countBadge = insts.length > 0
       ? `<span class="gc-count">${insts.length}</span>`
       : '';
-    return `<div class="grid-cell known${hasShiny?' akronite':''}" onclick="openDetail('${id}')">
+    return `<div class="grid-cell known${hasShiny?' akronite':''}" data-dex-id="${id}" onclick="openDetail('${id}')">
       <span class="gc-num">${id}</span>
       ${img}
       <span class="gc-name">${cat.name}</span>
@@ -58,13 +58,13 @@ function renderCard(id, ownedIds) {
     const imgEl = src
       ? `<div class="gc-img-discovered-wrap"><img class="gc-img-discovered" src="${src}" alt="" loading="lazy"></div>`
       : `<div class="gc-placeholder"></div>`;
-    return `<div class="grid-cell seen">
+    return `<div class="grid-cell seen" data-dex-id="${id}">
       <span class="gc-num">${id}</span>
       ${imgEl}
       <span class="gc-seen-placeholder">???</span>
     </div>`;
   } else {
-    return `<div class="grid-cell">
+    return `<div class="grid-cell" data-dex-id="${id}">
       <span class="gc-num-unk">${id}</span>
     </div>`;
   }
@@ -273,4 +273,119 @@ function renderGrid() {
   syncCardRows();
   if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
   syncDevInventoryBar();
+}
+
+/**
+ * Memories / All, expanded grid scroll; empty pill vs full card flash on target dex.
+ * Waits for header collapse (grid-template-rows transition) before scrolling so row heights
+ * and scroll targets stay stable; avoids syncCardRows during smooth scroll (was causing stick).
+ */
+function navigateGridAfterCongratsReveal(dexId) {
+  const nid = dexId != null && /^\d+$/.test(String(dexId))
+    ? String(dexId).padStart(3, '0')
+    : String(dexId ?? '');
+  showScreen('grid');
+  if (S.mode !== 'memories') {
+    const memBtn = document.querySelector('.mode-tab[data-mode="memories"]');
+    if (memBtn) setMode(memBtn);
+  } else {
+    S.filter = 'all';
+    document.querySelectorAll('.ftab').forEach(t => t.classList.toggle('active', t.dataset.f === 'all'));
+    renderGrid();
+  }
+
+  const sg = document.getElementById('screen-grid');
+  const expandedJustNow = !!(sg && !sg.classList.contains('grid-expanded'));
+  if (expandedJustNow) toggleGridExpand(true);
+  window._gridTypeScrollSuppressUntil = Date.now() + (expandedJustNow ? 2800 : 1400);
+
+  let kicked = false;
+  function kickScrollReveal() {
+    if (kicked) return;
+    kicked = true;
+    requestAnimationFrame(() => requestAnimationFrame(runScrollReveal));
+  }
+
+  const hz = document.getElementById('header-zone');
+  if (expandedJustNow && hz) {
+    const onGridTransitionEnd = (e) => {
+      if (e.target !== hz || e.propertyName !== 'grid-template-rows') return;
+      hz.removeEventListener('transitionend', onGridTransitionEnd);
+      kickScrollReveal();
+    };
+    hz.addEventListener('transitionend', onGridTransitionEnd);
+    window.setTimeout(() => {
+      hz.removeEventListener('transitionend', onGridTransitionEnd);
+      kickScrollReveal();
+    }, 750);
+  } else {
+    window.setTimeout(kickScrollReveal, 72);
+  }
+
+  function runScrollReveal() {
+    const cells = document.getElementById('grid-cells');
+    const cell = cells?.querySelector(`.grid-cell[data-dex-id="${nid}"]`);
+    if (!cells || !cell) return;
+
+    const pad = 18;
+    const reduced = typeof window.matchMedia === 'function'
+      && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    syncCardRows(0);
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const targetTop = Math.max(0, cell.offsetTop - pad);
+        cells.scrollTo({ top: targetTop, behavior: reduced ? 'auto' : 'smooth' });
+
+        let pulseStarted = false;
+        function startRevealPulse() {
+          if (pulseStarted) return;
+          pulseStarted = true;
+
+          if (!cell.classList.contains('known')) return;
+
+          cell.classList.add('gc-dex-reveal-mode');
+
+          const underlay = document.createElement('div');
+          underlay.className = 'gc-dex-reveal-underlay';
+          underlay.setAttribute('aria-hidden', 'true');
+          underlay.innerHTML = `<span class="gc-num-unk">${nid}</span>`;
+
+          const cardLayer = document.createElement('div');
+          cardLayer.className = 'gc-dex-reveal-card-layer';
+
+          while (cell.firstChild) cardLayer.appendChild(cell.firstChild);
+
+          cell.appendChild(underlay);
+          cell.appendChild(cardLayer);
+
+          const finish = () => {
+            if (!cardLayer.parentNode) return;
+            while (cardLayer.firstChild) cell.appendChild(cardLayer.firstChild);
+            underlay.remove();
+            cardLayer.remove();
+            cell.classList.remove('gc-dex-reveal-mode');
+            syncCardRows(0);
+            requestAnimationFrame(() => syncCardRows(0));
+          };
+
+          if (reduced) cardLayer.classList.add('gc-dex-reveal-card-layer--reduced');
+
+          cardLayer.addEventListener('animationend', finish, { once: true });
+          window.setTimeout(finish, reduced ? 450 : 3100);
+        }
+
+        const fallbackMs = reduced ? 120 : (expandedJustNow ? 820 : 340);
+        if (!reduced && typeof cells.addEventListener === 'function') {
+          cells.addEventListener('scrollend', () => startRevealPulse(), { once: true });
+        }
+        window.setTimeout(() => startRevealPulse(), fallbackMs);
+
+        window.setTimeout(() => {
+          syncCardRows(0);
+          if (window._updateScrollThumb) requestAnimationFrame(window._updateScrollThumb);
+        }, fallbackMs + 100);
+      });
+    });
+  }
 }

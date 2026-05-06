@@ -144,6 +144,8 @@ let _congratsInstance = null;
 let _congratsKeydownHandler = null;
 
 let _congratsDismissToDetail = false;
+/** First-capture flow: “View in Mempool” → grid All + scroll/reveal this dex id */
+let _congratsGridRevealDex = null;
 
 /** Same pulsing drift/twinkle as evolution reveal `.evo-final-mote` — banner only */
 function _congratsFillBannerMotes(color1, color2) {
@@ -153,6 +155,12 @@ function _congratsFillBannerMotes(color1, color2) {
 function showCongrats(instance, opts) {
   closeInstanceModal();
   _congratsDismissToDetail = !!(opts && opts.dismissToDetail);
+  _congratsGridRevealDex =
+    opts && opts.gridReveal && instance && instance.dex_id != null
+      ? (/^\d+$/.test(String(instance.dex_id))
+        ? String(instance.dex_id).padStart(3, '0')
+        : String(instance.dex_id))
+      : null;
   _congratsInstance = instance;
   const capR    = (instance.rarity||'').charAt(0).toUpperCase()+(instance.rarity||'').slice(1);
   const persCol = PERSONALITY_COLORS[instance.personality] || '#888';
@@ -237,8 +245,14 @@ function closeCongrats(dest) {
     document.removeEventListener('keydown', _congratsKeydownHandler);
     _congratsKeydownHandler = null;
   }
+  const revealDex = _congratsGridRevealDex;
+  _congratsGridRevealDex = null;
   if (dest === 'detail' && _congratsInstance) {
-    openDetail(_congratsInstance.dex_id);
+    if (revealDex && typeof navigateGridAfterCongratsReveal === 'function') {
+      navigateGridAfterCongratsReveal(revealDex);
+    } else {
+      openDetail(_congratsInstance.dex_id);
+    }
   } else if (_congratsDismissToDetail && _congratsInstance) {
     S.selectedId = _congratsInstance.dex_id;
     showScreen('detail');
@@ -289,7 +303,7 @@ function triggerEncounter(biomeType) {
   if (!instance) return;
   logEncounter(instance);
   if (instance._isFirst) {
-    showCongrats(instance);
+    showCongrats(instance, { gridReveal: !!instance._isFirst });
   } else if (DEV_SHOW_REPEAT_ENCOUNTER_POPUP) {
     showEncounterPopup(instance);
   }
