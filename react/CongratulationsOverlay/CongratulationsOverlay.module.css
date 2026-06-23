@@ -1,0 +1,565 @@
+/* ============================================================================
+   CongratulationsOverlay — module-scoped port of the prototype congrats banner.
+   Layout values keep the original `var(--cg-*, default)` form so the shipped
+   composition works out of the box, while staying overridable from a parent.
+   The dev-only position tuner from the prototype has been dropped.
+   ============================================================================ */
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  overflow-x: visible; /* let the watermark name extend past edges without clipping */
+  overflow-y: hidden;
+  font-family: var(--cg-font, inherit);
+}
+
+/* Blurred dark backdrop */
+.overlay::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(8, 14, 28, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  z-index: 0;
+}
+
+/* ── Close button ── */
+.close {
+  position: absolute;
+  left: var(--cg-close-l, 40px);
+  top: var(--cg-close-t, 120px);
+  z-index: 100;
+  width: var(--cg-close-sz, 38px);
+  height: var(--cg-close-sz, 38px);
+  border-radius: 50%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: rgba(255, 255, 255, 0.9);
+  transition: opacity 0.15s, transform 0.15s;
+}
+.closeImg {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  opacity: 0.9;
+}
+.close:hover {
+  opacity: 0.8;
+  transform: scale(1.08);
+}
+.close:focus-visible {
+  outline: 2px solid rgba(156, 201, 255, 0.95);
+  outline-offset: 2px;
+}
+
+/* ── 1. STRIP: dynamic type-colored banner ── */
+.strip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--cg-strip-top, 22%);
+  bottom: var(--cg-strip-bot, 38%);
+  z-index: 1;
+  overflow: visible;
+  --cg-c1: #2699d2;
+  --cg-c2: #85d5f7;
+}
+/* Layer 1: main wash — atmospheric color from left, fading right */
+.bannerMain {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top right, var(--cg-c1), var(--cg-c2));
+  mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.35) 15%,
+    rgba(0, 0, 0, 0.22) 35%,
+    rgba(0, 0, 0, 0.1) 55%,
+    rgba(0, 0, 0, 0.03) 75%,
+    transparent 90%
+  );
+  -webkit-mask-image: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.45) 0%,
+    rgba(0, 0, 0, 0.35) 15%,
+    rgba(0, 0, 0, 0.22) 35%,
+    rgba(0, 0, 0, 0.1) 55%,
+    rgba(0, 0, 0, 0.03) 75%,
+    transparent 90%
+  );
+}
+/* Layer 2: top edge line */
+.bannerTopLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1.5px;
+  background: linear-gradient(to right, var(--cg-c2) 0%, var(--cg-c2) 25%, transparent 70%);
+  opacity: 0.7;
+}
+/* Layer 3: top outer glow — blooms ABOVE the banner only */
+.bannerTopGlow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 100%;
+  height: var(--cg-glow-sz, 30px);
+  background: linear-gradient(
+    to top,
+    var(--cg-c2) 0%,
+    var(--cg-c2) var(--cg-glow-solid, 10%),
+    transparent var(--cg-glow-gone, 100%)
+  );
+  opacity: var(--cg-glow-op, 0.5);
+  pointer-events: none;
+}
+/* Layer 4: bottom edge line */
+.bannerBotLine {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1.5px;
+  background: linear-gradient(to right, var(--cg-c2) 0%, var(--cg-c2) 25%, transparent 70%);
+  opacity: 0.55;
+}
+/* Layer 5: bottom outer glow — blooms BELOW the banner only */
+.bannerBotGlow {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  height: var(--cg-glow-sz, 30px);
+  background: linear-gradient(
+    to bottom,
+    var(--cg-c2) 0%,
+    var(--cg-c2) var(--cg-glow-solid, 10%),
+    transparent var(--cg-glow-gone, 100%)
+  );
+  opacity: var(--cg-glow-op, 0.5);
+  pointer-events: none;
+}
+/* Layer 6: pulsing ambient motes */
+.bannerMotes {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+/* ── 2. CREATURE: independent Y ── */
+.creatureZone {
+  position: absolute;
+  left: 50%;
+  top: var(--cg-creature-top, 13%);
+  transform: translateX(-50%);
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+}
+/* Watermark name: behind the sprite, in front of the strip */
+.nameWm {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(calc(-50% + var(--cg-wm-x, 0px)), calc(-44% + var(--cg-wm-y, 26px)))
+    scale(var(--cg-wm-sc, 1.3));
+  z-index: 0;
+  font-size: var(--cg-wm-fs, 166px);
+  font-weight: 900;
+  font-style: italic;
+  color: rgba(255, 255, 255, var(--cg-wm-op, 0.08));
+  letter-spacing: -0.04em;
+  line-height: 0.9;
+  white-space: nowrap;
+  width: max-content;
+  max-width: none;
+  overflow: visible;
+  text-align: center;
+  pointer-events: none;
+  user-select: none;
+  text-shadow: 0 2px 18px rgba(0, 40, 90, 0.12);
+}
+.creatureImg {
+  position: relative;
+  z-index: 1;
+  width: var(--cg-creature-sz, 368px);
+  height: var(--cg-creature-sz, 368px);
+  object-fit: contain;
+  filter: drop-shadow(0 20px 50px rgba(0, 0, 0, 0.7));
+}
+
+/* ── 3. BADGES ── */
+.badgesZone {
+  position: absolute;
+  left: 50%;
+  top: var(--cg-tags-top, 48%);
+  transform: translateX(-50%);
+  z-index: 4;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+.badge {
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  background: var(--cg-b-bg, rgba(255, 255, 255, 0.14));
+  color: var(--cg-b-fg, white);
+  border: 1.5px solid var(--cg-b-br, rgba(255, 255, 255, 0.42));
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.28), 0 1px 6px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── 4. TEXT BLOCK ── */
+.content {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: var(--cg-txt-top, 48%);
+  z-index: 2;
+  padding: 0 clamp(18px, 5vw, 50px);
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.memName {
+  font-size: clamp(22px, 4.5vw, 38px);
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  margin-bottom: 2px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.35);
+}
+.title {
+  font-size: clamp(44px, 9.5vw, 72px);
+  font-weight: 900;
+  color: white;
+  letter-spacing: -2px;
+  line-height: 0.9;
+  margin-bottom: 8px;
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.25);
+}
+.subtitleRow {
+  margin-top: 14px;
+  padding-top: 14px;
+  width: 100%;
+  border-top: none;
+  text-align: center;
+  box-sizing: border-box;
+}
+.subtitle {
+  font-size: clamp(12px, 2.5vw, 16px);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* ── 5. ESSENCE / MEMCORE reward zone ── */
+.reward {
+  position: absolute;
+  right: var(--cg-rw-x, 50px);
+  top: var(--cg-rw-y, 48%);
+  z-index: 4;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  text-align: right;
+}
+.rewardEss {
+  font-weight: 800;
+  font-size: var(--cg-ess-fs, 29px);
+  color: white;
+  line-height: 1;
+  text-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
+  transform: translate(var(--cg-ess-dx, 0px), var(--cg-ess-dy, 0px));
+  text-align: right;
+  white-space: nowrap;
+}
+.essVal {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--cg-ess-num-fs, 29px);
+  color: inherit;
+  vertical-align: baseline;
+  margin-right: var(--cg-ess-gap, 5px);
+}
+.essWord {
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: inherit;
+  vertical-align: baseline;
+}
+.rewardMc {
+  font-weight: 700;
+  font-size: var(--cg-mc-fs, 27px);
+  color: rgba(255, 255, 255, 0.7);
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  transform: translate(var(--cg-mc-dx, 0px), var(--cg-mc-dy, 0px));
+}
+.rewardWow {
+  font-weight: 800;
+  font-size: var(--cg-wow-fs, 20px);
+  line-height: 1;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 6px;
+  margin-top: 2px;
+  transform: translate(var(--cg-wow-dx, 0px), var(--cg-wow-dy, 0px));
+}
+.wowNice {
+  color: #7dffb3;
+  background: rgba(125, 255, 179, 0.14);
+  border: 1px solid rgba(125, 255, 179, 0.35);
+  text-shadow: 0 0 10px rgba(125, 255, 179, 0.4);
+}
+.wowBig {
+  color: #ffd866;
+  background: rgba(255, 216, 102, 0.16);
+  border: 1px solid rgba(255, 216, 102, 0.4);
+  text-shadow: 0 0 12px rgba(255, 216, 102, 0.5);
+}
+.wowHuge {
+  color: #ff6e6e;
+  background: rgba(255, 110, 110, 0.18);
+  border: 1px solid rgba(255, 110, 110, 0.45);
+  text-shadow: 0 0 14px rgba(255, 110, 110, 0.55);
+  animation: wowPulse 1.2s ease-in-out infinite alternate;
+}
+@keyframes wowPulse {
+  0% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  100% {
+    transform: scale(1.06);
+    filter: brightness(1.15);
+  }
+}
+
+/* ── CTA ── */
+.btns {
+  position: absolute;
+  right: var(--cg-btn-r, 68px);
+  top: var(--cg-btn-t, 622px);
+  z-index: 50;
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: auto;
+}
+.btnPrimary {
+  font-size: var(--cg-btn-fs, 14px);
+  font-weight: 700;
+  padding: var(--cg-btn-py, 14px) var(--cg-btn-px, 46px);
+  min-width: 193px;
+  border-radius: 14px;
+  border: 2px solid #8cb4dc;
+  color: white;
+  cursor: pointer;
+  transition: all 0.15s;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  text-align: center;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+.btnPrimary:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+/* ── Ambient motes (ported from the prototype's evo-final-mote) ── */
+.mote {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  background: radial-gradient(
+    circle,
+    rgba(255, 255, 255, 0.98) 0%,
+    var(--mote-c, #fff) 40%,
+    transparent 68%
+  );
+  box-shadow: 0 0 6px 1px color-mix(in srgb, var(--mote-c, #fff) 45%, transparent);
+  animation: moteDrift var(--mote-dur, 18s) ease-in-out infinite,
+    moteTwinkle var(--mote-twinkle, 4s) ease-in-out infinite;
+}
+@keyframes moteDrift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  25% {
+    transform: translate(6px, -14px) scale(1.08);
+  }
+  50% {
+    transform: translate(-5px, -26px) scale(0.92);
+  }
+  75% {
+    transform: translate(-10px, -8px) scale(1.04);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+@keyframes moteTwinkle {
+  0%,
+  100% {
+    opacity: 0.18;
+  }
+  50% {
+    opacity: 0.72;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mote {
+    animation: none !important;
+    opacity: 0.35;
+  }
+  .wowHuge {
+    animation: none !important;
+  }
+}
+
+/* ── Mobile / narrow — preserve desktop art direction ── */
+@media screen and (max-width: 720px) {
+  .overlay {
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
+    min-height: 100vh;
+    min-height: 100dvh;
+    min-height: 100svh;
+    --cg-glow-sz: 22px;
+    --cg-strip-top: 21%;
+    --cg-strip-bot: 44%;
+    --cg-creature-top: 16%;
+    --cg-creature-sz: min(400px, 54vmin);
+    --cg-wm-fs: clamp(70px, 18vmin, 168px);
+    --cg-wm-sc: 1.35;
+    --cg-wm-y: 26px;
+    --cg-tags-top: 41%;
+    --cg-txt-top: 45%;
+    --cg-rw-y: 23%;
+    --cg-close-l: max(24px, env(safe-area-inset-left, 0px));
+    --cg-close-t: max(88px, calc(env(safe-area-inset-top, 0px) + 28px));
+    --cg-close-sz: 34px;
+    --cg-rw-x: max(12px, env(safe-area-inset-right, 0px));
+    --cg-ess-fs: clamp(17px, 4.6vw, 29px);
+    --cg-ess-num-fs: clamp(17px, 4.6vw, 29px);
+    --cg-mc-fs: clamp(15px, 4.2vw, 27px);
+    --cg-wow-fs: clamp(11px, 3.2vw, 20px);
+    --cg-wow-dy: 6px;
+    padding-bottom: calc(68px + max(12px, env(safe-area-inset-bottom, 0px)));
+  }
+  .content {
+    text-align: left;
+    padding-left: max(14px, env(safe-area-inset-left, 0px));
+    padding-right: clamp(92px, 32vw, 168px);
+    box-sizing: border-box;
+  }
+  .subtitleRow {
+    text-align: center;
+    padding-left: 0;
+    padding-right: 0;
+    margin-left: calc(-1 * max(14px, env(safe-area-inset-left, 0px)));
+    margin-right: calc(-1 * clamp(92px, 32vw, 168px));
+    width: calc(100% + max(14px, env(safe-area-inset-left, 0px)) + clamp(92px, 32vw, 168px));
+    max-width: none;
+  }
+  .badgesZone {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    gap: 4px;
+    max-width: calc(100vw - 20px);
+    padding-inline: 6px;
+    box-sizing: border-box;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .badgesZone::-webkit-scrollbar {
+    height: 0;
+    width: 0;
+  }
+  .badge {
+    flex: 0 0 auto;
+    font-size: 9px;
+    padding: 3px 7px;
+    border-width: 1px;
+  }
+  .reward {
+    max-width: clamp(88px, 34vw, 160px);
+  }
+  .btns {
+    top: auto;
+    bottom: max(202px, calc(20px + env(safe-area-inset-bottom, 0px)));
+    right: max(14px, env(safe-area-inset-right, 0px));
+    left: auto;
+  }
+  .btnPrimary {
+    min-width: min(197px, calc(100vw - 36px));
+    padding-inline: clamp(14px, 5vw, 46px);
+  }
+}
+
+/* Short phones / landscape */
+@media screen and (max-width: 720px) and (max-height: 720px) {
+  .overlay {
+    --cg-strip-top: 17%;
+    --cg-strip-bot: 49%;
+    --cg-creature-top: 14%;
+    --cg-creature-sz: min(362px, 50vmin);
+    --cg-wm-fs: clamp(57px, 15vmin, 136px);
+    --cg-wm-y: 21px;
+    --cg-tags-top: 39%;
+    --cg-txt-top: 43%;
+    --cg-rw-y: 22%;
+  }
+  .title {
+    font-size: clamp(32px, 11vw, 60px);
+    letter-spacing: -1px;
+    margin-bottom: 6px;
+  }
+  .memName {
+    font-size: clamp(18px, 5vw, 32px);
+  }
+}
+
+@media screen and (max-width: 720px) and (max-height: 520px) {
+  .overlay {
+    --cg-strip-top: 13%;
+    --cg-strip-bot: 54%;
+    --cg-creature-sz: min(312px, 46vmin);
+    --cg-wm-fs: clamp(48px, 13vmin, 118px);
+    --cg-wm-y: 17px;
+    --cg-tags-top: 37%;
+    --cg-txt-top: 42%;
+    --cg-rw-y: 20%;
+  }
+  .subtitleRow {
+    margin-top: 8px;
+    padding-top: 8px;
+  }
+}
